@@ -2,7 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle;
 
-class OroPayPalExpressBundle
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+
+class OroPayPalExpressBundle extends Bundle
 {
 
 }
