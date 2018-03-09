@@ -1,20 +1,20 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\SDK;
+namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
-use Oro\Bundle\PayPalExpressBundle\SDK\DTO\CredentialsInfo;
-use Oro\Bundle\PayPalExpressBundle\SDK\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
 use PayPal\Exception\PayPalConnectionException;
 
 use Psr\Log\LoggerInterface;
 
-class PayPalFacade
+class PayPalTransport implements PayPalTransportInterface
 {
     /**
-     * @var PayPalObjectsTranslator
+     * @var PayPalSDKObjectTranslator
      */
-    protected $payPalObjectTranslator;
+    protected $payPalSDKObjectTranslator;
 
     /**
      * @var LoggerInterface
@@ -22,14 +22,17 @@ class PayPalFacade
     protected $logger;
 
     /**
-     * @param PaymentInfo     $paymentInfo
-     * @param CredentialsInfo $credentialsInfo
-     * @param string          $successRoute Route where PayPal will redirect user after payment approve
-     * @param string          $failedRoute Route where PayPal will redirect user after payment cancel
-     *
-     * @return string Link where user should approve payment
-     * @throws PayPalConnectionException
-     * @throws \Throwable
+     * @param PayPalSDKObjectTranslator $payPalSDKObjectTranslator
+     * @param LoggerInterface           $logger
+     */
+    public function __construct(PayPalSDKObjectTranslator $payPalSDKObjectTranslator, LoggerInterface $logger)
+    {
+        $this->payPalSDKObjectTranslator = $payPalSDKObjectTranslator;
+        $this->logger                    = $logger;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function setupPayment(
         PaymentInfo $paymentInfo,
@@ -38,8 +41,8 @@ class PayPalFacade
         $failedRoute
     ) {
         try {
-            $payment = $this->payPalObjectTranslator->getPayment($paymentInfo, $successRoute, $failedRoute);
-            $apiContext = $this->payPalObjectTranslator->getApiContext($credentialsInfo);
+            $payment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $successRoute, $failedRoute);
+            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($credentialsInfo);
             $payment->create($apiContext);
 
             return $payment->getApprovalLink();
