@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\SDK\DTO;
+namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 class PaymentInfo
 {
@@ -10,11 +10,6 @@ class PaymentInfo
      * @var float
      */
     protected $totalAmount;
-
-    /**
-     * @var string
-     */
-    protected $description;
 
     /**
      * @var string
@@ -48,7 +43,6 @@ class PaymentInfo
 
     /**
      * @param float      $totalAmount
-     * @param string     $description
      * @param string     $currency
      * @param float      $shipping
      * @param float      $tax
@@ -58,7 +52,6 @@ class PaymentInfo
      */
     public function __construct(
         $totalAmount,
-        $description,
         $currency,
         $shipping,
         $tax,
@@ -67,7 +60,6 @@ class PaymentInfo
         array $items
     ) {
         $this->totalAmount = $totalAmount;
-        $this->description = $description;
         $this->currency    = $currency;
         $this->shipping    = $shipping;
         $this->tax         = $tax;
@@ -83,13 +75,6 @@ class PaymentInfo
         return $this->totalAmount;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
 
     /**
      * @return string

@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\SDK\DTO;
+namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 class CredentialsInfo
 {
