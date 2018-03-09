@@ -1,9 +1,9 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\SDK;
+namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
-use Oro\Bundle\PayPalExpressBundle\SDK\DTO\CredentialsInfo;
-use Oro\Bundle\PayPalExpressBundle\SDK\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
@@ -16,7 +16,7 @@ use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
-class PayPalObjectsTranslator
+class PayPalSDKObjectTranslator
 {
     /**
      * Convert Payment DTO into PayPal SDK Payment object
@@ -59,7 +59,6 @@ class PayPalObjectsTranslator
         $transaction = new Transaction();
         $transaction->setAmount($amount)
             ->setItemList($itemList)
-            ->setDescription($paymentInfo->getDescription())
             ->setInvoiceNumber($invoiceNumber);
 
         $payment = new Payment();
