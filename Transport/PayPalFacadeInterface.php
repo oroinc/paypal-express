@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 
 interface PayPalFacadeInterface
 {
@@ -15,6 +15,7 @@ interface PayPalFacadeInterface
      * @param string             $failedRoute
      *
      * @return string
+     * @throws ExceptionInterface
      */
     public function getPayPalPaymentRoute(
         PaymentTransaction $paymentTransaction,
@@ -30,8 +31,7 @@ interface PayPalFacadeInterface
      * @param string             $clientSecret
      * @param string             $paymentId
      * @param string             $payerId
-     * @throws \PayPal\Exception\PayPalConnectionException
-     * @throws \Throwable
+     * @throws ExceptionInterface
      */
     public function executePayPalPayment(
         PaymentTransaction $paymentTransaction,
