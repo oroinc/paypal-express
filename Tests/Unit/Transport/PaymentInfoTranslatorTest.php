@@ -72,6 +72,8 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
+        $paymentId = 'txBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $payerId = 'QxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
         $fooItemName = 'foo item';
         $fooQuantity = 2;
@@ -119,10 +121,12 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
             [
                 $fooPaymentItemInfo,
                 $barPaymentItemInfo
-            ]
+            ],
+            $paymentId,
+            $payerId
         );
 
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction, $paymentId, $payerId);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }

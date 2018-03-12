@@ -6,11 +6,14 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
 use PayPal\Api\Amount;
+use PayPal\Api\Authorization;
+use PayPal\Api\Capture;
 use PayPal\Api\Details;
 use PayPal\Api\Item;
 use PayPal\Api\ItemList;
 use PayPal\Api\Payer;
 use PayPal\Api\Payment;
+use PayPal\Api\PaymentExecution;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
@@ -88,5 +91,52 @@ class PayPalSDKObjectTranslator
         );
 
         return $apiContext;
+    }
+
+    /**
+     * @param PaymentInfo $paymentInfo
+     *
+     * @return PaymentExecution
+     */
+    public function getPaymentExecution(PaymentInfo $paymentInfo)
+    {
+        $execution = new PaymentExecution();
+        $execution->setPayerId($paymentInfo->getPayerId());
+
+        return $execution;
+    }
+
+    /**
+     * @param PaymentInfo $paymentInfo
+     *
+     * @return Authorization
+     */
+    public function getAuthorization(PaymentInfo $paymentInfo)
+    {
+        $amount = new Amount();
+        $amount->setCurrency($paymentInfo->getCurrency())
+            ->setTotal($paymentInfo->getTotalAmount());
+
+        $authorization = new Authorization();
+        $authorization->setAmount($amount);
+
+        return $authorization;
+    }
+
+    /**
+     * @param PaymentInfo $paymentInfo
+     *
+     * @return Capture
+     */
+    public function getCapturedDetails(PaymentInfo $paymentInfo)
+    {
+        $captureDetails = new Capture();
+        $amount = new Amount();
+        $amount->setCurrency($paymentInfo->getCurrency())
+            ->setTotal($paymentInfo->getTotalAmount());
+        $captureDetails->setAmount($amount);
+        $captureDetails->setIsFinalCapture(true);
+
+        return $captureDetails;
     }
 }
