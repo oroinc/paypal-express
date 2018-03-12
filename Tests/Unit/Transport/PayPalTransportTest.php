@@ -2,6 +2,8 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
+use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
@@ -102,12 +104,11 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedApprovalUrl, $approvalUrl);
     }
 
-    public function testSetupPaymentShouldLogPayPalConnectionExceptionAndRethrowIt()
+    public function testSetupPaymentShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
-        $expectedExceptionMessage = 'Internal Server Error';
-        $expectedException = new PayPalConnectionException(
+        $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
-            $expectedExceptionMessage
+            'Internal Server Error'
         );
         $successRoute = 'text.example.com/paypal/success';
         $failedRoute = 'text.example.com/paypal/failed';
@@ -134,7 +135,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
         $this->client->expects($this->once())
             ->method('createPayment')
-            ->willThrowException($expectedException);
+            ->willThrowException($payPalConnectionException);
 
         $payment = new Payment();
         $this->payPalSDKObjectTranslator
@@ -148,20 +149,19 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with(
                 'Could not connect to PayPal server. Reason: Internal Server Error',
                 [
-                    'exception' => $expectedException
+                    'exception' => $payPalConnectionException
                 ]
             );
 
-        $this->expectException(PayPalConnectionException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Could not connect to PayPal server.');
 
         $this->transport->setupPayment($paymentInfo, $credentialsInfo, $successRoute, $failedRoute);
     }
 
-    public function testSetupPaymentShouldLogExceptionsAndRethrowThem()
+    public function testSetupPaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $expectedExceptionMessage = 'Fatal Error';
-        $expectedException = new \Exception($expectedExceptionMessage);
+        $exception = new \Exception('Fatal Error');
         $successRoute = 'text.example.com/paypal/success';
         $failedRoute = 'text.example.com/paypal/failed';
         $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -189,7 +189,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
         $this->client->expects($this->once())
             ->method('createPayment')
-            ->willThrowException($expectedException);
+            ->willThrowException($exception);
 
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
@@ -202,12 +202,12 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with(
                 'Could not create payment for PayPal. Reason: Fatal Error',
                 [
-                    'exception' => $expectedException
+                    'exception' => $exception
                 ]
             );
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not create payment for PayPal.');
 
         $this->transport->setupPayment($paymentInfo, $credentialsInfo, $successRoute, $failedRoute);
     }
@@ -280,12 +280,11 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->transport->executePayment($paymentInfo, $credentialsInfo);
     }
 
-    public function testExecutePaymentShouldLogPayPalConnectionExceptionAndRethrowIt()
+    public function testExecutePaymentShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
-        $expectedExceptionMessage = 'Internal Server Error';
-        $expectedException = new PayPalConnectionException(
+        $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
-            $expectedExceptionMessage
+            'Internal Server Error'
         );
 
         $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -314,27 +313,26 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client->expects($this->once())
             ->method('getPaymentById')
             ->with($paymentId, $apiContext)
-            ->willThrowException($expectedException);
+            ->willThrowException($payPalConnectionException);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
                 'Could not connect to PayPal server. Reason: Internal Server Error',
                 [
-                    'exception' => $expectedException
+                    'exception' => $payPalConnectionException
                 ]
             );
 
-        $this->expectException(PayPalConnectionException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Could not connect to PayPal server.');
 
         $this->transport->executePayment($paymentInfo, $credentialsInfo);
     }
 
-    public function testExecutePaymentShouldLogExceptionsAndRethrowThem()
+    public function testExecutePaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $expectedExceptionMessage = 'Fatal Error';
-        $expectedException = new \Exception($expectedExceptionMessage);
+        $exception = new \Exception('Fatal Error');
         $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -368,19 +366,19 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client->expects($this->once())
             ->method('getPaymentById')
             ->with($paymentId, $apiContext)
-            ->willThrowException($expectedException);
+            ->willThrowException($exception);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
                 'Could not execute payment. Reason: Fatal Error',
                 [
-                    'exception' => $expectedException
+                    'exception' => $exception
                 ]
             );
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not execute payment.');
 
         $this->transport->executePayment($paymentInfo, $credentialsInfo);
     }

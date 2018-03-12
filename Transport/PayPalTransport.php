@@ -2,6 +2,8 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
+use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
@@ -68,7 +70,7 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw $connectionException;
+            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
         } catch (\Throwable $exception) {
             $this->logger->error(
                 sprintf(
@@ -80,7 +82,7 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw $exception;
+            throw new RuntimeException('Could not create payment for PayPal.', 0, $exception);
         }
     }
 
@@ -115,7 +117,7 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw $connectionException;
+            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
         } catch (\Throwable $exception) {
             $this->logger->error(
                 sprintf(
@@ -127,7 +129,7 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw $exception;
+            throw new RuntimeException('Could not execute payment.', 0, $exception);
         }
     }
 }
