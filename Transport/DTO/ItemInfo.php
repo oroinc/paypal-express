@@ -31,7 +31,7 @@ class ItemInfo
      * @param int    $quantity
      * @param float  $price
      */
-    public function __construct(string $name, string $currency, int $quantity, float $price)
+    public function __construct($name, $currency, $quantity, $price)
     {
         $this->name     = $name;
         $this->currency = $currency;

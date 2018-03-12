@@ -7,6 +7,7 @@ use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Model\ShippingAwareInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
+use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
@@ -35,6 +36,24 @@ class PaymentInfoTranslator
     protected $taxProvider;
 
     /**
+     * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
+     * @param PaymentItemTranslator     $paymentItemTranslator
+     * @param DoctrineHelper            $doctrineHelper
+     * @param TaxProvider               $taxProvider
+     */
+    public function __construct(
+        SupportedCurrenciesHelper $supportedCurrenciesHelper,
+        PaymentItemTranslator $paymentItemTranslator,
+        DoctrineHelper $doctrineHelper,
+        TaxProvider $taxProvider
+    ) {
+        $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
+        $this->paymentItemTranslator     = $paymentItemTranslator;
+        $this->doctrineHelper            = $doctrineHelper;
+        $this->taxProvider               = $taxProvider;
+    }
+
+    /**
      * @param PaymentTransaction $paymentTransaction
      *
      * @return PaymentInfo
@@ -44,26 +63,16 @@ class PaymentInfoTranslator
         $this->validateTransaction($paymentTransaction);
 
         $paymentEntity = $this->getPaymentEntity($paymentTransaction);
+
+        $amount = $paymentTransaction->getAmount();
         $currency = $paymentTransaction->getCurrency();
+        $shipping = $this->getShipping($paymentEntity);
+        $tax = $this->taxProvider->getTax($paymentEntity);
+        $subtotal = $this->getSubtotal($paymentEntity);
+        $method = PaymentInfo::PAYMENT_METHOD_PAYPAL;
+        $paymentItems = $this->getPaymentItems($paymentEntity, $currency);
 
-        $paymentItems = [];
-        if ($paymentEntity instanceof LineItemsAwareInterface) {
-            foreach ($paymentEntity->getLineItems() as $lineItem) {
-                if ($this->paymentItemTranslator->tryGetPaymentItemInfo($lineItem, $currency, $item)) {
-                    $paymentItems[] = $item;
-                }
-            }
-        }
-
-        $paymentInfo = new PaymentInfo(
-            $paymentTransaction->getAmount(),
-            $currency,
-            $this->getShipping($paymentEntity),
-            $this->taxProvider->getTax($paymentEntity),
-            $this->getSubtotal($paymentEntity),
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            $paymentItems
-        );
+        $paymentInfo = new PaymentInfo($amount, $currency, $shipping, $tax, $subtotal, $method, $paymentItems);
 
         return $paymentInfo;
     }
@@ -73,14 +82,47 @@ class PaymentInfoTranslator
      */
     protected function validateTransaction(PaymentTransaction $paymentTransaction)
     {
-        if (!$this->supportedCurrenciesHelper->isFullySupporterdCurrency($paymentTransaction->getCurrency())) {
-            $exception = UnsupportedCurrencyException::create(
-                $paymentTransaction->getCurrency(),
-                $this->supportedCurrenciesHelper->getFullySupportedCurrencyCodes()
-            );
+        $currency = $paymentTransaction->getCurrency();
+
+        if (!$this->supportedCurrenciesHelper->isSupportedCurrency($currency)) {
+            $supportedCurrencyCodes = $this->supportedCurrenciesHelper->getSupportedCurrencyCodes();
+            $exception = UnsupportedCurrencyException::create($currency, $supportedCurrencyCodes);
 
             throw $exception;
         }
+        if ($this->supportedCurrenciesHelper->isCurrencyWithUnsupportedDecimals($currency)) {
+            $amount = (float)$paymentTransaction->getAmount();
+            if ($amount > floor($amount)) {
+                throw new UnsupportedValueException(
+                    sprintf(
+                        'Decimal amount "%s" is not supported for currency "%s"',
+                        $paymentTransaction->getAmount(),
+                        $currency
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * @param object $paymentEntity
+     * @param string $currency
+     *
+     * @return array
+     */
+    protected function getPaymentItems($paymentEntity, $currency)
+    {
+        $paymentItems = [];
+        if ($paymentEntity instanceof LineItemsAwareInterface) {
+            foreach ($paymentEntity->getLineItems() as $lineItem) {
+                $itemInfo = $this->paymentItemTranslator->getPaymentItemInfo($lineItem, $currency);
+                if ($itemInfo) {
+                    $paymentItems[] = $itemInfo;
+                }
+            }
+        }
+
+        return $paymentItems;
     }
 
     /**
