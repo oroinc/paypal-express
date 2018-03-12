@@ -2,11 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
-use PayPal\Api\Order;
-use PayPal\Api\Payment;
-use PayPal\Exception\PayPalConnectionException;
 
 interface PayPalTransportInterface
 {
@@ -17,8 +15,7 @@ interface PayPalTransportInterface
      * @param string          $failedRoute Route where PayPal will redirect user after payment cancel
      *
      * @return string Link where user should approve payment
-     * @throws PayPalConnectionException
-     * @throws \Throwable
+     * @throws ExceptionInterface
      */
     public function setupPayment(
         PaymentInfo $paymentInfo,
@@ -30,8 +27,7 @@ interface PayPalTransportInterface
     /**
      * @param PaymentInfo     $paymentInfo
      * @param CredentialsInfo $credentialsInfo
-     * @throws PayPalConnectionException
-     * @throws \Throwable
+     * @throws ExceptionInterface
      */
     public function executePayment(PaymentInfo $paymentInfo, CredentialsInfo $credentialsInfo);
 }
