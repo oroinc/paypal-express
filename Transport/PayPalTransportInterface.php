@@ -4,6 +4,8 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use PayPal\Api\Order;
+use PayPal\Api\Payment;
 use PayPal\Exception\PayPalConnectionException;
 
 interface PayPalTransportInterface
@@ -24,4 +26,12 @@ interface PayPalTransportInterface
         $successRoute,
         $failedRoute
     );
+
+    /**
+     * @param PaymentInfo     $paymentInfo
+     * @param CredentialsInfo $credentialsInfo
+     * @throws PayPalConnectionException
+     * @throws \Throwable
+     */
+    public function executePayment(PaymentInfo $paymentInfo, CredentialsInfo $credentialsInfo);
 }

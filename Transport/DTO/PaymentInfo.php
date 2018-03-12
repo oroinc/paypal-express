@@ -42,6 +42,16 @@ class PaymentInfo
     protected $items = [];
 
     /**
+     * @var string|null
+     */
+    protected $paymentId = null;
+
+    /**
+     * @var string|null
+     */
+    protected $payerId = null;
+
+    /**
      * @param float      $totalAmount
      * @param string     $currency
      * @param float      $shipping
@@ -49,6 +59,8 @@ class PaymentInfo
      * @param float      $subtotal
      * @param string     $method
      * @param ItemInfo[] $items
+     * @param string     $paymentId
+     * @param string     $payerId
      */
     public function __construct(
         $totalAmount,
@@ -57,14 +69,19 @@ class PaymentInfo
         $tax,
         $subtotal,
         $method,
-        array $items
+        array $items = [],
+        $paymentId = null,
+        $payerId = null
     ) {
         $this->totalAmount = $totalAmount;
         $this->currency    = $currency;
         $this->shipping    = $shipping;
         $this->tax         = $tax;
         $this->subtotal    = $subtotal;
+        $this->method      = $method;
         $this->items       = $items;
+        $this->paymentId   = $paymentId;
+        $this->payerId     = $payerId;
     }
 
     /**
@@ -123,5 +140,21 @@ class PaymentInfo
     public function getItems()
     {
         return $this->items;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPaymentId()
+    {
+        return $this->paymentId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPayerId()
+    {
+        return $this->payerId;
     }
 }
