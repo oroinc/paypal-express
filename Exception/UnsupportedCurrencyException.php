@@ -16,7 +16,7 @@ class UnsupportedCurrencyException extends UnsupportedValueException
         $message = sprintf('Currency "%s" is not supported.', $invalidCurrency);
 
         if ($listOfSupportedCurrencies) {
-            $message .= sprintf('Only next currencies are supported: "%s"', implode($listOfSupportedCurrencies));
+            $message .= sprintf(' Only next currencies are supported: "%s"', implode($listOfSupportedCurrencies));
         }
 
         return new UnsupportedCurrencyException(

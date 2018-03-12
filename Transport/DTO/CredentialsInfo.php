@@ -18,7 +18,7 @@ class CredentialsInfo
      * @param string $clientId
      * @param string $clientSecret
      */
-    public function __construct(string $clientId, string $clientSecret)
+    public function __construct($clientId, $clientSecret)
     {
         $this->clientId     = $clientId;
         $this->clientSecret = $clientSecret;

@@ -5,34 +5,30 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 use Oro\Bundle\CurrencyBundle\Entity\PriceAwareInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\ProductBundle\Model\ProductLineItemInterface;
-use Oro\Component\Checkout\LineItem\CheckoutLineItemInterface;
 
 class PaymentItemTranslator
 {
     /**
      * @param object   $lineItem
      * @param string   $currency
-     * @param ItemInfo $item
      *
-     * @return bool
+     * @return ItemInfo|null
      */
-    public function tryGetPaymentItemInfo($lineItem, $currency, ItemInfo &$item = null)
+    public function getPaymentItemInfo($lineItem, $currency)
     {
-        if (!$lineItem instanceof ProductLineItemInterface || !$lineItem instanceof CheckoutLineItemInterface) {
-            return false;
+        if (!$lineItem instanceof ProductLineItemInterface || !$lineItem instanceof PriceAwareInterface) {
+            return null;
         }
 
-        if (!$lineItem instanceof PriceAwareInterface) {
-            return false;
-        }
+        $lineItem->getProduct();
 
-        $item = new ItemInfo(
+        $result = new ItemInfo(
             $lineItem->getProduct()->getName()->getString(),
             $currency,
             $lineItem->getQuantity(),
             $lineItem->getPrice()->getValue()
         );
 
-        return true;
+        return $result;
     }
 }

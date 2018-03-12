@@ -7,7 +7,7 @@ class SupportedCurrenciesHelper
     /**
      * @var string[] ISO-4217
      */
-    private $currencyCodes = [
+    private $fullySupportedCurrencyCodes = [
         'AUD',
         'CAD',
         'CZK',
@@ -51,7 +51,19 @@ class SupportedCurrenciesHelper
      *
      * @return bool
      */
-    public function isFullySupporterdCurrency($currencyCode)
+    public function isSupportedCurrency($currencyCode)
+    {
+        $codes = $this->getSupportedCurrencyCodes();
+
+        return in_array($currencyCode, $codes);
+    }
+
+    /**
+     * @param string $currencyCode ISO-4217
+     *
+     * @return bool
+     */
+    public function isFullySupportedCurrency($currencyCode)
     {
         $codes = $this->getFullySupportedCurrencyCodes();
 
@@ -59,11 +71,47 @@ class SupportedCurrenciesHelper
     }
 
     /**
+     * @param string $currencyCode ISO-4217
+     *
+     * @return bool
+     */
+    public function isCurrencyWithUnsupportedDecimals($currencyCode)
+    {
+        $codes = $this->getCurrencyCodesWhichIsNotSupportedDecimals();
+
+        return in_array($currencyCode, $codes);
+    }
+
+    /**
+     * @param string $currencyCode ISO-4217
+     *
+     * @return bool
+     */
+    public function isCurrencyCodeWhichIsSupportedOnlyForInCountryPayments($currencyCode)
+    {
+        $codes = $this->getCurrencyCodesWhichIsSupportedOnlyForInCountryPayments();
+
+        return in_array($currencyCode, $codes);
+    }
+
+    /**
+     * @return array
+     */
+    public function getSupportedCurrencyCodes()
+    {
+        return array_merge(
+            $this->getFullySupportedCurrencyCodes(),
+            $this->getCurrencyCodesWhichIsNotSupportedDecimals(),
+            $this->getCurrencyCodesWhichIsSupportedOnlyForInCountryPayments()
+        );
+    }
+
+    /**
      * @return array
      */
     public function getFullySupportedCurrencyCodes()
     {
-        return $this->currencyCodes;
+        return $this->fullySupportedCurrencyCodes;
     }
 
     /**

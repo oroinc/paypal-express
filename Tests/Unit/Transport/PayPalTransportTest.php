@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit;
+namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
