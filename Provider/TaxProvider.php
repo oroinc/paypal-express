@@ -19,6 +19,16 @@ class TaxProvider
     protected $logger;
 
     /**
+     * @param TaxManager      $taxManager
+     * @param LoggerInterface $logger
+     */
+    public function __construct(TaxManager $taxManager, LoggerInterface $logger)
+    {
+        $this->taxManager = $taxManager;
+        $this->logger     = $logger;
+    }
+
+    /**
      * Return tax if possible, return 0 if not
      *
      * @param object $entity

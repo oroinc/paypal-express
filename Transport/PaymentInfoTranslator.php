@@ -55,10 +55,12 @@ class PaymentInfoTranslator
 
     /**
      * @param PaymentTransaction $paymentTransaction
+     * @param null|string        $paymentId
+     * @param null|string        $payerId
      *
      * @return PaymentInfo
      */
-    public function getPaymentInfo(PaymentTransaction $paymentTransaction)
+    public function getPaymentInfo(PaymentTransaction $paymentTransaction, $paymentId = null, $payerId = null)
     {
         $this->validateTransaction($paymentTransaction);
 
@@ -72,7 +74,17 @@ class PaymentInfoTranslator
         $method = PaymentInfo::PAYMENT_METHOD_PAYPAL;
         $paymentItems = $this->getPaymentItems($paymentEntity, $currency);
 
-        $paymentInfo = new PaymentInfo($amount, $currency, $shipping, $tax, $subtotal, $method, $paymentItems);
+        $paymentInfo = new PaymentInfo(
+            $amount,
+            $currency,
+            $shipping,
+            $tax,
+            $subtotal,
+            $method,
+            $paymentItems,
+            $paymentId,
+            $payerId
+        );
 
         return $paymentInfo;
     }

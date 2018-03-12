@@ -28,13 +28,7 @@ class PayPalFacade implements PayPalFacadeInterface
     }
 
     /**
-     * @param PaymentTransaction $paymentTransaction
-     * @param string             $clentId
-     * @param string             $clientSecret
-     * @param string             $successRoute
-     * @param string             $failedRoute
-     * @return string
-     * @throws \Throwable
+     * {@inheritdoc}
      */
     public function getPayPalPaymentRoute(
         PaymentTransaction $paymentTransaction,
@@ -48,5 +42,20 @@ class PayPalFacade implements PayPalFacadeInterface
             ->setupPayment($paymentInfo, new CredentialsInfo($clentId, $clientSecret), $successRoute, $failedRoute);
 
         return $paymentRoute;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executePayPalPayment(
+        PaymentTransaction $paymentTransaction,
+        $clentId,
+        $clientSecret,
+        $paymentId,
+        $payerId
+    ) {
+        $paymentInfo = $this->paymentInfoTranslator->getPaymentInfo($paymentTransaction, $paymentId, $payerId);
+
+        $this->payPalTransport->executePayment($paymentInfo, new CredentialsInfo($clentId, $clientSecret));
     }
 }

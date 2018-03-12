@@ -12,4 +12,9 @@ class FooPaymentEntityStub extends Order
     {
         return $this->testLineItems;
     }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 }
