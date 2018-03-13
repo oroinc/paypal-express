@@ -1,39 +1,39 @@
 services:
-    oro_pay_pal_express.pay_pal.helper.supported_currencies:
+    oro_paypal_express.pay_pal.helper.supported_currencies:
         class: Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper
 
-    oro_pay_pal_express.pay_pal.provider.tax:
+    oro_paypal_express.pay_pal.provider.tax:
         class: Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider
         arguments:
             - '@oro_tax.manager.tax_manager'
             - '@logger'
 
-    oro_pay_pal_express.pay_pal.translator.payment_item:
+    oro_paypal_express.pay_pal.translator.payment_item:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PaymentItemTranslator
 
-    oro_pay_pal_express.pay_pal.translator.payment_info:
+    oro_paypal_express.pay_pal.translator.payment_info:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PaymentInfoTranslator
         arguments:
-            - '@oro_pay_pal_express.pay_pal.helper.supported_currencies'
-            - '@oro_pay_pal_express.pay_pal.translator.payment_item'
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
+            - '@oro_paypal_express.pay_pal.translator.payment_item'
             - '@oro_entity.doctrine_helper'
-            - '@oro_pay_pal_express.pay_pal.provider.tax'
+            - '@oro_paypal_express.pay_pal.provider.tax'
 
-    oro_pay_pal_express.pay_pal.translator.sdk_object:
+    oro_paypal_express.pay_pal.translator.sdk_object:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator
 
-    oro_pay_pal_express.pay_pal.client:
+    oro_paypal_express.pay_pal.client:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient
 
-    oro_pay_pal_express.pay_pal.transport:
+    oro_paypal_express.pay_pal.transport:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport
         arguments:
-            - '@oro_pay_pal_express.pay_pal.translator.sdk_object'
-            - '@oro_pay_pal_express.pay_pal.client'
+            - '@oro_paypal_express.pay_pal.translator.sdk_object'
+            - '@oro_paypal_express.pay_pal.client'
             - '@logger'
 
-    oro_pay_pal_express.pay_pal.facade:
+    oro_paypal_express.pay_pal.facade:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalFacade
         arguments:
-            - '@oro_pay_pal_express.pay_pal.transport'
-            - '@oro_pay_pal_express.pay_pal.translator.payment_info'
+            - '@oro_paypal_express.pay_pal.transport'
+            - '@oro_paypal_express.pay_pal.translator.payment_info'
