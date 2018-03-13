@@ -1,0 +1,21 @@
+oro:
+    paypal_express:
+        channel_type.label: PayPal Express
+        settings:
+            label.tooltip: 'This label is used on the checkout screens'
+            label: PayPal Express Transport Settings
+            test_mode:
+                label: Sandbox Mode
+                tooltip: Sandbox accounts can be created on PayPal Developer website at developer.paypal.com
+            client_id:
+                label: Client ID
+                tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
+            client_secret:
+                label: Client Secret
+                tooltip:
+            labels:
+                label: Label
+                tooltip: This label is used on the checkout screens on the store frontend
+            short_labels:
+                label: Short Label
+                tooltip: This label is used in customer order history
