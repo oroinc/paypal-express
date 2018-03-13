@@ -12,10 +12,12 @@ oro:
                 tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
             client_secret:
                 label: Client Secret
-                tooltip:
+                tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
             labels:
                 label: Label
                 tooltip: This label is used on the checkout screens on the store frontend
             short_labels:
                 label: Short Label
                 tooltip: This label is used in customer order history
+        checkout:
+            redirect_to_paypal: 'You will be redirected to PayPal website to complete your purchase after the order review step.'

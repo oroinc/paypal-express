@@ -1,0 +1,12 @@
+services:
+    oro_paypal_express.method.config.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider
+
+    oro_paypal_express.method.view.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewFactory
+
+    oro_paypal_express.method.view.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewProvider
+        arguments:
+            - '@oro_paypal_express.method.view.factory'
+            - '@oro_paypal_express.method.config.provider'
