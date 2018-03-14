@@ -34,6 +34,11 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     protected $clientSecret;
 
     /**
+     * @var string
+     */
+    protected $paymentMethodIdentifier;
+
+    /**
      * @var bool
      */
     protected $isSandbox;
@@ -44,16 +49,25 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
      * @param string $adminLabel
      * @param string $clientId
      * @param string $clientSecret
+     * @param string $paymentMethodIdentifier
      * @param bool   $isSandbox
      */
-    public function __construct($label, $shortLabel, $adminLabel, $clientId, $clientSecret, $isSandbox)
-    {
-        $this->label        = $label;
-        $this->shortLabel   = $shortLabel;
-        $this->adminLabel   = $adminLabel;
-        $this->clientId     = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->isSandbox    = $isSandbox;
+    public function __construct(
+        $label,
+        $shortLabel,
+        $adminLabel,
+        $clientId,
+        $clientSecret,
+        $paymentMethodIdentifier,
+        $isSandbox
+    ) {
+        $this->label                   = $label;
+        $this->shortLabel              = $shortLabel;
+        $this->adminLabel              = $adminLabel;
+        $this->clientId                = $clientId;
+        $this->clientSecret            = $clientSecret;
+        $this->isSandbox               = $isSandbox;
+        $this->paymentMethodIdentifier = $paymentMethodIdentifier;
     }
 
 
@@ -98,18 +112,18 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     }
 
     /**
+     * @return string
+     */
+    public function getPaymentMethodIdentifier()
+    {
+        return $this->paymentMethodIdentifier;
+    }
+
+    /**
      * @return bool
      */
     public function isSandbox()
     {
         return $this->isSandbox;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPaymentMethodIdentifier()
-    {
-        // TODO: Implement getPaymentMethodIdentifier() method.
     }
 }

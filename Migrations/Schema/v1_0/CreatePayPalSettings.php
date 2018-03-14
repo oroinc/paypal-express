@@ -32,6 +32,7 @@ class CreatePayPalSettings implements Migration
         $table->addColumn('pp_express_client_id', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('pp_express_client_secret', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('pp_express_sandbox_mode', 'boolean', ['default' => '0', 'notnull' => false]);
+        $table->addColumn('pp_express_name', 'string', ['notnull' => false, 'length' => 255]);
     }
 
     /**
