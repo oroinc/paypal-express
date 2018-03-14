@@ -10,8 +10,9 @@ use Oro\Bundle\LocaleBundle\Helper\LocalizationHelper;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactory;
+use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 
-class PayPalExpressCheckoutConfigFactoryTest extends \PHPUnit_Framework_TestCase
+class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var PayPalExpressConfigFactory
@@ -28,13 +29,24 @@ class PayPalExpressCheckoutConfigFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $localizationHelper;
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|SymmetricCrypterInterface
+     */
+    protected $encoder;
+
     protected function setUp()
     {
         $this->identifierGenerator = $this->createMock(IntegrationIdentifierGeneratorInterface::class);
 
         $this->localizationHelper = $this->createMock(LocalizationHelper::class);
 
-        $this->factory = new PayPalExpressConfigFactory($this->identifierGenerator, $this->localizationHelper);
+        $this->encoder = $this->createMock(SymmetricCrypterInterface::class);
+
+        $this->factory = new PayPalExpressConfigFactory(
+            $this->identifierGenerator,
+            $this->localizationHelper,
+            $this->encoder
+        );
     }
 
     public function testCreateConfig()
@@ -80,6 +92,10 @@ class PayPalExpressCheckoutConfigFactoryTest extends \PHPUnit_Framework_TestCase
                 $fooLabel,
                 $fooShortLabel
             );
+
+        $this->encoder->expects($this->exactly(2))
+            ->method('decryptData')
+            ->willReturnArgument(0);
 
         $actualConfig = $this->factory->createConfig($fooSetting);
         $this->assertEquals($expectedConfig, $actualConfig);

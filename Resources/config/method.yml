@@ -10,6 +10,7 @@ services:
         arguments:
             - '@oro_paypal_express.method.generator.identifier'
             - '@oro_locale.helper.localization'
+            - '@oro_security.encoder.mcrypt'
 
     oro_paypal_express.method.config.provider:
         class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider
