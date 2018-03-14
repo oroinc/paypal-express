@@ -10,3 +10,24 @@ services:
         arguments:
             - '@oro_paypal_express.method.view.factory'
             - '@oro_paypal_express.method.config.provider'
+
+    oro_paypal_express.method.translator.line_item:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
+
+    oro_paypal_express.method.translator.method_config:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator
+
+    oro_paypal_express.method.translator.payment_transaction:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator
+        arguments:
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
+            - '@oro_paypal_express.method.translator.line_item'
+            - '@oro_entity.doctrine_helper'
+            - '@oro_paypal_express.pay_pal.provider.tax'
+
+    oro_paypal_express.method.paypal_transport_facade:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacade
+        arguments:
+            - '@oro_paypal_express.pay_pal.transport'
+            - '@oro_paypal_express.method.translator.payment_transaction'
+            - '@oro_paypal_express.method.translator.method_config'

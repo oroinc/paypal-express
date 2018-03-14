@@ -4,8 +4,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
@@ -27,17 +29,17 @@ use Psr\Log\LoggerInterface;
 class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalSDKObjectTranslator
      */
     protected $payPalSDKObjectTranslator;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalClient
      */
     protected $client;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|LoggerInterface
      */
     protected $logger;
 
@@ -58,34 +60,31 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
     public function testSetupPayment()
     {
         $expectedApprovalUrl = 'https://paypal.com/payment/approve';
-        $successRoute = 'text.example.com/paypal/success';
-        $failedRoute = 'text.example.com/paypal/failed';
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+        $paymentInfo = $this->getPaymentInfo();
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
+
+        $redirectRoutesInfo = $this->getRedirectionRoutesInfo(
+            'text.example.com/paypal/success',
+            'text.example.com/paypal/failed'
+        );
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $payment = new Payment();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getPayment')
-            ->with($paymentInfo, $successRoute, $failedRoute)
+            ->with($paymentInfo, $redirectRoutesInfo)
             ->willReturn($payment);
 
         $executedPayment = new Payment();
@@ -100,7 +99,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($payment, $apiContext)
             ->willReturn($executedPayment);
 
-        $approvalUrl = $this->transport->setupPayment($paymentInfo, $credentialsInfo, $successRoute, $failedRoute);
+        $approvalUrl = $this->transport->setupPayment($paymentInfo, $apiContextInfo, $redirectRoutesInfo);
         $this->assertEquals($expectedApprovalUrl, $approvalUrl);
     }
 
@@ -110,38 +109,35 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'https://api.sandbox.paypal.com/v1/payments/payment',
             'Internal Server Error'
         );
-        $successRoute = 'text.example.com/paypal/success';
-        $failedRoute = 'text.example.com/paypal/failed';
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+        $paymentInfo = $this->getPaymentInfo();
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $this->client->expects($this->once())
             ->method('createPayment')
             ->willThrowException($payPalConnectionException);
 
+        $redirectRoutesInfo = $this->getRedirectionRoutesInfo(
+            'text.example.com/paypal/success',
+            'text.example.com/paypal/failed'
+        );
+
         $payment = new Payment();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getPayment')
-            ->with($paymentInfo, $successRoute, $failedRoute)
+            ->with($paymentInfo, $redirectRoutesInfo)
             ->willReturn($payment);
 
         $this->logger->expects($this->once())
@@ -156,33 +152,30 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Could not connect to PayPal server.');
 
-        $this->transport->setupPayment($paymentInfo, $credentialsInfo, $successRoute, $failedRoute);
+        $this->transport->setupPayment($paymentInfo, $apiContextInfo, $redirectRoutesInfo);
     }
 
     public function testSetupPaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
         $exception = new \Exception('Fatal Error');
-        $successRoute = 'text.example.com/paypal/success';
-        $failedRoute = 'text.example.com/paypal/failed';
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+        $paymentInfo = $this->getPaymentInfo();
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
+
+        $redirectRoutesInfo = $this->getRedirectionRoutesInfo(
+            'text.example.com/paypal/success',
+            'text.example.com/paypal/failed'
+        );
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $payment = new Payment();
@@ -194,7 +187,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getPayment')
-            ->with($paymentInfo, $successRoute, $failedRoute)
+            ->with($paymentInfo, $redirectRoutesInfo)
             ->willReturn($payment);
 
         $this->logger->expects($this->once())
@@ -209,32 +202,24 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Could not create payment for PayPal.');
 
-        $this->transport->setupPayment($paymentInfo, $credentialsInfo, $successRoute, $failedRoute);
+        $this->transport->setupPayment($paymentInfo, $apiContextInfo, $redirectRoutesInfo);
     }
 
     public function testExecutePayment()
     {
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $paymentInfo = $this->getPaymentInfo($paymentId);
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            [],
-            $paymentId
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $execution = new PaymentExecution();
@@ -277,7 +262,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->method('captureOrder')
             ->with($order, $capture, $apiContext);
 
-        $this->transport->executePayment($paymentInfo, $credentialsInfo);
+        $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testExecutePaymentShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
@@ -287,27 +272,19 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'Internal Server Error'
         );
 
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $paymentInfo = $this->getPaymentInfo($paymentId);
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            [],
-            $paymentId
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $this->client->expects($this->once())
@@ -327,40 +304,32 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectException(ConnectionException::class);
         $this->expectExceptionMessage('Could not connect to PayPal server.');
 
-        $this->transport->executePayment($paymentInfo, $credentialsInfo);
+        $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testExecutePaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
         $exception = new \Exception('Fatal Error');
-        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = new PaymentInfo(
-            1.22,
-            'USD',
-            0.1,
-            0.2,
-            1.99,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            [],
-            $paymentId
+        $paymentInfo = $this->getPaymentInfo($paymentId);
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $credentialsInfo = new CredentialsInfo($clientId, $clientSecret);
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $apiContext = new ApiContext();
         $this->payPalSDKObjectTranslator
             ->expects($this->once())
             ->method('getApiContext')
-            ->with($credentialsInfo)
+            ->with($apiContextInfo)
             ->willReturn($apiContext);
 
         $this->client->expects($this->once())
@@ -380,7 +349,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Could not execute payment.');
 
-        $this->transport->executePayment($paymentInfo, $credentialsInfo);
+        $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
 
     /**
@@ -398,5 +367,47 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $payment->addTransaction($transaction);
 
         return $payment;
+    }
+
+    /**
+     * @param string $paymentId
+     *
+     * @return PaymentInfo
+     */
+    protected function getPaymentInfo($paymentId = null)
+    {
+        return new PaymentInfo(
+            1.22,
+            'USD',
+            0.1,
+            0.2,
+            1.99,
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            [],
+            $paymentId
+        );
+    }
+
+    /**
+     * @param string  $clientId
+     * @param string  $clientSecret
+     * @param bool    $isSandbox
+     *
+     * @return ApiContextInfo
+     */
+    protected function getApiContextInfo($clientId, $clientSecret, $isSandbox = true)
+    {
+        return new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), $isSandbox);
+    }
+
+    /**
+     * @param string $successRoute
+     * @param string $failedRoute
+     *
+     * @return RedirectRoutesInfo
+     */
+    protected function getRedirectionRoutesInfo($successRoute, $failedRoute)
+    {
+        return new RedirectRoutesInfo($successRoute, $failedRoute);
     }
 }

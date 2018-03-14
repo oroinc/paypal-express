@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Transport;
+namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
@@ -10,10 +10,12 @@ use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\SubtotalAwareInterface;
 
-class PaymentInfoTranslator
+class PaymentTransactionTranslator
 {
     /**
      * @var SupportedCurrenciesHelper
@@ -21,9 +23,9 @@ class PaymentInfoTranslator
     protected $supportedCurrenciesHelper;
 
     /**
-     * @var PaymentItemTranslator
+     * @var LineItemTranslator
      */
-    protected $paymentItemTranslator;
+    protected $lineItemTranslator;
 
     /**
      * @var DoctrineHelper
@@ -37,18 +39,18 @@ class PaymentInfoTranslator
 
     /**
      * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
-     * @param PaymentItemTranslator     $paymentItemTranslator
+     * @param LineItemTranslator        $lineItemTranslator
      * @param DoctrineHelper            $doctrineHelper
      * @param TaxProvider               $taxProvider
      */
     public function __construct(
         SupportedCurrenciesHelper $supportedCurrenciesHelper,
-        PaymentItemTranslator $paymentItemTranslator,
+        LineItemTranslator $lineItemTranslator,
         DoctrineHelper $doctrineHelper,
         TaxProvider $taxProvider
     ) {
         $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
-        $this->paymentItemTranslator     = $paymentItemTranslator;
+        $this->lineItemTranslator        = $lineItemTranslator;
         $this->doctrineHelper            = $doctrineHelper;
         $this->taxProvider               = $taxProvider;
     }
@@ -127,7 +129,7 @@ class PaymentInfoTranslator
         $paymentItems = [];
         if ($paymentEntity instanceof LineItemsAwareInterface) {
             foreach ($paymentEntity->getLineItems() as $lineItem) {
-                $itemInfo = $this->paymentItemTranslator->getPaymentItemInfo($lineItem, $currency);
+                $itemInfo = $this->lineItemTranslator->getPaymentItemInfo($lineItem, $currency);
                 if ($itemInfo) {
                     $paymentItems[] = $itemInfo;
                 }
@@ -179,5 +181,17 @@ class PaymentInfoTranslator
         }
 
         return 0;
+    }
+
+    /**
+     * @todo: will be implemented in scope of BB-13884
+     *
+     * @param PaymentTransaction $paymentTransaction
+     *
+     * @return RedirectRoutesInfo
+     */
+    public function getRedirectRoutes(PaymentTransaction $paymentTransaction)
+    {
+        return new RedirectRoutesInfo('', '');
     }
 }

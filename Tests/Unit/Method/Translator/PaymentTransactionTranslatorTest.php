@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
+namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
@@ -8,6 +8,8 @@ use Oro\Bundle\OrderBundle\Entity\OrderLineItem;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
+use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
+use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\BarPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\BazPaymentEntityStub;
@@ -16,14 +18,12 @@ use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\QuxPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\PaymentInfoTranslator;
-use Oro\Bundle\PayPalExpressBundle\Transport\PaymentItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
-class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
+class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var PaymentInfoTranslator
+     * @var PaymentTransactionTranslator
      */
     protected $translator;
 
@@ -33,9 +33,9 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
     protected $supportedCurrenciesHelper;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PaymentItemTranslator
+     * @var \PHPUnit_Framework_MockObject_MockObject|LineItemTranslator
      */
-    protected $paymentItemTranslator;
+    protected $lineItemTranslator;
 
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|DoctrineHelper
@@ -51,15 +51,15 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
     {
         $this->supportedCurrenciesHelper = new SupportedCurrenciesHelper();
 
-        $this->paymentItemTranslator = $this->createMock(PaymentItemTranslator::class);
+        $this->lineItemTranslator = $this->createMock(LineItemTranslator::class);
 
         $this->doctrineHelper = $this->createMock(DoctrineHelper::class);
 
         $this->taxProvider = $this->createMock(TaxProvider::class);
 
-        $this->translator = new PaymentInfoTranslator(
+        $this->translator = new PaymentTransactionTranslator(
             $this->supportedCurrenciesHelper,
-            $this->paymentItemTranslator,
+            $this->lineItemTranslator,
             $this->doctrineHelper,
             $this->taxProvider
         );
@@ -102,7 +102,7 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
         $fooPaymentItemInfo = new ItemInfo($fooItemName, $currency, $fooQuantity, $fooPrice);
         $barPaymentItemInfo = new ItemInfo($barItemName, $currency, $barQuantity, $barPrice);
 
-        $this->paymentItemTranslator->expects($this->exactly(2))
+        $this->lineItemTranslator->expects($this->exactly(2))
             ->method('getPaymentItemInfo')
             ->willReturnMap(
                 [
@@ -161,7 +161,7 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(FooPaymentEntityStub::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
-        $this->paymentItemTranslator->expects($this->exactly(2))
+        $this->lineItemTranslator->expects($this->exactly(2))
             ->method('getPaymentItemInfo')
             ->willReturnMap(
                 [
@@ -212,7 +212,7 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(QuxPaymentEntityStub::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
-        $this->paymentItemTranslator->expects($this->never())
+        $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
         $expectedPaymentInfo = new PaymentInfo(
@@ -331,7 +331,7 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(Order::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
-        $this->paymentItemTranslator->expects($this->never())
+        $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
         $this->expectException(UnsupportedCurrencyException::class);
@@ -369,7 +369,7 @@ class PaymentInfoTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(Order::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
-        $this->paymentItemTranslator->expects($this->never())
+        $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
         $this->expectException(UnsupportedValueException::class);

@@ -8,17 +8,6 @@ services:
             - '@oro_tax.manager.tax_manager'
             - '@logger'
 
-    oro_paypal_express.pay_pal.translator.payment_item:
-        class: Oro\Bundle\PayPalExpressBundle\Transport\PaymentItemTranslator
-
-    oro_paypal_express.pay_pal.translator.payment_info:
-        class: Oro\Bundle\PayPalExpressBundle\Transport\PaymentInfoTranslator
-        arguments:
-            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
-            - '@oro_paypal_express.pay_pal.translator.payment_item'
-            - '@oro_entity.doctrine_helper'
-            - '@oro_paypal_express.pay_pal.provider.tax'
-
     oro_paypal_express.pay_pal.translator.sdk_object:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator
 
@@ -31,9 +20,3 @@ services:
             - '@oro_paypal_express.pay_pal.translator.sdk_object'
             - '@oro_paypal_express.pay_pal.client'
             - '@logger'
-
-    oro_paypal_express.pay_pal.facade:
-        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalFacade
-        arguments:
-            - '@oro_paypal_express.pay_pal.transport'
-            - '@oro_paypal_express.pay_pal.translator.payment_info'
