@@ -2,9 +2,11 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
@@ -69,7 +71,9 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             $payerId
         );
 
-        $actualPayment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $successRoute, $failedRoute);
+        $redirectRoutesInfo = new RedirectRoutesInfo($successRoute, $failedRoute);
+
+        $actualPayment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $redirectRoutesInfo);
 
         /** @var Transaction $transaction */
         $transaction = $actualPayment->getTransactions()[0];
@@ -166,10 +170,30 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
     {
         $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedMod = PayPalSDKObjectTranslator::MOD_SANDBOX;
         $expectedApiContext = new ApiContext(new OAuthTokenCredential($clientId, $clientSecret));
-        $actualAPIContext = $this->payPalSDKObjectTranslator
-            ->getApiContext(new CredentialsInfo($clientId, $clientSecret));
+
+        $contextInfo = new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), true);
+        $actualAPIContext = $this->payPalSDKObjectTranslator->getApiContext($contextInfo);
         $this->assertEquals($expectedApiContext, $actualAPIContext);
+
+        $actualMod = $actualAPIContext->get('mode');
+        $this->assertEquals($expectedMod, $actualMod);
+    }
+
+    public function testGetApiContextWillReturnLiveApiContextIfIsSandboxFlagWillBeFalse()
+    {
+        $clientId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $clientSecret = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedMod = PayPalSDKObjectTranslator::MOD_LIVE;
+        $expectedApiContext = new ApiContext(new OAuthTokenCredential($clientId, $clientSecret));
+
+        $contextInfo = new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), false);
+        $actualAPIContext = $this->payPalSDKObjectTranslator->getApiContext($contextInfo);
+        $this->assertEquals($expectedApiContext, $actualAPIContext);
+
+        $actualMod = $actualAPIContext->get('mode');
+        $this->assertEquals($expectedMod, $actualMod);
     }
 
     public function testGetPaymentExecution()

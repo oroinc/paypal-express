@@ -18,7 +18,7 @@ class PayPalExpressSettings extends Transport
 {
     const CLIENT_ID_SETTING_KEY = 'client_id';
     const CLIENT_SECRET_SETTING_KEY = 'client_secret';
-    const TEST_MOD_SETTING_KEY = 'test_mod';
+    const SANDBOX_MOD_SETTING_KEY = 'test_mod';
     const LABELS_SETTING_KEY = 'labels';
     const SHORT_LABELS_SETTING_KEY = 'short_labels';
 
@@ -44,9 +44,9 @@ class PayPalExpressSettings extends Transport
     /**
      * @var boolean
      *
-     * @ORM\Column(name="pp_express_test_mode", type="boolean", options={"default"=false})
+     * @ORM\Column(name="pp_express_sandbox_mode", type="boolean", options={"default"=false})
      */
-    protected $testMode = false;
+    protected $sandboxMode = false;
 
 
     /**
@@ -124,17 +124,17 @@ class PayPalExpressSettings extends Transport
     /**
      * @return bool
      */
-    public function isTestMode()
+    public function isSandboxMode()
     {
-        return $this->testMode;
+        return $this->sandboxMode;
     }
 
     /**
-     * @param bool $testMode
+     * @param bool $sandboxMode
      */
-    public function setTestMode($testMode)
+    public function setSandboxMode($sandboxMode)
     {
-        $this->testMode = $testMode;
+        $this->sandboxMode = $sandboxMode;
     }
 
     /**
@@ -177,11 +177,11 @@ class PayPalExpressSettings extends Transport
         if (null === $this->settings) {
             $this->settings = new ParameterBag(
                 [
-                   self::CLIENT_ID_SETTING_KEY =>  $this->getClientId(),
-                   self::CLIENT_SECRET_SETTING_KEY =>  $this->getClientSecret(),
-                   self::TEST_MOD_SETTING_KEY =>  $this->isTestMode(),
-                   self::LABELS_SETTING_KEY => $this->getLabels(),
-                   self::SHORT_LABELS_SETTING_KEY => $this->getShortLabels(),
+                    self::CLIENT_ID_SETTING_KEY     => $this->getClientId(),
+                    self::CLIENT_SECRET_SETTING_KEY => $this->getClientSecret(),
+                    self::SANDBOX_MOD_SETTING_KEY   => $this->isSandboxMode(),
+                    self::LABELS_SETTING_KEY        => $this->getLabels(),
+                    self::SHORT_LABELS_SETTING_KEY  => $this->getShortLabels(),
                 ]
             );
         }

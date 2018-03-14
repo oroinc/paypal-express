@@ -2,8 +2,10 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 
 use PayPal\Api\Amount;
 use PayPal\Api\Authorization;
@@ -21,16 +23,18 @@ use PayPal\Rest\ApiContext;
 
 class PayPalSDKObjectTranslator
 {
+    const MOD_SANDBOX = 'sandbox';
+    const MOD_LIVE = 'live';
+
     /**
      * Convert Payment DTO into PayPal SDK Payment object
      *
-     * @param PaymentInfo $paymentInfo
-     * @param string      $successRoute Route where PayPal will redirect user after payment approve
-     * @param string      $failedRoute Route where PayPal will redirect user after payment cancel
+     * @param PaymentInfo        $paymentInfo
+     * @param RedirectRoutesInfo $redirectRoutesInfo
      *
      * @return Payment
      */
-    public function getPayment(PaymentInfo $paymentInfo, $successRoute, $failedRoute)
+    public function getPayment(PaymentInfo $paymentInfo, RedirectRoutesInfo $redirectRoutesInfo)
     {
         $payer = new Payer();
         $payer->setPaymentMethod($paymentInfo->getMethod());
@@ -70,8 +74,8 @@ class PayPalSDKObjectTranslator
             ->setPayer($payer);
 
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl($successRoute)
-            ->setCancelUrl($failedRoute);
+        $redirectUrls->setReturnUrl($redirectRoutesInfo->getSuccessRoute())
+            ->setCancelUrl($redirectRoutesInfo->getFailedRoute());
 
         $payment
             ->setRedirectUrls($redirectUrls);
@@ -80,17 +84,27 @@ class PayPalSDKObjectTranslator
     }
 
     /**
-     * @param CredentialsInfo $credentialsInfo
+     * @param ApiContextInfo $apiContextInfo
      *
      * @return ApiContext
      */
-    public function getApiContext(CredentialsInfo $credentialsInfo)
+    public function getApiContext(ApiContextInfo $apiContextInfo)
     {
-        $apiContext = new ApiContext(
-            new OAuthTokenCredential($credentialsInfo->getClientId(), $credentialsInfo->getClientSecret())
-        );
+        $credentials = $this->getApiCredentials($apiContextInfo->getCredentialsInfo());
+        $apiContext = new ApiContext($credentials);
+        $apiContext->setConfig(['mode' => $apiContextInfo->isSandbox() ? static::MOD_SANDBOX : static::MOD_LIVE ]);
 
         return $apiContext;
+    }
+
+    /**
+     * @param CredentialsInfo $credentialsInfo
+     *
+     * @return OAuthTokenCredential
+     */
+    public function getApiCredentials(CredentialsInfo $credentialsInfo)
+    {
+        return new OAuthTokenCredential($credentialsInfo->getClientId(), $credentialsInfo->getClientSecret());
     }
 
     /**

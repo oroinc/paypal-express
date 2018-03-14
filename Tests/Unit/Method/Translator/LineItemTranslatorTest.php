@@ -1,26 +1,26 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
+namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\OrderBundle\Entity\OrderLineItem;
+use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\BarLineItemStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooLineItemStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\ProductStub;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\PaymentItemTranslator;
 
-class PaymentItemTranslatorTest extends \PHPUnit_Framework_TestCase
+class LineItemTranslatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var PaymentItemTranslator
+     * @var LineItemTranslator
      */
-    protected $paymentItemTranslator;
+    protected $lineItemTranslator;
 
     protected function setUp()
     {
-        $this->paymentItemTranslator = new PaymentItemTranslator();
+        $this->lineItemTranslator = new LineItemTranslator();
     }
 
     public function testGetPaymentItemInfo()
@@ -34,7 +34,7 @@ class PaymentItemTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $lineItem = $this->getLineItem($name, $currency, $priceAmount, $quantity);
 
-        $actualPaymentItemInfo = $this->paymentItemTranslator->getPaymentItemInfo($lineItem, $currency);
+        $actualPaymentItemInfo = $this->lineItemTranslator->getPaymentItemInfo($lineItem, $currency);
         $this->assertEquals($expectedPaymentItemInfo, $actualPaymentItemInfo);
     }
 
@@ -44,7 +44,7 @@ class PaymentItemTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $lineItem = new FooLineItemStub();
 
-        $actualPaymentItemInfo = $this->paymentItemTranslator->getPaymentItemInfo($lineItem, $currency);
+        $actualPaymentItemInfo = $this->lineItemTranslator->getPaymentItemInfo($lineItem, $currency);
         $this->assertNull($actualPaymentItemInfo);
     }
 
@@ -54,7 +54,7 @@ class PaymentItemTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $lineItem = new BarLineItemStub();
 
-        $actualPaymentItemInfo = $this->paymentItemTranslator->getPaymentItemInfo($lineItem, $currency);
+        $actualPaymentItemInfo = $this->lineItemTranslator->getPaymentItemInfo($lineItem, $currency);
         $this->assertNull($actualPaymentItemInfo);
     }
 

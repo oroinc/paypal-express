@@ -1,12 +1,12 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Transport;
+namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
 use Oro\Bundle\CurrencyBundle\Entity\PriceAwareInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\ProductBundle\Model\ProductLineItemInterface;
 
-class PaymentItemTranslator
+class LineItemTranslator
 {
     /**
      * @param object   $lineItem

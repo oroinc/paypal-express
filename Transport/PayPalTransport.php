@@ -4,9 +4,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use PayPal\Api\Order;
 use PayPal\Exception\PayPalConnectionException;
 
@@ -49,13 +50,12 @@ class PayPalTransport implements PayPalTransportInterface
      */
     public function setupPayment(
         PaymentInfo $paymentInfo,
-        CredentialsInfo $credentialsInfo,
-        $successRoute,
-        $failedRoute
+        ApiContextInfo $apiContextInfo,
+        RedirectRoutesInfo $redirectRoutesInfo
     ) {
         try {
-            $payment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $successRoute, $failedRoute);
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($credentialsInfo);
+            $payment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $redirectRoutesInfo);
+            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
             $payment = $this->payPalClient->createPayment($payment, $apiContext);
 
             return $payment->getApprovalLink();
@@ -89,10 +89,10 @@ class PayPalTransport implements PayPalTransportInterface
     /**
      * {@inheritdoc}
      */
-    public function executePayment(PaymentInfo $paymentInfo, CredentialsInfo $credentialsInfo)
+    public function executePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         try {
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($credentialsInfo);
+            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
             $payment = $this->payPalClient->getPaymentById($paymentInfo->getPaymentId(), $apiContext);
 
             $execution = $this->payPalSDKObjectTranslator->getPaymentExecution($paymentInfo);

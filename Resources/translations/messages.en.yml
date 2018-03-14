@@ -4,7 +4,7 @@ oro:
         settings:
             label.tooltip: 'This label is used on the checkout screens'
             label: PayPal Express Transport Settings
-            test_mode:
+            sandbox_mode:
                 label: Sandbox Mode
                 tooltip: Sandbox accounts can be created on PayPal Developer website at developer.paypal.com
             client_id:
