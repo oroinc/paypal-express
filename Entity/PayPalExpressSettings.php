@@ -12,7 +12,7 @@ use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository")
  */
 class PayPalExpressSettings extends Transport
 {
@@ -21,6 +21,7 @@ class PayPalExpressSettings extends Transport
     const SANDBOX_MOD_SETTING_KEY = 'test_mod';
     const LABELS_SETTING_KEY = 'labels';
     const SHORT_LABELS_SETTING_KEY = 'short_labels';
+    const NAME_KEY = 'name';
 
     /**
      * @var ParameterBag
@@ -88,6 +89,13 @@ class PayPalExpressSettings extends Transport
      * )
      */
     protected $shortLabels;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pp_express_name", type="string", length=255, nullable=false)
+     */
+    protected $name;
 
     /**
      * @return string
@@ -170,6 +178,22 @@ class PayPalExpressSettings extends Transport
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
      * @return ParameterBag
      */
     public function getSettingsBag()
@@ -182,6 +206,7 @@ class PayPalExpressSettings extends Transport
                     self::SANDBOX_MOD_SETTING_KEY   => $this->isSandboxMode(),
                     self::LABELS_SETTING_KEY        => $this->getLabels(),
                     self::SHORT_LABELS_SETTING_KEY  => $this->getShortLabels(),
+                    self::NAME_KEY                  => $this->getName(),
                 ]
             );
         }

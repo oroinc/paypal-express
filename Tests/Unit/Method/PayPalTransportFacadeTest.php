@@ -95,6 +95,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
             'test',
             $clientId,
             $clientSecret,
+            'test',
             $isSandbox
         );
         $this->methodConfigTranslator->expects($this->once())
@@ -144,6 +145,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
             'test',
             $clientId,
             $clientSecret,
+            'test',
             $isSandbox
         );
         $this->methodConfigTranslator->expects($this->once())
