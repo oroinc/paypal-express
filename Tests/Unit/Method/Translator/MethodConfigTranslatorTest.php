@@ -31,6 +31,7 @@ class MethodConfigTranslatorTest extends \PHPUnit_Framework_TestCase
             'test',
             $clientId,
             $clientSecret,
+            'test',
             $isSandbox
         );
 

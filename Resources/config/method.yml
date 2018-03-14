@@ -1,6 +1,22 @@
 services:
+    oro_paypal_express.method.generator.identifier:
+        parent: oro_integration.generator.prefixed_identifier_generator
+        public: true
+        arguments:
+            - 'oro_paypal_express'
+
+    oro_paypal_express.method.config.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactory
+        arguments:
+            - '@oro_paypal_express.method.generator.identifier'
+            - '@oro_locale.helper.localization'
+
     oro_paypal_express.method.config.provider:
         class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider
+        arguments:
+            - '@doctrine'
+            - '@logger'
+            - '@oro_paypal_express.method.config.factory'
 
     oro_paypal_express.method.view.factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewFactory
