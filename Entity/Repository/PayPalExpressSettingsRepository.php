@@ -18,6 +18,7 @@ class PayPalExpressSettingsRepository extends EntityRepository
             ->innerJoin('settings.channel', 'channel')
             ->andWhere('channel.enabled = true')
             ->andWhere('channel.type = :type')
+            ->orderBy('settings.id')
             ->setParameter('type', PayPalChannelType::TYPE)
             ->getQuery()
             ->getResult();
