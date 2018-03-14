@@ -39,18 +39,25 @@ class PayPalSettingsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('labels', LocalizedFallbackValueCollectionType::NAME, [
-                'label'    => 'oro.paypal_express.settings.labels.label',
-                'tooltip'  => 'oro.paypal_express.settings.labels.tooltip',
-                'required' => true,
-                'options'  => ['constraints' => [new NotBlank()]],
-            ])
-            ->add('shortLabels', LocalizedFallbackValueCollectionType::NAME, [
-                'label'    => 'oro.paypal_express.settings.short_labels.label',
-                'tooltip'  => 'oro.paypal_express.settings.short_labels.tooltip',
-                'required' => true,
-                'options'  => ['constraints' => [new NotBlank()]],
-            ]);
+            ->add(
+                'labels',
+                LocalizedFallbackValueCollectionType::NAME,
+                [
+                    'label'    => 'oro.paypal_express.settings.labels.label',
+                    'tooltip'  => 'oro.paypal_express.settings.labels.tooltip',
+                    'required' => true,
+                    'options'  => ['constraints' => [new NotBlank()]],
+                ]
+            )->add(
+                'shortLabels',
+                LocalizedFallbackValueCollectionType::NAME,
+                [
+                    'label'    => 'oro.paypal_express.settings.short_labels.label',
+                    'tooltip'  => 'oro.paypal_express.settings.short_labels.tooltip',
+                    'required' => true,
+                    'options'  => ['constraints' => [new NotBlank()]],
+                ]
+            );
 
         $clientIdFieldBuilder = $builder->create(
             'clientId',
@@ -74,11 +81,15 @@ class PayPalSettingsType extends AbstractType
         );
         $builder->add($this->addCryptedTransformer($clientSecretFieldBuilder));
 
-        $builder->add('testMode', CheckboxType::class, [
-            'label'    => 'oro.paypal_express.settings.test_mode.label',
-            'tooltip'  => 'oro.paypal_express.settings.test_mode.tooltip',
-            'required' => false,
-        ]);
+        $builder->add(
+            'sandboxMode',
+            CheckboxType::class,
+            [
+                'label'    => 'oro.paypal_express.settings.sandbox_mode.label',
+                'tooltip'  => 'oro.paypal_express.settings.sandbox_mode.tooltip',
+                'required' => false,
+            ]
+        );
     }
 
     /**
