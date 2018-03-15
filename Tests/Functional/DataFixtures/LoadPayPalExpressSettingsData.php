@@ -2,9 +2,11 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Functional\DataFixtures;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
+use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\SecurityBundle\Encoder\Mcrypt;
 
@@ -20,18 +22,24 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
         [
             'clientId'     => 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'TxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'label'        => 'foo label',
+            'shortLabel'   => 'foo short label',
             'name'         => 'foo',
             'reference'    => 'oro_paypal_express.settings.foo'
         ],
         [
             'clientId'     => 'ZxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'LxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'label'        => 'bar label',
+            'shortLabel'   => 'bar short label',
             'name'         => 'bar',
             'reference'    => 'oro_paypal_express.settings.bar'
         ],
         [
             'clientId'     => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'label'        => 'baz label',
+            'shortLabel'   => 'baz short label',
             'name'         => 'baz',
             'reference'    => 'oro_paypal_express.settings.baz'
         ],
@@ -52,6 +60,14 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
             $settings->setClientId($this->encoder->encryptData($item['clientId']));
             $settings->setClientSecret($this->encoder->encryptData($item['clientSecret']));
             $settings->setName($item['name']);
+            $label = new LocalizedFallbackValue();
+            $label->setString($item['label']);
+            $label->setText($item['label']);
+            $settings->setLabels(new ArrayCollection([$label]));
+            $shortLabels = new LocalizedFallbackValue();
+            $shortLabels->setString($item['shortLabel']);
+            $shortLabels->setText($item['shortLabel']);
+            $settings->setShortLabels(new ArrayCollection([$shortLabels]));
 
             $manager->persist($settings);
             $this->setReference($item['reference'], $settings);
