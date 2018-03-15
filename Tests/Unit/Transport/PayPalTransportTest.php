@@ -9,7 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
 
 use PayPal\Api\Authorization;
@@ -29,7 +29,7 @@ use Psr\Log\LoggerInterface;
 class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalSDKObjectTranslator
+     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalSDKObjectTranslatorInterface
      */
     protected $payPalSDKObjectTranslator;
 
@@ -50,7 +50,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->payPalSDKObjectTranslator = $this->createMock(PayPalSDKObjectTranslator::class);
+        $this->payPalSDKObjectTranslator = $this->createMock(PayPalSDKObjectTranslatorInterface::class);
         $this->client = $this->createMock(PayPalClient::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
