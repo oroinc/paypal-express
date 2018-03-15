@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
 class PayPalTransport implements PayPalTransportInterface
 {
     /**
-     * @var PayPalSDKObjectTranslator
+     * @var PayPalSDKObjectTranslatorInterface
      */
     protected $payPalSDKObjectTranslator;
 
@@ -31,12 +31,12 @@ class PayPalTransport implements PayPalTransportInterface
     protected $logger;
 
     /**
-     * @param PayPalSDKObjectTranslator $payPalSDKObjectTranslator
-     * @param PayPalClient              $payPalClient
-     * @param LoggerInterface           $logger
+     * @param PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator
+     * @param PayPalClient                       $payPalClient
+     * @param LoggerInterface                    $logger
      */
     public function __construct(
-        PayPalSDKObjectTranslator $payPalSDKObjectTranslator,
+        PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator,
         PayPalClient $payPalClient,
         LoggerInterface $logger
     ) {

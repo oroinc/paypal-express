@@ -7,6 +7,7 @@ services:
 
     oro_paypal_express.method.config.factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactory
+        public: false
         arguments:
             - '@oro_paypal_express.method.generator.identifier'
             - '@oro_locale.helper.localization'
@@ -20,6 +21,7 @@ services:
             - '@oro_paypal_express.method.config.factory'
 
     oro_paypal_express.method.view.factory:
+        public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewFactory
 
     oro_paypal_express.method.view.provider:
@@ -29,12 +31,15 @@ services:
             - '@oro_paypal_express.method.config.provider'
 
     oro_paypal_express.method.translator.line_item:
+        public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
 
     oro_paypal_express.method.translator.method_config:
+        public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator
 
     oro_paypal_express.method.translator.payment_transaction:
+        public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator
         arguments:
             - '@oro_paypal_express.pay_pal.helper.supported_currencies'
