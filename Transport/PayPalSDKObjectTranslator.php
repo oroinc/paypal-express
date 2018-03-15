@@ -21,18 +21,14 @@ use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
-class PayPalSDKObjectTranslator
+class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
 {
     const MOD_SANDBOX = 'sandbox';
     const MOD_LIVE = 'live';
+    const APPLICATION_PARTNER_ID = 'OroCommerce_SP';
 
     /**
-     * Convert Payment DTO into PayPal SDK Payment object
-     *
-     * @param PaymentInfo        $paymentInfo
-     * @param RedirectRoutesInfo $redirectRoutesInfo
-     *
-     * @return Payment
+     * {@inheritdoc}
      */
     public function getPayment(PaymentInfo $paymentInfo, RedirectRoutesInfo $redirectRoutesInfo)
     {
@@ -84,23 +80,20 @@ class PayPalSDKObjectTranslator
     }
 
     /**
-     * @param ApiContextInfo $apiContextInfo
-     *
-     * @return ApiContext
+     * {@inheritdoc}
      */
     public function getApiContext(ApiContextInfo $apiContextInfo)
     {
         $credentials = $this->getApiCredentials($apiContextInfo->getCredentialsInfo());
         $apiContext = new ApiContext($credentials);
         $apiContext->setConfig(['mode' => $apiContextInfo->isSandbox() ? static::MOD_SANDBOX : static::MOD_LIVE ]);
+        $apiContext->addRequestHeader('PayPal-Partner-Attribution-Id', static::APPLICATION_PARTNER_ID);
 
         return $apiContext;
     }
 
     /**
-     * @param CredentialsInfo $credentialsInfo
-     *
-     * @return OAuthTokenCredential
+     * {@inheritdoc}
      */
     public function getApiCredentials(CredentialsInfo $credentialsInfo)
     {
@@ -108,9 +101,7 @@ class PayPalSDKObjectTranslator
     }
 
     /**
-     * @param PaymentInfo $paymentInfo
-     *
-     * @return PaymentExecution
+     * {@inheritdoc}
      */
     public function getPaymentExecution(PaymentInfo $paymentInfo)
     {
@@ -121,9 +112,7 @@ class PayPalSDKObjectTranslator
     }
 
     /**
-     * @param PaymentInfo $paymentInfo
-     *
-     * @return Authorization
+     * {@inheritdoc}
      */
     public function getAuthorization(PaymentInfo $paymentInfo)
     {
@@ -138,9 +127,7 @@ class PayPalSDKObjectTranslator
     }
 
     /**
-     * @param PaymentInfo $paymentInfo
-     *
-     * @return Capture
+     * {@inheritdoc}
      */
     public function getCapturedDetails(PaymentInfo $paymentInfo)
     {
