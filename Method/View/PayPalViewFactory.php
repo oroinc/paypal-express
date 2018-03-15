@@ -7,7 +7,6 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 class PayPalViewFactory implements PayPalViewFactoryInterface
 {
-
     /**
      * @param PayPalExpressConfigInterface $config
      *
