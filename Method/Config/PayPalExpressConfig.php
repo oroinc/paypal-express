@@ -44,12 +44,18 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     protected $isSandbox;
 
     /**
+     * @var string
+     */
+    protected $paymentAction;
+
+    /**
      * @param string $label
      * @param string $shortLabel
      * @param string $adminLabel
      * @param string $clientId
      * @param string $clientSecret
      * @param string $paymentMethodIdentifier
+     * @param string $paymentAction
      * @param bool   $isSandbox
      */
     public function __construct(
@@ -59,6 +65,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
         $clientId,
         $clientSecret,
         $paymentMethodIdentifier,
+        $paymentAction,
         $isSandbox
     ) {
         $this->label                   = $label;
@@ -66,8 +73,9 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
         $this->adminLabel              = $adminLabel;
         $this->clientId                = $clientId;
         $this->clientSecret            = $clientSecret;
-        $this->isSandbox               = $isSandbox;
         $this->paymentMethodIdentifier = $paymentMethodIdentifier;
+        $this->paymentAction           = $paymentAction;
+        $this->isSandbox               = $isSandbox;
     }
 
 
@@ -125,5 +133,13 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     public function isSandbox()
     {
         return $this->isSandbox;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentAction()
+    {
+        return $this->paymentAction;
     }
 }

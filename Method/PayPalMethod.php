@@ -8,11 +8,10 @@ use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalBundle\Method\Config\PayPalConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 
 class PayPalMethod implements PaymentMethodInterface
 {
-    const COMPLETE = 'complete';
-
     /**
      * @var PayPalTransportFacadeInterface
      */
@@ -24,15 +23,23 @@ class PayPalMethod implements PaymentMethodInterface
     protected $config;
 
     /**
+     * @var PaymentActionExecutor
+     */
+    protected $paymentActionExecutor;
+
+    /**
      * @param PayPalTransportFacadeInterface $payPalTransportFacade
      * @param PayPalExpressConfigInterface   $config
+     * @param PaymentActionExecutor          $paymentActionExecutor
      */
     public function __construct(
         PayPalTransportFacadeInterface $payPalTransportFacade,
-        PayPalExpressConfigInterface $config
+        PayPalExpressConfigInterface $config,
+        PaymentActionExecutor $paymentActionExecutor
     ) {
         $this->payPalTransportFacade = $payPalTransportFacade;
         $this->config                = $config;
+        $this->paymentActionExecutor = $paymentActionExecutor;
     }
 
     /**
@@ -70,11 +77,7 @@ class PayPalMethod implements PaymentMethodInterface
      */
     protected function purchase(PaymentTransaction $paymentTransaction)
     {
-        $route = $this->payPalTransportFacade->getPayPalPaymentRoute($paymentTransaction, $this->config);
 
-        return [
-            'purchaseRedirectUrl' => $route
-        ];
     }
 
     /**
@@ -145,14 +148,11 @@ class PayPalMethod implements PaymentMethodInterface
 
     /**
      * @param string $actionName
+     *
      * @return bool
      */
     public function supports($actionName)
     {
-        return in_array(
-            $actionName,
-            [self::PURCHASE, self::COMPLETE, self::AUTHORIZE, self::CAPTURE, self::CHARGE],
-            true
-        );
+        return $this->paymentActionExecutor->isActionSupported($actionName);
     }
 }
