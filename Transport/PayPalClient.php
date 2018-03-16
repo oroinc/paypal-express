@@ -68,4 +68,14 @@ class PayPalClient
     {
         return $order->capture($captureDetails, $apiContext);
     }
+
+    /**
+     * @param string $orderId
+     *
+     * @return Order
+     */
+    public function getOrderById($orderId)
+    {
+        return Order::get($orderId);
+    }
 }

@@ -6,15 +6,25 @@ use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
-
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
+
+use PayPal\Api\Authorization;
+use PayPal\Api\Capture;
 use PayPal\Api\Order;
+use PayPal\Api\Payment;
+use PayPal\Api\RelatedResources;
 use PayPal\Exception\PayPalConnectionException;
+use PayPal\Rest\ApiContext;
 
 use Psr\Log\LoggerInterface;
 
 class PayPalTransport implements PayPalTransportInterface
 {
+    const PAYMENT_CREATED_STATUS = 'created';
+    const PAYMENT_EXECUTED_STATUS = 'approved';
+    const ORDER_PAYMENT_AUTHORIZED_STATUS = 'authorized';
+    const ORDER_PAYMENT_CAPTURED_STATUS = 'completed';
+
     /**
      * @var PayPalSDKObjectTranslatorInterface
      */
@@ -58,7 +68,7 @@ class PayPalTransport implements PayPalTransportInterface
             $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
             $payment = $this->payPalClient->createPayment($payment, $apiContext);
 
-            return $payment->getApprovalLink();
+            $paymentInfo->setPaymentId($payment->getId());
         } catch (PayPalConnectionException $connectionException) {
             $this->logger->error(
                 sprintf(
@@ -84,6 +94,25 @@ class PayPalTransport implements PayPalTransportInterface
 
             throw new RuntimeException('Could not create payment for PayPal.', 0, $exception);
         }
+
+        if ($payment->getState() != self::PAYMENT_CREATED_STATUS) {
+            $this->logger->error(
+                'Could not create the payment.',
+                [
+                    'paymentState' => $payment->getState(),
+                    'paymentId' => $payment->getId()
+                ]
+            );
+
+            throw new RuntimeException(
+                sprintf(
+                    'Failed to create payment for PayPal. Response payment status: "%s"',
+                    $payment->getState()
+                )
+            );
+        }
+
+        return $payment->getApprovalLink();
     }
 
     /**
@@ -95,17 +124,10 @@ class PayPalTransport implements PayPalTransportInterface
             $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
             $payment = $this->payPalClient->getPaymentById($paymentInfo->getPaymentId(), $apiContext);
 
-            $execution = $this->payPalSDKObjectTranslator->getPaymentExecution($paymentInfo);
-            $this->payPalClient->executePayment($payment, $execution, $apiContext);
+            $payment = $this->doExecute($payment, $paymentInfo, $apiContext);
 
-            /** @var Order $order */
-            $order = $payment->transactions[0]->related_resources[0]->order;
-
-            $authorization = $this->payPalSDKObjectTranslator->getAuthorization($paymentInfo);
-            $this->payPalClient->authorizeOrder($order, $authorization, $apiContext);
-
-            $captureDetails = $this->payPalSDKObjectTranslator->getCapturedDetails($paymentInfo);
-            $this->payPalClient->captureOrder($order, $captureDetails, $apiContext);
+            $order = $this->getPaymentOrder($payment);
+            $paymentInfo->setOrderId($order->getId());
         } catch (PayPalConnectionException $connectionException) {
             $this->logger->error(
                 sprintf(
@@ -131,5 +153,209 @@ class PayPalTransport implements PayPalTransportInterface
 
             throw new RuntimeException('Could not execute payment.', 0, $exception);
         }
+
+        if ($payment->getState() != self::PAYMENT_EXECUTED_STATUS) {
+            $this->logger->error(
+                'Could not executed payment.',
+                [
+                    'paymentId'     => $paymentInfo->getPaymentId(),
+                    'payment state' => $payment->getState()
+                ]
+            );
+
+            throw new RuntimeException(
+                sprintf(
+                    'Could not executed payment %s. Payment status: %s.',
+                    $paymentInfo->getPaymentId(),
+                    $payment->getState()
+                )
+            );
+        }
+    }
+
+    /**
+     * @param Payment     $payment
+     * @param PaymentInfo $paymentInfo
+     * @param ApiContext  $apiContext
+     *
+     * @return Payment
+     */
+    protected function doExecute(Payment $payment, PaymentInfo $paymentInfo, ApiContext $apiContext)
+    {
+        $execution = $this->payPalSDKObjectTranslator->getPaymentExecution($paymentInfo);
+        $payment = $this->payPalClient->executePayment($payment, $execution, $apiContext);
+
+        return $payment;
+    }
+
+    /**
+     * @param Payment $payment
+     *
+     * @return Order
+     */
+    protected function getPaymentOrder(Payment $payment)
+    {
+        $transactions = $payment->getTransactions();
+        $transaction = reset($transactions);
+        $relatedResources = $transaction->getRelatedResources();
+        /** @var RelatedResources $relatedResource */
+        $relatedResource = reset($relatedResources);
+
+        $order = $relatedResource->getOrder();
+
+        if (!$order instanceof Order) {
+            throw new RuntimeException(
+                sprintf(
+                    'Order was not created for payment "%s"',
+                    $payment->getId()
+                )
+            );
+        }
+
+        return $order;
+    }
+
+    /**
+     * @param PaymentInfo    $paymentInfo
+     * @param ApiContextInfo $apiContextInfo
+     */
+    public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
+    {
+        if (!$paymentInfo->getOrderId()) {
+            throw new RuntimeException('Order Id is required.');
+        }
+
+        try {
+            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
+            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId());
+            $authorize = $this->doAuthorize($paymentInfo, $order, $apiContext);
+        } catch (PayPalConnectionException $connectionException) {
+            $this->logger->error(
+                sprintf(
+                    'Could not connect to PayPal server. Reason: %s',
+                    $connectionException->getMessage()
+                ),
+                [
+                    'exception' => $connectionException
+                ]
+            );
+
+            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+        } catch (\Throwable $exception) {
+            $this->logger->error(
+                sprintf(
+                    'Could not authorize payment. Reason: %s',
+                    $exception->getMessage()
+                ),
+                [
+                    'exception' => $exception
+                ]
+            );
+
+            throw new RuntimeException('Could not authorize payment.', 0, $exception);
+        }
+
+        if ($authorize->getState() != self::ORDER_PAYMENT_AUTHORIZED_STATUS) {
+            $this->logger->error(
+                'Could not authorize payment.',
+                [
+                    'paymentId'           => $paymentInfo->getPaymentId(),
+                    'authorization state' => $authorize->getState()
+                ]
+            );
+
+            throw new RuntimeException(
+                sprintf(
+                    'Could not authorize payment %s. Authorization status: %s.',
+                    $paymentInfo->getPaymentId(),
+                    $authorize->getState()
+                )
+            );
+        }
+    }
+
+    /**
+     * @param PaymentInfo $paymentInfo
+     * @param Order       $order
+     * @param ApiContext  $apiContext
+     *
+     * @return Authorization
+     */
+    protected function doAuthorize(PaymentInfo $paymentInfo, Order $order, ApiContext $apiContext)
+    {
+        $authorization = $this->payPalSDKObjectTranslator->getAuthorization($paymentInfo);
+        return $this->payPalClient->authorizeOrder($order, $authorization, $apiContext);
+    }
+
+    /**
+     * @param PaymentInfo    $paymentInfo
+     * @param ApiContextInfo $apiContextInfo
+     */
+    public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
+    {
+        if (!$paymentInfo->getOrderId()) {
+            throw new RuntimeException('Order Id is required.');
+        }
+
+        try {
+            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
+            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId());
+            $capture = $this->doCapture($paymentInfo, $order, $apiContext);
+        } catch (PayPalConnectionException $connectionException) {
+            $this->logger->error(
+                sprintf(
+                    'Could not connect to PayPal server. Reason: %s',
+                    $connectionException->getMessage()
+                ),
+                [
+                    'exception' => $connectionException
+                ]
+            );
+
+            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+        } catch (\Throwable $exception) {
+            $this->logger->error(
+                sprintf(
+                    'Could not capture payment. Reason: %s',
+                    $exception->getMessage()
+                ),
+                [
+                    'exception' => $exception
+                ]
+            );
+
+            throw new RuntimeException('Could not capture payment.', 0, $exception);
+        }
+
+        if ($capture->getState() != self::ORDER_PAYMENT_CAPTURED_STATUS) {
+            $this->logger->error(
+                'Could not capture payment.',
+                [
+                    'paymentId'     => $paymentInfo->getPaymentId(),
+                    'capture state' => $capture->getState()
+                ]
+            );
+
+            throw new RuntimeException(
+                sprintf(
+                    'Could not capture payment %s. Capture status: %s.',
+                    $paymentInfo->getPaymentId(),
+                    $capture->getState()
+                )
+            );
+        }
+    }
+
+    /**
+     * @param PaymentInfo $paymentInfo
+     * @param Order       $order
+     * @param ApiContext  $apiContext
+     *
+     * @return Capture
+     */
+    protected function doCapture(PaymentInfo $paymentInfo, Order $order, ApiContext $apiContext)
+    {
+        $captureDetails = $this->payPalSDKObjectTranslator->getCapturedDetails($paymentInfo);
+        return $this->payPalClient->captureOrder($order, $captureDetails, $apiContext);
     }
 }

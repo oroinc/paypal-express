@@ -59,10 +59,9 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
         $fooShortLabel = 'foo short label';
         $fooIsSandbox = true;
         $fooChannel = new Channel();
-        $fooChannel->setName('foo channel');
+        $fooChannel->setName($fooName);
 
         $fooSetting = $this->getSetting(
-            $fooName,
             $fooClientId,
             $fooClientSecret,
             $fooLabel,
@@ -102,7 +101,6 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string  $name
      * @param string  $clientId
      * @param string  $clientSecret
      * @param string  $label
@@ -112,10 +110,9 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
      *
      * @return PayPalExpressSettings
      */
-    protected function getSetting($name, $clientId, $clientSecret, $label, $shortLabel, $isSandbox, Channel $channel)
+    protected function getSetting($clientId, $clientSecret, $label, $shortLabel, $isSandbox, Channel $channel)
     {
         $setting = new PayPalExpressSettings();
-        $setting->setName($name);
         $setting->setClientId($clientId);
         $setting->setClientSecret($clientSecret);
 

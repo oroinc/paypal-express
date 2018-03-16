@@ -2,10 +2,13 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
+use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
+use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
+use PayPal\Exception\PayPalConnectionException;
 
 interface PayPalTransportInterface
 {
@@ -29,4 +32,18 @@ interface PayPalTransportInterface
      * @throws ExceptionInterface
      */
     public function executePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);
+
+    /**
+     * @param PaymentInfo    $paymentInfo
+     * @param ApiContextInfo $apiContextInfo
+     * @throws ExceptionInterface
+     */
+    public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);
+
+    /**
+     * @param PaymentInfo    $paymentInfo
+     * @param ApiContextInfo $apiContextInfo
+     * @throws ExceptionInterface
+     */
+    public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);
 }

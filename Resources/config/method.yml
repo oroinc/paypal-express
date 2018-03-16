@@ -29,6 +29,8 @@ services:
         arguments:
             - '@oro_paypal_express.method.view.factory'
             - '@oro_paypal_express.method.config.provider'
+        tags:
+          - { name: oro_payment.payment_method_view_provider }
 
     oro_paypal_express.method.translator.line_item:
         public: false
@@ -46,6 +48,7 @@ services:
             - '@oro_paypal_express.method.translator.line_item'
             - '@oro_entity.doctrine_helper'
             - '@oro_paypal_express.pay_pal.provider.tax'
+            - '@router'
 
     oro_paypal_express.method.paypal_transport_facade:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacade
@@ -53,3 +56,17 @@ services:
             - '@oro_paypal_express.pay_pal.transport'
             - '@oro_paypal_express.method.translator.payment_transaction'
             - '@oro_paypal_express.method.translator.method_config'
+
+    oro_paypal_express.method.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
+        arguments:
+            - '@oro_paypal_express.method.paypal_transport_facade'
+
+    oro_paypal_express.method.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodProvider
+        public: false
+        arguments:
+            - '@oro_paypal_express.method.factory'
+            - '@oro_paypal_express.method.config.provider'
+        tags:
+            - { name: oro_payment.payment_method_provider }

@@ -8,7 +8,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransportInterface;
 
-class PayPalTransportFacade implements PayPalFacadeInterface
+class PayPalTransportFacade implements PayPalTransportFacadeInterface
 {
     /**
      * @var PayPalTransportInterface
@@ -65,7 +65,10 @@ class PayPalTransportFacade implements PayPalFacadeInterface
         $paymentId,
         $payerId
     ) {
-        $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction, $paymentId, $payerId);
+        $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
+        $paymentInfo->setPaymentId($paymentId);
+        $paymentInfo->setPayerId($payerId);
+
         $apiContext  = $this->methodConfigTranslator->getApiContextInfo($config);
 
         $this->payPalTransport->executePayment($paymentInfo, $apiContext);

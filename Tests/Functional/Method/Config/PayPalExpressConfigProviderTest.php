@@ -32,14 +32,14 @@ class PayPalExpressConfigProviderTest extends WebTestCase
                 'clientSecret' => 'TxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'clientId'     => 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'label'        => 'foo label',
-                'adminLabel'   => 'foo',
+                'adminLabel'   => 'foo channel',
                 'shortLabel'   => 'foo short label',
             ],
             [
                 'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'clientId'     => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'label'        => 'baz label',
-                'adminLabel'   => 'baz',
+                'adminLabel'   => 'bar channel',
                 'shortLabel'   => 'baz short label',
             ],
         ];
