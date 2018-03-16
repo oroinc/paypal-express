@@ -26,6 +26,9 @@ use PayPal\Rest\ApiContext;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
 class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -72,13 +75,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'text.example.com/paypal/success',
             'text.example.com/paypal/failed'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $payment = new Payment();
         $this->payPalSDKObjectTranslator
@@ -88,6 +85,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->willReturn($payment);
 
         $executedPayment = new Payment();
+        $executedPayment->setState(PayPalTransport::PAYMENT_CREATED_STATUS);
 
         $link = new Links();
         $link->setRel(PayPalConstants::APPROVAL_URL);
@@ -116,13 +114,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $this->setupApiContextTranslator($apiContextInfo);
 
         $this->client->expects($this->once())
             ->method('createPayment')
@@ -170,13 +162,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'text.example.com/paypal/success',
             'text.example.com/paypal/failed'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $payment = new Payment();
 
@@ -214,13 +200,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $execution = new PaymentExecution();
         $this->payPalSDKObjectTranslator
@@ -229,38 +209,19 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($paymentInfo)
             ->willReturn($execution);
 
-        $authorization = new Authorization();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getAuthorization')
-            ->with($paymentInfo)
-            ->willReturn($authorization);
-
-        $capture = new Capture();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getCapturedDetails')
-            ->with($paymentInfo)
-            ->willReturn($capture);
-
         $order = new Order();
-        $payment = $this->getPayment($order);
+        $payment = new Payment();
         $this->client->expects($this->once())
             ->method('getPaymentById')
             ->with($paymentId, $apiContext)
             ->willReturn($payment);
 
+        $executedPayment = $this->getPayment($order, PayPalTransport::PAYMENT_EXECUTED_STATUS);
+
         $this->client->expects($this->once())
             ->method('executePayment')
-            ->with($payment, $execution, $apiContext);
-
-        $this->client->expects($this->once())
-            ->method('authorizeOrder')
-            ->with($order, $authorization, $apiContext);
-
-        $this->client->expects($this->once())
-            ->method('captureOrder')
-            ->with($order, $capture, $apiContext);
+            ->with($payment, $execution, $apiContext)
+            ->willReturn($executedPayment);
 
         $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
@@ -279,13 +240,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $this->client->expects($this->once())
             ->method('getPaymentById')
@@ -317,20 +272,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
-
-        $apiContext = new ApiContext();
-        $this->payPalSDKObjectTranslator
-            ->expects($this->once())
-            ->method('getApiContext')
-            ->with($apiContextInfo)
-            ->willReturn($apiContext);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $this->client->expects($this->once())
             ->method('getPaymentById')
@@ -352,12 +294,432 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
 
+    public function testAuthorize()
+    {
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $authorization = new Authorization();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getAuthorization')
+            ->with($paymentInfo)
+            ->willReturn($authorization);
+
+        $authorizedOrder = $this->getOrder(PayPalTransport::ORDER_PAYMENT_AUTHORIZED_STATUS);
+        $this->client->expects($this->once())
+            ->method('authorizeOrder')
+            ->with($order, $authorization, $apiContext)
+            ->willReturn($authorizedOrder);
+
+        $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testAuthorizeShouldThrowExceptionIfOrderIdIsNotDefined()
+    {
+        $paymentInfo = $this->getPaymentInfo();
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Order Id is required.');
+
+        $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testAuthorizeShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
+    {
+        $payPalConnectionException = new PayPalConnectionException(
+            'https://api.sandbox.paypal.com/v1/payments/payment',
+            'Internal Server Error'
+        );
+
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $authorization = new Authorization();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getAuthorization')
+            ->with($paymentInfo)
+            ->willReturn($authorization);
+
+        $this->client->expects($this->once())
+            ->method('authorizeOrder')
+            ->willThrowException($payPalConnectionException);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not connect to PayPal server. Reason: Internal Server Error',
+                [
+                    'exception' => $payPalConnectionException
+                ]
+            );
+
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Could not connect to PayPal server.');
+
+        $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testAutorizeShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
+    {
+        $exception = new \Exception('Fatal Error');
+
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $authorization = new Authorization();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getAuthorization')
+            ->with($paymentInfo)
+            ->willReturn($authorization);
+
+        $this->client->expects($this->once())
+            ->method('authorizeOrder')
+            ->willThrowException($exception);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not authorize payment. Reason: Fatal Error',
+                [
+                    'exception' => $exception
+                ]
+            );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not authorize payment.');
+
+        $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testAuthorizeShouldThrowAnExceptionIfAuthorizeRequestIsFailed()
+    {
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $paymentId = '1xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo($paymentId, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $authorization = new Authorization();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getAuthorization')
+            ->with($paymentInfo)
+            ->willReturn($authorization);
+
+        $status = 'expired';
+        $responseAuthorization = $this->getAuthorization($status);
+        $this->client->expects($this->once())
+            ->method('authorizeOrder')
+            ->with($order, $authorization, $apiContext)
+            ->willReturn($responseAuthorization);
+
+        $this->expectExceptionMessage(
+            "Could not authorize payment {$paymentId}. Authorization status: {$status}."
+        );
+        $this->expectException(RuntimeException::class);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not authorize payment.',
+                [
+                    'paymentId'           => $paymentId,
+                    'authorization state' => $status
+                ]
+            );
+
+        $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testCapture()
+    {
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $capture = new Capture();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getCapturedDetails')
+            ->with($paymentInfo)
+            ->willReturn($capture);
+
+        $responseCapture = $this->getCapture(PayPalTransport::ORDER_PAYMENT_CAPTURED_STATUS);
+        $this->client->expects($this->once())
+            ->method('captureOrder')
+            ->with($order, $capture, $apiContext)
+            ->willReturn($responseCapture);
+
+        $this->transport->capturePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testCaptureShouldThrowExceptionIfOrderIdIsNotDefined()
+    {
+        $paymentInfo = $this->getPaymentInfo();
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Order Id is required.');
+
+        $this->transport->capturePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testCaptureShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
+    {
+        $payPalConnectionException = new PayPalConnectionException(
+            'https://api.sandbox.paypal.com/v1/payments/payment',
+            'Internal Server Error'
+        );
+
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $capture = new Capture();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getCapturedDetails')
+            ->with($paymentInfo)
+            ->willReturn($capture);
+
+        $this->client->expects($this->once())
+            ->method('captureOrder')
+            ->with($order, $capture, $apiContext)
+            ->willThrowException($payPalConnectionException);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not connect to PayPal server. Reason: Internal Server Error',
+                [
+                    'exception' => $payPalConnectionException
+                ]
+            );
+
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('Could not connect to PayPal server.');
+
+        $this->transport->capturePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testCaptureShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
+    {
+        $exception = new \Exception('Fatal Error');
+
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $capture = new Capture();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getCapturedDetails')
+            ->with($paymentInfo)
+            ->willReturn($capture);
+
+        $this->client->expects($this->once())
+            ->method('captureOrder')
+            ->with($order, $capture, $apiContext)
+            ->willThrowException($exception);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not capture payment. Reason: Fatal Error',
+                [
+                    'exception' => $exception
+                ]
+            );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not capture payment.');
+
+        $this->transport->capturePayment($paymentInfo, $apiContextInfo);
+    }
+
+    public function testCaptureShouldThrowAnErrorIfCapturingIsFailed()
+    {
+        $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
+        $paymentInfo = $this->getPaymentInfo($paymentId, $orderId);
+
+        $apiContextInfo = $this->getApiContextInfo(
+            'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
+        );
+
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+
+        $order = $this->getOrder();
+        $this->client
+            ->expects($this->once())
+            ->method('getOrderById')
+            ->with($orderId)
+            ->willReturn($order);
+
+        $capture = new Capture();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getCapturedDetails')
+            ->with($paymentInfo)
+            ->willReturn($capture);
+
+        $status = 'refunded';
+        $responseCapture = $this->getCapture($status);
+        $this->client->expects($this->once())
+            ->method('captureOrder')
+            ->with($order, $capture, $apiContext)
+            ->willReturn($responseCapture);
+
+        $this->expectExceptionMessage(
+            "Could not capture payment {$paymentId}. Capture status: {$status}."
+        );
+        $this->expectException(RuntimeException::class);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Could not capture payment.',
+                [
+                    'paymentId'     => $paymentId,
+                    'capture state' => $status
+                ]
+            );
+
+        $this->transport->capturePayment($paymentInfo, $apiContextInfo);
+    }
+
     /**
-     * @param Order $order
+     * @param ApiContextInfo $apiContextInfo
+     *
+     * @return ApiContext
+     */
+    protected function setupApiContextTranslator(ApiContextInfo $apiContextInfo)
+    {
+        $apiContext = new ApiContext();
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getApiContext')
+            ->with($apiContextInfo)
+            ->willReturn($apiContext);
+
+        return $apiContext;
+    }
+
+    /**
+     * @param Order  $order
+     * @param string $state
      *
      * @return Payment
      */
-    protected function getPayment(Order $order)
+    protected function getPayment(Order $order, $state = null)
     {
         $payment = new Payment();
         $transaction = new Transaction();
@@ -366,7 +728,49 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $transaction->setRelatedResources([$relatedResource]);
         $payment->addTransaction($transaction);
 
+        if ($state) {
+            $payment->setState($state);
+        }
+
         return $payment;
+    }
+
+    /**
+     * @param string|null $state
+     *
+     * @return Order
+     */
+    protected function getOrder($state = null)
+    {
+        $order = new Order();
+        $order->setState($state);
+
+        return $order;
+    }
+
+    /**
+     * @param string|null $status
+     *
+     * @return Authorization
+     */
+    protected function getAuthorization($status = null)
+    {
+        $authorization = new Authorization();
+        $authorization->setState($status);
+
+        return $authorization;
+    }
+
+    /**
+     * @param $status
+     * @return Capture
+     */
+    protected function getCapture($status = null)
+    {
+        $capture = new Capture();
+        $capture->setState($status);
+
+        return $capture;
     }
 
     /**
@@ -374,18 +778,22 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
      *
      * @return PaymentInfo
      */
-    protected function getPaymentInfo($paymentId = null)
+    protected function getPaymentInfo($paymentId = null, $orderId = null)
     {
-        return new PaymentInfo(
+        $paymentInfo = new PaymentInfo(
             1.22,
             'USD',
             0.1,
             0.2,
             1.99,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            [],
-            $paymentId
+            []
         );
+
+        $paymentInfo->setPaymentId($paymentId);
+        $paymentInfo->setOrderId($orderId);
+
+        return $paymentInfo;
     }
 
     /**

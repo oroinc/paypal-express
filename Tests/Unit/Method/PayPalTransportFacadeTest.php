@@ -131,7 +131,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
         $this->paymentTransactionTranslator
             ->expects($this->once())
             ->method('getPaymentInfo')
-            ->with($paymentTransaction, $paymentId, $payerId)
+            ->with($paymentTransaction)
             ->willReturn($paymentInfo);
 
         $this->payPalTransport

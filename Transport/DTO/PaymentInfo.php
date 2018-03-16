@@ -52,6 +52,11 @@ class PaymentInfo
     protected $payerId = null;
 
     /**
+     * @var null|string
+     */
+    protected $orderId = null;
+
+    /**
      * @param float      $totalAmount
      * @param string     $currency
      * @param float      $shipping
@@ -59,8 +64,6 @@ class PaymentInfo
      * @param float      $subtotal
      * @param string     $method
      * @param ItemInfo[] $items
-     * @param string     $paymentId
-     * @param string     $payerId
      */
     public function __construct(
         $totalAmount,
@@ -69,9 +72,7 @@ class PaymentInfo
         $tax,
         $subtotal,
         $method,
-        array $items = [],
-        $paymentId = null,
-        $payerId = null
+        array $items = []
     ) {
         $this->totalAmount = $totalAmount;
         $this->currency    = $currency;
@@ -80,8 +81,6 @@ class PaymentInfo
         $this->subtotal    = $subtotal;
         $this->method      = $method;
         $this->items       = $items;
-        $this->paymentId   = $paymentId;
-        $this->payerId     = $payerId;
     }
 
     /**
@@ -151,10 +150,42 @@ class PaymentInfo
     }
 
     /**
+     * @param null|string $paymentId
+     */
+    public function setPaymentId($paymentId)
+    {
+        $this->paymentId = $paymentId;
+    }
+
+    /**
      * @return null|string
      */
     public function getPayerId()
     {
         return $this->payerId;
+    }
+
+    /**
+     * @param null|string $payerId
+     */
+    public function setPayerId($payerId)
+    {
+        $this->payerId = $payerId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
+    }
+
+    /**
+     * @param null|string $orderId
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
     }
 }

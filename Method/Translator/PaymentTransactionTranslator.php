@@ -15,6 +15,9 @@ use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\SubtotalAwareInterface;
 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
+
 class PaymentTransactionTranslator
 {
     /**
@@ -38,6 +41,11 @@ class PaymentTransactionTranslator
     protected $taxProvider;
 
     /**
+     * @var RouterInterface
+     */
+    protected $router;
+
+    /**
      * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
      * @param LineItemTranslator        $lineItemTranslator
      * @param DoctrineHelper            $doctrineHelper
@@ -47,22 +55,22 @@ class PaymentTransactionTranslator
         SupportedCurrenciesHelper $supportedCurrenciesHelper,
         LineItemTranslator $lineItemTranslator,
         DoctrineHelper $doctrineHelper,
-        TaxProvider $taxProvider
+        TaxProvider $taxProvider,
+        RouterInterface $router
     ) {
         $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
         $this->lineItemTranslator        = $lineItemTranslator;
         $this->doctrineHelper            = $doctrineHelper;
         $this->taxProvider               = $taxProvider;
+        $this->router                    = $router;
     }
 
     /**
      * @param PaymentTransaction $paymentTransaction
-     * @param null|string        $paymentId
-     * @param null|string        $payerId
      *
      * @return PaymentInfo
      */
-    public function getPaymentInfo(PaymentTransaction $paymentTransaction, $paymentId = null, $payerId = null)
+    public function getPaymentInfo(PaymentTransaction $paymentTransaction)
     {
         $this->validateTransaction($paymentTransaction);
 
@@ -83,9 +91,7 @@ class PaymentTransactionTranslator
             $tax,
             $subtotal,
             $method,
-            $paymentItems,
-            $paymentId,
-            $payerId
+            $paymentItems
         );
 
         return $paymentInfo;
@@ -184,14 +190,27 @@ class PaymentTransactionTranslator
     }
 
     /**
-     * @todo: will be implemented in scope of BB-13884
-     *
      * @param PaymentTransaction $paymentTransaction
      *
      * @return RedirectRoutesInfo
      */
     public function getRedirectRoutes(PaymentTransaction $paymentTransaction)
     {
-        return new RedirectRoutesInfo('', '');
+        $successRoute = $this->router->generate(
+            'oro_payment_callback_return',
+            [
+                'accessIdentifier' => $paymentTransaction->getAccessIdentifier(),
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        $failedRoute = $this->router->generate(
+            'oro_payment_callback_error',
+            [
+                'accessIdentifier' => $paymentTransaction->getAccessIdentifier(),
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        return new RedirectRoutesInfo($successRoute, $failedRoute);
     }
 }
