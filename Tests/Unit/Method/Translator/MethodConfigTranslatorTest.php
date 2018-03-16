@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
@@ -32,6 +33,7 @@ class MethodConfigTranslatorTest extends \PHPUnit_Framework_TestCase
             $clientId,
             $clientSecret,
             'test',
+            AuthorizeAndCaptureAction::NAME,
             $isSandbox
         );
 

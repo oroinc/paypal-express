@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacade;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
@@ -96,6 +97,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
             $clientId,
             $clientSecret,
             'test',
+            AuthorizeAndCaptureAction::NAME,
             $isSandbox
         );
         $this->methodConfigTranslator->expects($this->once())
@@ -146,6 +148,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
             $clientId,
             $clientSecret,
             'test',
+            AuthorizeAndCaptureAction::NAME,
             $isSandbox
         );
         $this->methodConfigTranslator->expects($this->once())
