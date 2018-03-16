@@ -167,7 +167,6 @@ class PayPalExpressConfigProviderTest extends \PHPUnit_Framework_TestCase
     protected function getSetting($name, $clientId, $clientSecret, $labels, $shortLabels, $isSandbox)
     {
         $setting = new PayPalExpressSettings();
-        $setting->setName($name);
         $setting->setClientId($clientId);
         $setting->setClientSecret($clientSecret);
 
@@ -182,7 +181,9 @@ class PayPalExpressConfigProviderTest extends \PHPUnit_Framework_TestCase
         $setting->setShortLabels(new ArrayCollection([$localizedFallbackValue]));
 
         $setting->setSandboxMode($isSandbox);
-        $setting->setChannel(new Channel());
+        $channel = new Channel();
+        $channel->setName($name);
+        $setting->setChannel($channel);
 
         return $setting;
     }

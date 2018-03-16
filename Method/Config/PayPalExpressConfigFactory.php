@@ -50,7 +50,7 @@ class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
         return new PayPalExpressConfig(
             $this->getLocalizedValue($settings->getLabels()),
             $this->getLocalizedValue($settings->getShortLabels()),
-            $settings->getName(),
+            $settings->getChannel()->getName(),
             $this->getDecryptedValue($settings->getClientId()),
             $this->getDecryptedValue($settings->getClientSecret()),
             $this->identifierGenerator->generateIdentifier($settings->getChannel()),

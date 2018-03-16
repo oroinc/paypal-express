@@ -206,12 +206,12 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             0.1,
             1.4,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            [],
-            'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-            $payerId
+            []
         );
+        $paymentInfo->setPayerId($payerId);
+        $paymentInfo->setPaymentId('BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ');
         $paymentExecution = $this->payPalSDKObjectTranslator->getPaymentExecution($paymentInfo);
-        $this->assertEquals($paymentExecution->getPayerId(), $payerId);
+        $this->assertEquals($payerId, $paymentExecution->getPayerId());
     }
 
     public function testGetAuthorization()

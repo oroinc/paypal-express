@@ -19,6 +19,7 @@ use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\QuxPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
+use Symfony\Component\Routing\RouterInterface;
 
 class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,6 +48,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
      */
     protected $taxProvider;
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|RouterInterface
+     */
+    protected $router;
+
     protected function setUp()
     {
         $this->supportedCurrenciesHelper = new SupportedCurrenciesHelper();
@@ -57,11 +63,14 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->taxProvider = $this->createMock(TaxProvider::class);
 
+        $this->router = $this->createMock(RouterInterface::class);
+
         $this->translator = new PaymentTransactionTranslator(
             $this->supportedCurrenciesHelper,
             $this->lineItemTranslator,
             $this->doctrineHelper,
-            $this->taxProvider
+            $this->taxProvider,
+            $this->router
         );
     }
 
@@ -72,8 +81,6 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
-        $paymentId = 'txBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $payerId = 'QxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
         $fooItemName = 'foo item';
         $fooQuantity = 2;
@@ -121,12 +128,10 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             [
                 $fooPaymentItemInfo,
                 $barPaymentItemInfo
-            ],
-            $paymentId,
-            $payerId
+            ]
         );
 
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction, $paymentId, $payerId);
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }

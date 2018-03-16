@@ -24,7 +24,6 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
             'clientSecret' => 'TxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'label'        => 'foo label',
             'shortLabel'   => 'foo short label',
-            'name'         => 'foo',
             'reference'    => 'oro_paypal_express.settings.foo'
         ],
         [
@@ -32,7 +31,6 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
             'clientSecret' => 'LxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'label'        => 'bar label',
             'shortLabel'   => 'bar short label',
-            'name'         => 'bar',
             'reference'    => 'oro_paypal_express.settings.bar'
         ],
         [
@@ -40,7 +38,6 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
             'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'label'        => 'baz label',
             'shortLabel'   => 'baz short label',
-            'name'         => 'baz',
             'reference'    => 'oro_paypal_express.settings.baz'
         ],
     ];
@@ -59,7 +56,6 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
             $settings = new PayPalExpressSettings();
             $settings->setClientId($this->encoder->encryptData($item['clientId']));
             $settings->setClientSecret($this->encoder->encryptData($item['clientSecret']));
-            $settings->setName($item['name']);
             $label = new LocalizedFallbackValue();
             $label->setString($item['label']);
             $label->setText($item['label']);
