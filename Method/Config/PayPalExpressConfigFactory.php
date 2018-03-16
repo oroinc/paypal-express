@@ -54,6 +54,7 @@ class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
             $this->getDecryptedValue($settings->getClientId()),
             $this->getDecryptedValue($settings->getClientSecret()),
             $this->identifierGenerator->generateIdentifier($settings->getChannel()),
+            $settings->getPaymentAction(),
             $settings->isSandboxMode()
         );
     }

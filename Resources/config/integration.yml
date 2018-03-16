@@ -13,5 +13,6 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Form\Type\PayPalSettingsType
         arguments:
             - '@oro_security.form.data_transformer.factory.crypted_data'
+            - '@oro_paypal_express.method.payment_action.complete.registry'
         tags:
             - { name: form.type }

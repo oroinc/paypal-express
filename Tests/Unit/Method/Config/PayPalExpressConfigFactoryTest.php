@@ -10,6 +10,7 @@ use Oro\Bundle\LocaleBundle\Helper\LocalizationHelper;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactory;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 
 class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
@@ -66,6 +67,7 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
             $fooClientSecret,
             $fooLabel,
             $fooShortLabel,
+            AuthorizeAndCaptureAction::NAME,
             $fooIsSandbox,
             $fooChannel
         );
@@ -77,6 +79,7 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
             $fooClientId,
             $fooClientSecret,
             $fooPaymentMethodIdentifier,
+            AuthorizeAndCaptureAction::NAME,
             $fooIsSandbox
         );
 
@@ -101,17 +104,25 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string  $clientId
-     * @param string  $clientSecret
-     * @param string  $label
-     * @param string  $shortLabel
-     * @param bool    $isSandbox
+     * @param string $clientId
+     * @param string $clientSecret
+     * @param string $label
+     * @param string $shortLabel
+     * @param string $paymentAction
+     * @param bool $isSandbox
      * @param Channel $channel
      *
      * @return PayPalExpressSettings
      */
-    protected function getSetting($clientId, $clientSecret, $label, $shortLabel, $isSandbox, Channel $channel)
-    {
+    protected function getSetting(
+        $clientId,
+        $clientSecret,
+        $label,
+        $shortLabel,
+        $paymentAction,
+        $isSandbox,
+        Channel $channel
+    ) {
         $setting = new PayPalExpressSettings();
         $setting->setClientId($clientId);
         $setting->setClientSecret($clientSecret);
@@ -128,6 +139,7 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit_Framework_TestCase
 
         $setting->setSandboxMode($isSandbox);
         $setting->setChannel($channel);
+        $setting->setPaymentAction($paymentAction);
 
         return $setting;
     }

@@ -4,13 +4,16 @@ namespace Oro\Bundle\PayPalExpressBundle\Form\Type;
 
 use Oro\Bundle\LocaleBundle\Form\Type\LocalizedFallbackValueCollectionType;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
 use Oro\Bundle\SecurityBundle\Form\DataTransformer\Factory\CryptedDataTransformerFactory;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class PayPalSettingsType extends AbstractType
@@ -22,12 +25,25 @@ class PayPalSettingsType extends AbstractType
     protected $cryptedDataTransformerFactory;
 
     /**
-     * PayPalSettingsType constructor.
-     * @param CryptedDataTransformerFactory $cryptedDataTransformerFactory
+     * @var TranslatorInterface
      */
-    public function __construct(CryptedDataTransformerFactory $cryptedDataTransformerFactory)
-    {
+    protected $translator;
+
+    /**
+     * @var PaymentActionRegistry
+     */
+    protected $paymentActionRegistry;
+
+    /**
+     * @param CryptedDataTransformerFactory  $cryptedDataTransformerFactory
+     * @param PaymentActionRegistry          $paymentActionRegistry
+     */
+    public function __construct(
+        CryptedDataTransformerFactory $cryptedDataTransformerFactory,
+        PaymentActionRegistry $paymentActionRegistry
+    ) {
         $this->cryptedDataTransformerFactory = $cryptedDataTransformerFactory;
+        $this->paymentActionRegistry         = $paymentActionRegistry;
     }
 
     /**
@@ -40,6 +56,21 @@ class PayPalSettingsType extends AbstractType
     {
         $builder
             ->add(
+                'paymentAction',
+                ChoiceType::class,
+                [
+                    'choices'           => $this->paymentActionRegistry->getRegisteredActions(),
+                    'choices_as_values' => true,
+                    'choice_label'      => function ($action) {
+                        return $this->translator->trans(
+                            sprintf('oro.paypal_express.settings.payment_action.%s', $action)
+                        );
+                    },
+                    'label'             => 'oro.paypal_express.settings.payment_action.label',
+                    'tooltip'           => 'oro.paypal_express.settings.payment_action.tooltip',
+                    'required'          => true,
+                ]
+            )->add(
                 'labels',
                 LocalizedFallbackValueCollectionType::NAME,
                 [

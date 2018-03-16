@@ -20,4 +20,9 @@ interface PayPalExpressConfigInterface extends PaymentConfigInterface
      * @return bool
      */
     public function isSandbox();
+
+    /**
+     * @return string
+     */
+    public function getPaymentAction();
 }

@@ -21,6 +21,7 @@ class PayPalExpressSettings extends Transport
     const SANDBOX_MOD_SETTING_KEY = 'test_mod';
     const LABELS_SETTING_KEY = 'labels';
     const SHORT_LABELS_SETTING_KEY = 'short_labels';
+    const PAYMENT_ACTION_KEY = 'payment_action';
 
     /**
      * @var ParameterBag
@@ -88,6 +89,13 @@ class PayPalExpressSettings extends Transport
      * )
      */
     protected $shortLabels;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pp_express_payment_action", type="string", length=255, nullable=false)
+     */
+    protected $paymentAction;
 
     /**
      * @return string
@@ -170,6 +178,22 @@ class PayPalExpressSettings extends Transport
     }
 
     /**
+     * @return string
+     */
+    public function getPaymentAction()
+    {
+        return $this->paymentAction;
+    }
+
+    /**
+     * @param string $paymentAction
+     */
+    public function setPaymentAction($paymentAction)
+    {
+        $this->paymentAction = $paymentAction;
+    }
+
+    /**
      * @return ParameterBag
      */
     public function getSettingsBag()
@@ -182,6 +206,7 @@ class PayPalExpressSettings extends Transport
                     self::SANDBOX_MOD_SETTING_KEY   => $this->isSandboxMode(),
                     self::LABELS_SETTING_KEY        => $this->getLabels(),
                     self::SHORT_LABELS_SETTING_KEY  => $this->getShortLabels(),
+                    self::PAYMENT_ACTION_KEY        => $this->getPaymentAction(),
                 ]
             );
         }

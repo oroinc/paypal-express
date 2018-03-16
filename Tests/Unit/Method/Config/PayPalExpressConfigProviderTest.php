@@ -13,6 +13,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactoryInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider;
 
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Psr\Log\LoggerInterface;
 
 class PayPalExpressConfigProviderTest extends \PHPUnit_Framework_TestCase
@@ -66,6 +67,7 @@ class PayPalExpressConfigProviderTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'paypal_express_1',
+            AuthorizeAndCaptureAction::NAME,
             true
         );
 
@@ -85,6 +87,7 @@ class PayPalExpressConfigProviderTest extends \PHPUnit_Framework_TestCase
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'DxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'paypal_express_2',
+            AuthorizeAndCaptureAction::NAME,
             false
         );
         $expectedConfigs = [$fooIntegrationIdentifier => $fooConfig, $barIntegrationIdentifier => $barConfig];
