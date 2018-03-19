@@ -49,12 +49,4 @@ class PaymentActionRegistry
     {
         return isset($this->paymentActions[$paymentActionName]);
     }
-
-    /**
-     * @return string[]
-     */
-    public function getRegisteredActions()
-    {
-        return array_keys($this->paymentActions);
-    }
 }

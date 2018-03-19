@@ -15,11 +15,9 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
      */
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        $route = $this->payPalTransportFacade->getPayPalPaymentRoute($paymentTransaction, $config);
-
-        return [
-            'purchaseRedirectUrl' => $route
-        ];
+        $this->payPalTransportFacade->executePayPalPayment($paymentTransaction, $config);
+        $this->payPalTransportFacade->authorizePayment($paymentTransaction, $config);
+        $this->payPalTransportFacade->capturePayment($paymentTransaction, $config);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
+use Oro\Bundle\PayPalExpressBundle\Exception\OperationExecutionFailedException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
@@ -99,16 +100,17 @@ class PayPalTransport implements PayPalTransportInterface
             $this->logger->error(
                 'Could not create the payment.',
                 [
-                    'paymentState' => $payment->getState(),
-                    'paymentId' => $payment->getId()
+                    'Payment state'  => $payment->getState(),
+                    'Payment id'     => $payment->getId(),
+                    'Failure reason' => $payment->getFailureReason(),
                 ]
             );
 
-            throw new RuntimeException(
-                sprintf(
-                    'Failed to create payment for PayPal. Response payment status: "%s"',
-                    $payment->getState()
-                )
+            throw OperationExecutionFailedException::create(
+                'Create Payment',
+                $paymentInfo->getPaymentId(),
+                $payment->getState(),
+                $payment->getFailureReason()
             );
         }
 
@@ -158,17 +160,17 @@ class PayPalTransport implements PayPalTransportInterface
             $this->logger->error(
                 'Could not executed payment.',
                 [
-                    'paymentId'     => $paymentInfo->getPaymentId(),
-                    'payment state' => $payment->getState()
+                    'paymentId'      => $paymentInfo->getPaymentId(),
+                    'payment state'  => $payment->getState(),
+                    'failure reason' => $payment->getFailureReason()
                 ]
             );
 
-            throw new RuntimeException(
-                sprintf(
-                    'Could not executed payment %s. Payment status: %s.',
-                    $paymentInfo->getPaymentId(),
-                    $payment->getState()
-                )
+            throw OperationExecutionFailedException::create(
+                'Payment Execution',
+                $paymentInfo->getPaymentId(),
+                $payment->getState(),
+                $payment->getFailureReason()
             );
         }
     }
@@ -260,16 +262,18 @@ class PayPalTransport implements PayPalTransportInterface
                 'Could not authorize payment.',
                 [
                     'paymentId'           => $paymentInfo->getPaymentId(),
-                    'authorization state' => $authorize->getState()
+                    'authorization state' => $authorize->getState(),
+                    'reason code'         => $authorize->getReasonCode(),
+                    'valid until'         => $authorize->getValidUntil(),
+                    'processor response'  => $authorize->getProcessorResponse()
                 ]
             );
 
-            throw new RuntimeException(
-                sprintf(
-                    'Could not authorize payment %s. Authorization status: %s.',
-                    $paymentInfo->getPaymentId(),
-                    $authorize->getState()
-                )
+            throw OperationExecutionFailedException::create(
+                'Payment Authorization',
+                $paymentInfo->getPaymentId(),
+                $authorize->getState(),
+                $authorize->getReasonCode()
             );
         }
     }
@@ -336,12 +340,10 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw new RuntimeException(
-                sprintf(
-                    'Could not capture payment %s. Capture status: %s.',
-                    $paymentInfo->getPaymentId(),
-                    $capture->getState()
-                )
+            OperationExecutionFailedException::create(
+                'Capture Payment',
+                $paymentInfo->getPaymentId(),
+                $capture->getState()
             );
         }
     }
