@@ -1,12 +1,12 @@
 {
     "name": "oro/commerce-paypal-express",
-    "description": "Oro Pay Pal SDK Integration",
+    "description": "Oro PayPal Express Integration using PayPal SDK",
     "homepage": "https://github.com/laboro/OroPayPalExpressBundle.git",
     "license": "OSL-3.0",
     "authors": [
         {
             "name": "Oro, Inc",
-            "homepage": "http://www.orocrm.com"
+            "homepage": "http://www.orocommerce.com"
         }
     ],
     "autoload": {
