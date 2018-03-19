@@ -1,27 +1,26 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
+namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry;
 
 class CompleteVirtualAction implements PaymentActionInterface
 {
     const NAME = 'complete';
 
     /**
-     * @var PaymentActionRegistry
+     * @var CompletePaymentActionRegistry
      */
-    protected $registry;
+    protected $completePaymentActionRegistry;
 
     /**
-     * @param PaymentActionRegistry $registry
+     * @param CompletePaymentActionRegistry $completePaymentActionRegistry
      */
-    public function __construct(PaymentActionRegistry $registry)
+    public function __construct(CompletePaymentActionRegistry $completePaymentActionRegistry)
     {
-        $this->registry = $registry;
+        $this->completePaymentActionRegistry = $completePaymentActionRegistry;
     }
 
     /**
@@ -29,7 +28,7 @@ class CompleteVirtualAction implements PaymentActionInterface
      */
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        $paymentAction = $this->registry->getPaymentAction($config->getPaymentAction());
+        $paymentAction = $this->completePaymentActionRegistry->getPaymentAction($config->getPaymentAction());
 
         return $paymentAction->executeAction($paymentTransaction, $config);
     }

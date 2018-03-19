@@ -61,6 +61,7 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
         arguments:
             - '@oro_paypal_express.method.paypal_transport_facade'
+            - '@oro_paypal_express.method.payment_action.executor'
 
     oro_paypal_express.method.provider:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodProvider
@@ -92,10 +93,10 @@ services:
             - { name: oro_paypal_express.compleate_payment_action }
 
     oro_paypal_express.method.payment_action.complete.registry:
-        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry
 
     oro_paypal_express.method.payment_action.complete.virtual:
-        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompleteVirtualAction
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction
         public: false
         arguments:
             - '@oro_paypal_express.method.payment_action.complete.registry'

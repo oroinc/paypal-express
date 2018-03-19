@@ -4,20 +4,34 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 class PurchaseAction extends AbstractPaymentAction
 {
-
     /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        // TODO: Implement executeAction() method.
+        $paymentTransaction->setAction($this->getName());
+
+        try {
+            $route = $this->payPalTransportFacade->getPayPalPaymentRoute($paymentTransaction, $config);
+            $paymentTransaction
+                ->setSuccessful(true)
+                ->setActive(true);
+
+            return [
+                'purchaseRedirectUrl' => $route
+            ];
+        } catch (ExceptionInterface $e) {
+            $paymentTransaction
+                ->setSuccessful(false)
+                ->setActive(false);
+
+            return [];
+        }
     }
 
 

@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method;
 
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 
 class PayPalMethodFactory implements PayPalMethodFactoryInterface
 {
@@ -12,11 +13,18 @@ class PayPalMethodFactory implements PayPalMethodFactoryInterface
     protected $palTransportFacade;
 
     /**
-     * @param PayPalTransportFacade $palTransportFacade
+     * @var PaymentActionExecutor
      */
-    public function __construct(PayPalTransportFacade $palTransportFacade)
+    protected $payPalActionExecutor;
+
+    /**
+     * @param PayPalTransportFacade $palTransportFacade
+     * @param PaymentActionExecutor $payPalActionExecutor
+     */
+    public function __construct(PayPalTransportFacade $palTransportFacade, PaymentActionExecutor $payPalActionExecutor)
     {
         $this->palTransportFacade = $palTransportFacade;
+        $this->payPalActionExecutor = $payPalActionExecutor;
     }
 
     /**
@@ -24,6 +32,6 @@ class PayPalMethodFactory implements PayPalMethodFactoryInterface
      */
     public function create(PayPalExpressConfigInterface $config)
     {
-        return new PayPalMethod($this->palTransportFacade, $config);
+        return new PayPalMethod($this->palTransportFacade, $config, $this->payPalActionExecutor);
     }
 }

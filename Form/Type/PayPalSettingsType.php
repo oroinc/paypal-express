@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Form\Type;
 
 use Oro\Bundle\LocaleBundle\Form\Type\LocalizedFallbackValueCollectionType;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry;
 use Oro\Bundle\SecurityBundle\Form\DataTransformer\Factory\CryptedDataTransformerFactory;
 
 use Symfony\Component\Form\AbstractType;
@@ -25,25 +25,28 @@ class PayPalSettingsType extends AbstractType
     protected $cryptedDataTransformerFactory;
 
     /**
+     * @var CompletePaymentActionRegistry
+     */
+    protected $completePaymentActionRegistry;
+
+    /**
      * @var TranslatorInterface
      */
     protected $translator;
 
     /**
-     * @var PaymentActionRegistry
-     */
-    protected $paymentActionRegistry;
-
-    /**
-     * @param CryptedDataTransformerFactory  $cryptedDataTransformerFactory
-     * @param PaymentActionRegistry          $paymentActionRegistry
+     * @param CryptedDataTransformerFactory $cryptedDataTransformerFactory
+     * @param CompletePaymentActionRegistry $completePaymentActionRegistry
+     * @param TranslatorInterface           $translator
      */
     public function __construct(
         CryptedDataTransformerFactory $cryptedDataTransformerFactory,
-        PaymentActionRegistry $paymentActionRegistry
+        CompletePaymentActionRegistry $completePaymentActionRegistry,
+        TranslatorInterface $translator
     ) {
         $this->cryptedDataTransformerFactory = $cryptedDataTransformerFactory;
-        $this->paymentActionRegistry         = $paymentActionRegistry;
+        $this->completePaymentActionRegistry = $completePaymentActionRegistry;
+        $this->translator                    = $translator;
     }
 
     /**
@@ -59,7 +62,7 @@ class PayPalSettingsType extends AbstractType
                 'paymentAction',
                 ChoiceType::class,
                 [
-                    'choices'           => $this->paymentActionRegistry->getRegisteredActions(),
+                    'choices'           => $this->completePaymentActionRegistry->getRegisteredActions(),
                     'choices_as_values' => true,
                     'choice_label'      => function ($action) {
                         return $this->translator->trans(
