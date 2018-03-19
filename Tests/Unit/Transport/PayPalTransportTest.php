@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
+use Oro\Bundle\PayPalExpressBundle\Exception\OperationExecutionFailedException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
@@ -478,7 +479,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectExceptionMessage(
             "Could not authorize payment {$paymentId}. Authorization status: {$status}."
         );
-        $this->expectException(RuntimeException::class);
+        $this->expectException(OperationExecutionFailedException::class);
 
         $this->logger->expects($this->once())
             ->method('error')
@@ -681,7 +682,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->expectExceptionMessage(
             "Could not capture payment {$paymentId}. Capture status: {$status}."
         );
-        $this->expectException(RuntimeException::class);
+        $this->expectException(OperationExecutionFailedException::class);
 
         $this->logger->expects($this->once())
             ->method('error')

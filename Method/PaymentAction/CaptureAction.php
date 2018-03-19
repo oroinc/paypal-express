@@ -13,7 +13,7 @@ class CaptureAction extends AbstractPaymentAction
      */
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        // TODO: Implement executeAction() method.
+        $this->payPalTransportFacade->capturePayment($paymentTransaction, $config);
     }
 
     /**
