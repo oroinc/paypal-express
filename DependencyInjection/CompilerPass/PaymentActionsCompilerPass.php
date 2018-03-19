@@ -15,8 +15,6 @@ class PaymentActionsCompilerPass implements CompilerPassInterface
     const COMPLETE_PAYMENT_ACTIONS_REGISTRY_SERVICE_ID = 'oro_paypal_express.method.payment_action.complete.registry';
     const COMPLETE_PAYMENT_ACTIONS_TAG_NAME = 'oro_paypal_express.compleate_payment_action';
 
-
-
     /**
      * You can modify the container here before it is dumped to PHP code.
      *
