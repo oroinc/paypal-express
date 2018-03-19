@@ -56,6 +56,11 @@ services:
             - '@oro_paypal_express.pay_pal.transport'
             - '@oro_paypal_express.method.translator.payment_transaction'
             - '@oro_paypal_express.method.translator.method_config'
+            - '@oro_paypal_express.method.payment_transaction.payment_transaction_data_factory'
+
+    oro_paypal_express.method.payment_transaction.payment_transaction_data_factory:
+        public: false
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory
 
     oro_paypal_express.method.factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
