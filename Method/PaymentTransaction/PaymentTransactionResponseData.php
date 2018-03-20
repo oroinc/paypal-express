@@ -8,7 +8,7 @@ class PaymentTransactionResponseData
     const ORDER_ID_FIELD_KEY = 'orderId';
     const PAYMENT_ACTION_FIELD_KEY = 'paymentAction';
     const PAYMENT_ACTION_CONFIG_FIELD_KEY = 'paymentActionConfig';
-    const DATA_FIELD_KEY = 'data';
+    const PAYER_ID_FIELD_KEY = 'payerId';
 
     /**
      * @var string
@@ -31,9 +31,9 @@ class PaymentTransactionResponseData
     protected $paymentAction;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $data = [];
+    protected $payerId;
 
     /**
      * @return string
@@ -100,19 +100,19 @@ class PaymentTransactionResponseData
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getData()
+    public function getPayerId()
     {
-        return $this->data;
+        return $this->payerId;
     }
 
     /**
-     * @param array $data
+     * @param string $payerId
      */
-    public function setData(array $data)
+    public function setPayerId($payerId)
     {
-        $this->data = $data;
+        $this->payerId = $payerId;
     }
 
     public function toArray()
@@ -122,7 +122,7 @@ class PaymentTransactionResponseData
             self::ORDER_ID_FIELD_KEY              => $this->orderId,
             self::PAYMENT_ACTION_FIELD_KEY        => $this->paymentAction,
             self::PAYMENT_ACTION_CONFIG_FIELD_KEY => $this->paymentActionConfig,
-            self::DATA_FIELD_KEY                  => $this->data,
+            self::PAYER_ID_FIELD_KEY              => $this->payerId,
         ];
     }
 
@@ -140,8 +140,8 @@ class PaymentTransactionResponseData
         if (isset($responseData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY])) {
             $this->paymentActionConfig = $responseData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY];
         }
-        if (isset($responseData[self::DATA_FIELD_KEY])) {
-            $this->data = $responseData[self::DATA_FIELD_KEY];
+        if (isset($responseData[self::PAYER_ID_FIELD_KEY])) {
+            $this->payerId = $responseData[self::PAYER_ID_FIELD_KEY];
         }
     }
 }

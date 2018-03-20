@@ -70,12 +70,13 @@ class PayPalClient
     }
 
     /**
-     * @param string $orderId
+     * @param string     $orderId
+     * @param ApiContext $apiContext
      *
      * @return Order
      */
-    public function getOrderById($orderId)
+    public function getOrderById($orderId, ApiContext $apiContext)
     {
-        return Order::get($orderId);
+        return Order::get($orderId, $apiContext);
     }
 }
