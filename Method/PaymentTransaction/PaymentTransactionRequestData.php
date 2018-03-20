@@ -126,22 +126,22 @@ class PaymentTransactionRequestData
         ];
     }
 
-    public function setFromArray(array $responseData)
+    public function setFromArray(array $requestData)
     {
-        if (isset($responseData[self::PAYMENT_ID_FIELD_KEY])) {
-            $this->paymentId = $responseData[self::PAYMENT_ID_FIELD_KEY];
+        if (isset($requestData[self::PAYMENT_ID_FIELD_KEY])) {
+            $this->paymentId = $requestData[self::PAYMENT_ID_FIELD_KEY];
         }
-        if (isset($responseData[self::PAYMENT_ACTION_FIELD_KEY])) {
-            $this->paymentAction = $responseData[self::PAYMENT_ACTION_FIELD_KEY];
+        if (isset($requestData[self::PAYMENT_ACTION_FIELD_KEY])) {
+            $this->paymentAction = $requestData[self::PAYMENT_ACTION_FIELD_KEY];
         }
-        if (isset($responseData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY])) {
-            $this->paymentActionConfig = $responseData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY];
+        if (isset($requestData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY])) {
+            $this->paymentActionConfig = $requestData[self::PAYMENT_ACTION_CONFIG_FIELD_KEY];
         }
-        if (isset($responseData[self::CURRENCY_FIELD_KEY])) {
-            $this->currency = $responseData[self::CURRENCY_FIELD_KEY];
+        if (isset($requestData[self::CURRENCY_FIELD_KEY])) {
+            $this->currency = $requestData[self::CURRENCY_FIELD_KEY];
         }
-        if (isset($responseData[self::TOTAL_AMOUNT_FIELD_KEY])) {
-            $this->totalAmount = $responseData[self::TOTAL_AMOUNT_FIELD_KEY];
+        if (isset($requestData[self::TOTAL_AMOUNT_FIELD_KEY])) {
+            $this->totalAmount = $requestData[self::TOTAL_AMOUNT_FIELD_KEY];
         }
     }
 }

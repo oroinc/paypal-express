@@ -50,6 +50,7 @@ class PaymentTransactionTranslator
      * @param LineItemTranslator        $lineItemTranslator
      * @param DoctrineHelper            $doctrineHelper
      * @param TaxProvider               $taxProvider
+     * @param RouterInterface           $router
      */
     public function __construct(
         SupportedCurrenciesHelper $supportedCurrenciesHelper,

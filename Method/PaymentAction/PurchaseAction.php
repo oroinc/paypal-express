@@ -22,9 +22,7 @@ class PurchaseAction extends AbstractPaymentAction
                 ->setSuccessful(true)
                 ->setActive(true);
 
-            return [
-                'purchaseRedirectUrl' => $route
-            ];
+            return ['purchaseRedirectUrl' => $route];
         } catch (ExceptionInterface $e) {
             $paymentTransaction
                 ->setSuccessful(false)
