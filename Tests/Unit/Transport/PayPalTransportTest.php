@@ -163,7 +163,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'text.example.com/paypal/success',
             'text.example.com/paypal/failed'
         );
-        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
+        $this->setupApiContextTranslator($apiContextInfo);
 
         $payment = new Payment();
 
@@ -311,7 +311,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
@@ -360,13 +360,13 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $this->setupApiContextTranslator($apiContextInfo);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $order = $this->getOrder();
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
@@ -407,13 +407,13 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
-        $this->setupApiContextTranslator($apiContextInfo);
+        $apiContext = $this->setupApiContextTranslator($apiContextInfo);
 
         $order = $this->getOrder();
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
@@ -459,7 +459,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
@@ -477,7 +477,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->willReturn($responseAuthorization);
 
         $this->expectExceptionMessage(
-            "Could not authorize payment {$paymentId}. Authorization status: {$status}."
+            "Could not complete \"Payment Authorization\" for Entity[id: {$paymentId}, status: {$status}]."
         );
         $this->expectException(OperationExecutionFailedException::class);
 
@@ -487,7 +487,10 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
                 'Could not authorize payment.',
                 [
                     'paymentId'           => $paymentId,
-                    'authorization state' => $status
+                    'authorization state' => $status,
+                    'reason code'         => null,
+                    'valid until'         => null,
+                    'processor response'  => null
                 ]
             );
 
@@ -511,7 +514,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $capture = new Capture();
@@ -566,7 +569,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $capture = new Capture();
@@ -614,7 +617,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $capture = new Capture();
@@ -662,7 +665,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client
             ->expects($this->once())
             ->method('getOrderById')
-            ->with($orderId)
+            ->with($orderId, $apiContext)
             ->willReturn($order);
 
         $capture = new Capture();
@@ -680,7 +683,7 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->willReturn($responseCapture);
 
         $this->expectExceptionMessage(
-            "Could not capture payment {$paymentId}. Capture status: {$status}."
+            "Could not complete \"Capture Payment\" for Entity[id: {$paymentId}, status: {$status}]."
         );
         $this->expectException(OperationExecutionFailedException::class);
 
