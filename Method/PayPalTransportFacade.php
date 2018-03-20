@@ -3,8 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
-use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
@@ -134,9 +132,7 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
     }
 
     /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     * @throws ExceptionInterface
+     * {@inheritdoc}
      */
     public function authorizePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
