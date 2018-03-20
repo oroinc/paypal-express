@@ -6,6 +6,7 @@ use Oro\Bundle\PaymentBundle\Event\AbstractCallbackEvent;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
 
 class PayPalRedirectListener
@@ -64,15 +65,17 @@ class PayPalRedirectListener
 
         $eventData = $event->getData();
 
-        // TODO: BB-3693 Will use typed Response
-        if (!$paymentTransaction || !isset($eventData['PayerID'], $eventData['token']) ||
-            $eventData['token'] !== $paymentTransaction->getReference()
+        if (!$paymentTransaction || !isset($eventData['paymentId'], $eventData['PayerID'], $eventData['token']) ||
+            $eventData['paymentId'] !== $paymentTransaction->getReference()
         ) {
             return;
         }
 
-        $responseDataFilledWithEventData = array_replace($paymentTransaction->getResponse(), $eventData);
-        $paymentTransaction->setResponse($responseDataFilledWithEventData);
+        $response = $paymentTransaction->getResponse();
+        $response[PaymentTransactionResponseData::PAYMENT_ID_FIELD_KEY] = $eventData['paymentId'];
+        $response[PaymentTransactionResponseData::PAYER_ID_FIELD_KEY] = $eventData['PayerID'];
+
+        $paymentTransaction->setResponse($response);
 
         try {
             $paymentMethod = $this->paymentMethodProvider->getPaymentMethod($paymentMethodId);

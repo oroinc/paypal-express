@@ -20,15 +20,24 @@ interface PayPalTransportFacadeInterface
     /**
      * @param PaymentTransaction           $paymentTransaction
      * @param PayPalExpressConfigInterface $payPalExpressConfig
-     * @param string                       $paymentId
-     * @param string                       $payerId
      * @throws ExceptionInterface
      */
     public function executePayPalPayment(
         PaymentTransaction $paymentTransaction,
-        PayPalExpressConfigInterface $payPalExpressConfig,
-        $paymentId,
-        $payerId
+        PayPalExpressConfigInterface $payPalExpressConfig
+    );
+
+    /**
+     * @param PaymentTransaction           $paymentTransaction
+     * @param PaymentTransaction           $authorizedTransaction
+     * @param PayPalExpressConfigInterface $config
+     *
+     * @throws ExceptionInterface
+     */
+    public function capturePayment(
+        PaymentTransaction $paymentTransaction,
+        PaymentTransaction $authorizedTransaction,
+        PayPalExpressConfigInterface $config
     );
 
     /**
@@ -37,21 +46,5 @@ interface PayPalTransportFacadeInterface
      *
      * @throws ExceptionInterface
      */
-    public function capturePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config);
-
-    /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     *
-     * @throws ExceptionInterface
-     */
     public function authorizePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config);
-
-    /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     *
-     * @throws ExceptionInterface
-     */
-    public function authorizeAndCapture(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config);
 }

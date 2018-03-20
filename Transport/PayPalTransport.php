@@ -114,6 +114,8 @@ class PayPalTransport implements PayPalTransportInterface
             );
         }
 
+
+
         return $payment->getApprovalLink();
     }
 
@@ -229,7 +231,7 @@ class PayPalTransport implements PayPalTransportInterface
 
         try {
             $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId());
+            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
             $authorize = $this->doAuthorize($paymentInfo, $order, $apiContext);
         } catch (PayPalConnectionException $connectionException) {
             $this->logger->error(
@@ -303,7 +305,7 @@ class PayPalTransport implements PayPalTransportInterface
 
         try {
             $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId());
+            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
             $capture = $this->doCapture($paymentInfo, $order, $apiContext);
         } catch (PayPalConnectionException $connectionException) {
             $this->logger->error(
@@ -340,7 +342,7 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            OperationExecutionFailedException::create(
+            throw OperationExecutionFailedException::create(
                 'Capture Payment',
                 $paymentInfo->getPaymentId(),
                 $capture->getState()

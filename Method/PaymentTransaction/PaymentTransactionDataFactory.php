@@ -27,9 +27,24 @@ class PaymentTransactionDataFactory
         if ($paymentInfo) {
             $paymentTransactionData->setOrderId($paymentInfo->getOrderId());
             $paymentTransactionData->setPaymentId($paymentInfo->getPaymentId());
+            $paymentTransactionData->setPayerId($paymentInfo->getPayerId());
         } else {
             $paymentTransactionData->setPaymentId($paymentTransaction->getReference());
         }
+
+        return $paymentTransactionData;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return PaymentTransactionResponseData
+     */
+    public function createResponseDataFromArray(array $data)
+    {
+        $paymentTransactionData = new PaymentTransactionResponseData();
+
+        $paymentTransactionData->setFromArray($data);
 
         return $paymentTransactionData;
     }
@@ -48,6 +63,20 @@ class PaymentTransactionDataFactory
         $paymentTransactionData->setPaymentId($paymentTransaction->getReference());
         $paymentTransactionData->setCurrency($paymentTransaction->getCurrency());
         $paymentTransactionData->setTotalAmount($paymentTransaction->getAmount());
+
+        return $paymentTransactionData;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return PaymentTransactionRequestData
+     */
+    public function createRequestDataFromArray(array $data)
+    {
+        $paymentTransactionData = new PaymentTransactionRequestData();
+
+        $paymentTransactionData->setFromArray($data);
 
         return $paymentTransactionData;
     }
