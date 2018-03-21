@@ -2,25 +2,41 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 
 class PaymentActionRegistry
 {
     /**
+     * @var ExceptionFactory
+     */
+    protected $exceptionFactory;
+
+    /**
      * @var PaymentActionInterface[]
      */
     protected $paymentActions = [];
 
     /**
+     * @param ExceptionFactory $exceptionFactory
+     */
+    public function __construct(ExceptionFactory $exceptionFactory)
+    {
+        $this->exceptionFactory = $exceptionFactory;
+    }
+
+    /**
      * @param string $paymentActionName
      *
      * @return PaymentActionInterface
+     * @throws RuntimeException
      */
     public function getPaymentAction($paymentActionName)
     {
         if (!$this->isActionSupported($paymentActionName)) {
-            throw new RuntimeException('Payment Action is not supported');
+            $exception = $this->exceptionFactory->createRuntimeException('Payment Action is not supported');
+            throw $exception;
         }
 
         return $this->paymentActions[$paymentActionName];
@@ -28,13 +44,18 @@ class PaymentActionRegistry
 
     /**
      * @param PaymentActionInterface $paymentAction
+     *
+     * @throws LogicException
      */
     public function registerAction(PaymentActionInterface $paymentAction)
     {
         $paymentActionName = $paymentAction->getName();
 
         if (isset($this->paymentActions[$paymentActionName])) {
-            throw new LogicException('Payment Action with the same name is already registered');
+            $exception = $this->exceptionFactory
+                ->createLogicException('Payment Action with the same name is already registered');
+
+            throw $exception;
         }
 
         $this->paymentActions[$paymentActionName] = $paymentAction;

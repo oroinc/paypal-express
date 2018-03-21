@@ -49,6 +49,7 @@ services:
             - '@oro_entity.doctrine_helper'
             - '@oro_paypal_express.pay_pal.provider.tax'
             - '@router'
+            - '@oro_paypal_express.exception.factory'
 
     oro_paypal_express.method.payment_transaction_data_factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory
@@ -98,6 +99,8 @@ services:
 
     oro_paypal_express.method.payment_action.complete.registry:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry
+        arguments:
+            - '@oro_paypal_express.exception.factory'
 
     oro_paypal_express.method.payment_action.complete.virtual:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction
@@ -109,6 +112,8 @@ services:
 
     oro_paypal_express.method.payment_action.registry:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry
+        arguments:
+            - '@oro_paypal_express.exception.factory'
 
     oro_paypal_express.method.payment_action.executor:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor

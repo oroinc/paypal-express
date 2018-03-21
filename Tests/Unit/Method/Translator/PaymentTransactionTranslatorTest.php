@@ -6,6 +6,7 @@ use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\OrderBundle\Entity\OrderLineItem;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
@@ -18,7 +19,10 @@ use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\QuxPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
+
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
@@ -53,6 +57,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
      */
     protected $router;
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|ExceptionFactory
+     */
+    protected $exceptionFactory;
+
     protected function setUp()
     {
         $this->supportedCurrenciesHelper = new SupportedCurrenciesHelper();
@@ -65,12 +74,15 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->router = $this->createMock(RouterInterface::class);
 
+        $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
+
         $this->translator = new PaymentTransactionTranslator(
             $this->supportedCurrenciesHelper,
             $this->lineItemTranslator,
             $this->doctrineHelper,
             $this->taxProvider,
-            $this->router
+            $this->router,
+            $this->exceptionFactory
         );
     }
 
@@ -339,14 +351,18 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
-        $this->expectException(UnsupportedCurrencyException::class);
-        $this->expectExceptionMessage(
-            sprintf(
-                'Currency "%s" is not supported. Only next currencies are supported: "%s"',
-                $currency,
-                implode($this->supportedCurrenciesHelper->getSupportedCurrencyCodes())
-            )
+        $expectedMessage =sprintf(
+            'Currency "%s" is not supported. Only next currencies are supported: "%s"',
+            $currency,
+            implode($this->supportedCurrenciesHelper->getSupportedCurrencyCodes())
         );
+        $unsupportedCurrencyException = new UnsupportedCurrencyException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createUnsupportedCurrencyException')
+            ->willReturn($unsupportedCurrencyException);
+
+        $this->expectException(UnsupportedCurrencyException::class);
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->translator->getPaymentInfo($paymentTransaction);
     }
@@ -377,12 +393,55 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
+        $expectedMessage = sprintf('Decimal amount "%s" is not supported for currency "%s"', $totalAmount, $currency);
+        $unsupportedValueException = new UnsupportedValueException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createUnsupportedValueException')
+            ->willReturn($unsupportedValueException);
+
         $this->expectException(UnsupportedValueException::class);
-        $this->expectExceptionMessage(
-            sprintf('Decimal amount "%s" is not supported for currency "%s"', $totalAmount, $currency)
-        );
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->translator->getPaymentInfo($paymentTransaction);
+    }
+
+    public function testGetRedirectRoutes()
+    {
+        $accessIdentifier = 'test_1';
+        $expectedSuccessRoute = "http://example.com/payment/callback/return/$accessIdentifier";
+        $expectedFailedRoute = "http://example.com/payment/error/return/$accessIdentifier";
+
+        $this->router->expects($this->exactly(2))
+            ->method('generate')
+            ->willReturnMap(
+                [
+                    [
+                        'oro_payment_callback_return',
+                        [
+                            'accessIdentifier' => $accessIdentifier,
+                        ],
+                        UrlGeneratorInterface::ABSOLUTE_URL,
+                        $expectedSuccessRoute
+                    ],
+                    [
+                        'oro_payment_callback_error',
+                        [
+                            'accessIdentifier' => $accessIdentifier,
+                        ],
+                        UrlGeneratorInterface::ABSOLUTE_URL,
+                        $expectedFailedRoute
+                    ]
+                ]
+            );
+
+        $paymentTransaction = new PaymentTransaction();
+        $paymentTransaction->setAccessIdentifier($accessIdentifier);
+
+        $actualRoutes = $this->translator->getRedirectRoutes($paymentTransaction);
+
+        $this->assertInstanceOf(RedirectRoutesInfo::class, $actualRoutes);
+        $this->assertEquals($actualRoutes->getSuccessRoute(), $expectedSuccessRoute);
+        $this->assertEquals($actualRoutes->getFailedRoute(), $expectedFailedRoute);
     }
 
     /**
