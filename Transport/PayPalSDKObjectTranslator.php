@@ -167,9 +167,6 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
                 if (isset($parsedExceptionData['details'])) {
                     $details = $parsedExceptionData['details'];
                 }
-                if (isset($parsedExceptionData['details'])) {
-                    $details = $parsedExceptionData['details'];
-                }
                 if (isset($parsedExceptionData['information_link'])) {
                     $link = $parsedExceptionData['information_link'];
                 }

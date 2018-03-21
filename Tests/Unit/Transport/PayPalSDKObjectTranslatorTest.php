@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
@@ -17,6 +18,7 @@ use PayPal\Api\Payment;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
+use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
 class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
@@ -40,8 +42,6 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $tax = 1;
         $subtotal = 19;
         $currency = 'USD';
-        $paymentId = 'txBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $payerId = 'QxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
         $fooItemName = 'foo item';
         $fooQuantity = 2;
@@ -66,9 +66,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            $items,
-            $paymentId,
-            $payerId
+            $items
         );
 
         $redirectRoutesInfo = new RedirectRoutesInfo($successRoute, $failedRoute);
@@ -251,6 +249,101 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $captured = $this->payPalSDKObjectTranslator->getCapturedDetails($paymentInfo);
         $this->assertEquals($captured->getAmount(), $expectedAmount);
         $this->assertTrue($captured->getIsFinalCapture());
+    }
+
+    public function testGetExceptionInfo()
+    {
+        $message         = 'Order is already voided, expired, or completed.';
+        $statusCode      = 'ORDER_ALREADY_COMPLETED';
+        $details         = 'If the buyer\'s funding source has insufficient funds, restart the payment and ' .
+            'prompt the buyer to choose another payment method that is available on your site.';
+        $informationLink = 'https://developer.paypal.com/docs/api/payments/#errors';
+        $debugId         = '2879152bf38c1';
+
+        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
+        $exceptionMessage = 'Got Http response code 400 when accessing ' .
+            'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
+        $exception        = new PayPalConnectionException($url, $exceptionMessage);
+
+        $rawData = json_encode(
+            [
+                'message'          => $message,
+                'name'             => $statusCode,
+                'details'          => $details,
+                'information_link' => $informationLink,
+                'debug_id'         => $debugId
+            ]
+        );
+        $exception->setData($rawData);
+
+        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
+
+        $expectedExceptionInfo = new ExceptionInfo(
+            $message,
+            $statusCode,
+            $details,
+            $informationLink,
+            $debugId,
+            $paymentInfo,
+            $rawData
+        );
+
+        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
+
+        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
+    }
+
+    public function testGetExceptionInfoShouldSetOriginalErrorForExceptionInfoIfDataIsNull()
+    {
+        $statusCode      = 400;
+
+        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
+        $exceptionMessage = 'Got Http response code 400 when accessing ' .
+            'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
+        $exception        = new PayPalConnectionException($url, $exceptionMessage, $statusCode);
+
+        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
+
+        $expectedExceptionInfo = new ExceptionInfo(
+            $exceptionMessage,
+            $statusCode,
+            '',
+            '',
+            '',
+            $paymentInfo
+        );
+
+        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
+
+        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
+    }
+
+    public function testGetExceptionInfoShouldSetOriginalErrorForExceptionInfoIfDataCouldNotBeParsed()
+    {
+        $statusCode      = 400;
+
+        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
+        $exceptionMessage = 'Got Http response code 400 when accessing ' .
+            'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
+        $exception        = new PayPalConnectionException($url, $exceptionMessage, $statusCode);
+        $rawData = 'incorrect data';
+        $exception->setData($rawData);
+
+        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
+
+        $expectedExceptionInfo = new ExceptionInfo(
+            $exceptionMessage,
+            $statusCode,
+            '',
+            '',
+            '',
+            $paymentInfo,
+            $rawData
+        );
+
+        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
+
+        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
     }
 
     /**
