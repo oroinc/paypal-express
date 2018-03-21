@@ -3,7 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 class PaymentActionExecutor
@@ -30,10 +29,6 @@ class PaymentActionExecutor
      */
     public function executeAction($action, PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        if (!$this->isActionSupported($action)) {
-            throw new RuntimeException('Payment Action is not supported');
-        }
-
         $concreteAction = $this->registry->getPaymentAction($action);
 
         return $concreteAction->executeAction($paymentTransaction, $config);

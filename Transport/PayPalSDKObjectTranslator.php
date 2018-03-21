@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 
@@ -19,6 +20,7 @@ use PayPal\Api\PaymentExecution;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
+use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
 class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
@@ -139,5 +141,46 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         $captureDetails->setIsFinalCapture(true);
 
         return $captureDetails;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExceptionInfo(PayPalConnectionException $exception, PaymentInfo $paymentInfo)
+    {
+        $message = $exception->getMessage();
+        $statusCode = $exception->getCode();
+        $details = '';
+        $link = '';
+        $debugId = '';
+
+        $rawData = $exception->getData();
+        if ($rawData) {
+            $parsedExceptionData = json_decode($rawData, true);
+            if ($parsedExceptionData) {
+                if (isset($parsedExceptionData['message'])) {
+                    $message = $parsedExceptionData['message'];
+                }
+                if (isset($parsedExceptionData['name'])) {
+                    $statusCode = $parsedExceptionData['name'];
+                }
+                if (isset($parsedExceptionData['details'])) {
+                    $details = $parsedExceptionData['details'];
+                }
+                if (isset($parsedExceptionData['details'])) {
+                    $details = $parsedExceptionData['details'];
+                }
+                if (isset($parsedExceptionData['information_link'])) {
+                    $link = $parsedExceptionData['information_link'];
+                }
+                if (isset($parsedExceptionData['debug_id'])) {
+                    $debugId = $parsedExceptionData['debug_id'];
+                }
+            }
+        }
+
+        $exceptionInfo = new ExceptionInfo($message, $statusCode, $details, $link, $debugId, $paymentInfo, $rawData);
+
+        return $exceptionInfo;
     }
 }
