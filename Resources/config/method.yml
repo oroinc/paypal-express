@@ -88,14 +88,14 @@ services:
         parent: oro_paypal_express.method.payment_action.abstract
         public: false
         tags:
-            - { name: oro_paypal_express.compleate_payment_action }
+            - { name: oro_paypal_express.complete_payment_action }
 
     oro_paypal_express.method.payment_action.complete.authorize_and_capture:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction
         parent: oro_paypal_express.method.payment_action.abstract
         public: false
         tags:
-            - { name: oro_paypal_express.compleate_payment_action }
+            - { name: oro_paypal_express.complete_payment_action }
 
     oro_paypal_express.method.payment_action.complete.registry:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry

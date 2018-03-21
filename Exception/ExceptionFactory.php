@@ -52,7 +52,7 @@ class ExceptionFactory
     public function createOperationExecutionFailedException($message, $failureReason = null)
     {
         if ($failureReason) {
-            $message .= ". Reason: $failureReason";
+            $message .= " Reason: {$failureReason}.";
         }
 
         return new OperationExecutionFailedException($message);
@@ -60,26 +60,19 @@ class ExceptionFactory
 
     /**
      * @param string          $invalidCurrency
-     * @param \Throwable|null $previous
      *
      * @return UnsupportedCurrencyException
      */
-    public function createUnsupportedCurrencyException(
-        $invalidCurrency,
-        \Throwable $previous = null
-    ) {
-        $message = sprintf('Currency "%s" is not supported.', $invalidCurrency);
-
+    public function createUnsupportedCurrencyException($invalidCurrency)
+    {
         $listOfSupportedCurrencies = $this->supportedCurrenciesHelper->getSupportedCurrencyCodes();
-        if ($listOfSupportedCurrencies) {
-            $message .= sprintf(' Only next currencies are supported: "%s"', implode($listOfSupportedCurrencies));
-        }
-
-        return new UnsupportedCurrencyException(
-            $message,
-            0,
-            $previous
+        $message = sprintf(
+            'Currency "%s" is not supported. Only next currencies are supported: "%s"',
+            $invalidCurrency,
+            implode(', ', $listOfSupportedCurrencies)
         );
+
+        return new UnsupportedCurrencyException($message);
     }
 
     /**
