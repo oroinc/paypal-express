@@ -3,10 +3,12 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\OperationExecutionFailedException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
@@ -48,6 +50,11 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
     protected $logger;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|ExceptionFactory
+     */
+    protected $exceptionFactory;
+
+    /**
      * @var PayPalTransport
      */
     protected $transport;
@@ -57,8 +64,14 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->payPalSDKObjectTranslator = $this->createMock(PayPalSDKObjectTranslatorInterface::class);
         $this->client = $this->createMock(PayPalClient::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
 
-        $this->transport = new PayPalTransport($this->payPalSDKObjectTranslator, $this->client, $this->logger);
+        $this->transport = new PayPalTransport(
+            $this->payPalSDKObjectTranslator,
+            $this->client,
+            $this->logger,
+            $this->exceptionFactory
+        );
     }
 
     public function testSetupPayment()
@@ -104,9 +117,15 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
     public function testSetupPaymentShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
+        $payPalSdkExceptionMessage = 'Internal Server Error';
+        $expectedStatusCode = 'AGREEMENT_ALREADY_CANCELLED';
+        $expectedDetails = 'Exception description';
+        $expectedLink = 'https://developer.paypal.com/docs/api/payments/#errors';
+        $debugId = 'PxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
         $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
-            'Internal Server Error'
+            $payPalSdkExceptionMessage
         );
 
         $paymentInfo = $this->getPaymentInfo();
@@ -133,24 +152,48 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($paymentInfo, $redirectRoutesInfo)
             ->willReturn($payment);
 
+        $exceptionInfo = new ExceptionInfo(
+            $payPalSdkExceptionMessage,
+            $expectedStatusCode,
+            $expectedDetails,
+            $expectedLink,
+            $debugId,
+            $paymentInfo
+        );
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getExceptionInfo')
+            ->with($payPalConnectionException, $paymentInfo)
+            ->willReturn($exceptionInfo);
+
+        $expectedExceptionMessage = 'Could not create payment.';
+        $connectionException = new ConnectionException($expectedExceptionMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createConnectionException')
+            ->with('Could not create payment', $exceptionInfo, $payPalConnectionException)
+            ->willReturn($connectionException);
+
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not connect to PayPal server. Reason: Internal Server Error',
+                "Could not create payment. [Reason: {$payPalSdkExceptionMessage}, Code: {$expectedStatusCode}, " .
+                "Payment Id:  Details: {$expectedDetails}, Informational Link: {$expectedLink} Debug Id: {$debugId}].",
                 [
-                    'exception' => $payPalConnectionException
+                    'exception' => $payPalConnectionException,
+                    'exceptionInfo' => $exceptionInfo
                 ]
             );
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Could not connect to PayPal server.');
+        $this->expectExceptionMessage($expectedExceptionMessage);
 
         $this->transport->setupPayment($paymentInfo, $apiContextInfo, $redirectRoutesInfo);
     }
 
     public function testSetupPaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $exception = new \Exception('Fatal Error');
+        $payPalSDKExceptionMessage = 'Fatal Error';
+        $exception = new \Exception($payPalSDKExceptionMessage);
 
         $paymentInfo = $this->getPaymentInfo();
 
@@ -177,17 +220,24 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($paymentInfo, $redirectRoutesInfo)
             ->willReturn($payment);
 
+        $expectedMessage = "Could not create payment. Reason: {$payPalSDKExceptionMessage}";
+        $runtimeException = new RuntimeException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn($runtimeException);
+
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not create payment for PayPal. Reason: Fatal Error',
+                $expectedMessage,
                 [
                     'exception' => $exception
                 ]
             );
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not create payment for PayPal.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->setupPayment($paymentInfo, $apiContextInfo, $redirectRoutesInfo);
     }
@@ -229,9 +279,15 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
     public function testExecutePaymentShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
+        $payPalSDKExceptionMessage = 'Internal Server Error';
+        $expectedStatusCode = 'AGREEMENT_ALREADY_CANCELLED';
+        $expectedDetails = 'Exception description';
+        $expectedLink = 'https://developer.paypal.com/docs/api/payments/#errors';
+        $debugId = 'PxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
         $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
-            'Internal Server Error'
+            $payPalSDKExceptionMessage
         );
 
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -247,25 +303,49 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->method('getPaymentById')
             ->with($paymentId, $apiContext)
             ->willThrowException($payPalConnectionException);
+        $exceptionInfo = new ExceptionInfo(
+            $payPalSDKExceptionMessage,
+            $expectedStatusCode,
+            $expectedDetails,
+            $expectedLink,
+            $debugId,
+            $paymentInfo
+        );
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getExceptionInfo')
+            ->with($payPalConnectionException, $paymentInfo)
+            ->willReturn($exceptionInfo);
+
+        $expectedExceptionMessage = 'Could not execute payment.';
+        $connectionException = new ConnectionException($expectedExceptionMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createConnectionException')
+            ->with('Could not execute payment', $exceptionInfo, $payPalConnectionException)
+            ->willReturn($connectionException);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not connect to PayPal server. Reason: Internal Server Error',
+                "Could not execute payment. [Reason: {$payPalSDKExceptionMessage}, Code: {$expectedStatusCode}, " .
+                "Payment Id: {$paymentId} Details: {$expectedDetails}, " .
+                "Informational Link: {$expectedLink} Debug Id: {$debugId}].",
                 [
-                    'exception' => $payPalConnectionException
+                    'exception' => $payPalConnectionException,
+                    'exceptionInfo' => $exceptionInfo
                 ]
             );
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Could not connect to PayPal server.');
+        $this->expectExceptionMessage($expectedExceptionMessage);
 
         $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testExecutePaymentShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $exception = new \Exception('Fatal Error');
+        $payPalSDKExceptionMessage = 'Fatal Error';
+        $exception = new \Exception($payPalSDKExceptionMessage);
         $paymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
         $paymentInfo = $this->getPaymentInfo($paymentId);
@@ -280,17 +360,24 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($paymentId, $apiContext)
             ->willThrowException($exception);
 
+        $expectedMessage = "Could not execute payment. Reason: {$payPalSDKExceptionMessage}";
+        $runtimeException = new RuntimeException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn($runtimeException);
+
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not execute payment. Reason: Fatal Error',
+                $expectedMessage,
                 [
                     'exception' => $exception
                 ]
             );
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not execute payment.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->executePayment($paymentInfo, $apiContextInfo);
     }
@@ -339,22 +426,36 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
 
+        $expectedMessage = 'Order Id is required.';
+
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn(new RuntimeException($expectedMessage));
+
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Order Id is required.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testAuthorizeShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
+        $payPalSDKExceptionMessage = 'Internal Server Error';
+        $expectedStatusCode = 'AGREEMENT_ALREADY_CANCELLED';
+        $expectedDetails = 'Exception description';
+        $expectedLink = 'https://developer.paypal.com/docs/api/payments/#errors';
+        $debugId = 'PxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
         $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
             'Internal Server Error'
         );
 
+        $paymentId = '1xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+        $paymentInfo = $this->getPaymentInfo($paymentId, $orderId);
 
         $apiContextInfo = $this->getApiContextInfo(
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
@@ -379,25 +480,49 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
         $this->client->expects($this->once())
             ->method('authorizeOrder')
             ->willThrowException($payPalConnectionException);
+        $exceptionInfo = new ExceptionInfo(
+            $payPalSDKExceptionMessage,
+            $expectedStatusCode,
+            $expectedDetails,
+            $expectedLink,
+            $debugId,
+            $paymentInfo
+        );
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getExceptionInfo')
+            ->with($payPalConnectionException, $paymentInfo)
+            ->willReturn($exceptionInfo);
+
+        $expectedExceptionMessage = 'Could not authorize payment.';
+        $connectionException = new ConnectionException($expectedExceptionMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createConnectionException')
+            ->with('Could not authorize payment', $exceptionInfo, $payPalConnectionException)
+            ->willReturn($connectionException);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not connect to PayPal server. Reason: Internal Server Error',
+                "Could not authorize payment. [Reason: {$payPalSDKExceptionMessage}, Code: {$expectedStatusCode}, " .
+                "Payment Id: {$paymentId} Details: {$expectedDetails}, Informational Link: {$expectedLink}" .
+                " Debug Id: {$debugId}].",
                 [
-                    'exception' => $payPalConnectionException
+                    'exception' => $payPalConnectionException,
+                    'exceptionInfo' => $exceptionInfo
                 ]
             );
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Could not connect to PayPal server.');
+        $this->expectExceptionMessage($expectedExceptionMessage);
 
         $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
     }
 
-    public function testAutorizeShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
+    public function testAuthorizeShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $exception = new \Exception('Fatal Error');
+        $payPalSDKExceptionMessage = 'Fatal Error';
+        $exception = new \Exception($payPalSDKExceptionMessage);
 
         $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
@@ -427,23 +552,32 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->method('authorizeOrder')
             ->willThrowException($exception);
 
+        $expectedMessage = "Could not authorize payment. Reason: {$payPalSDKExceptionMessage}";
+        $runtimeException = new RuntimeException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn($runtimeException);
+
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not authorize payment. Reason: Fatal Error',
+                $expectedMessage,
                 [
                     'exception' => $exception
                 ]
             );
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not authorize payment.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->authorizePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testAuthorizeShouldThrowAnExceptionIfAuthorizeRequestIsFailed()
     {
+        $message = 'Could not authorize payment.';
+
         $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $paymentId = '1xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
@@ -471,14 +605,23 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
 
         $status = 'expired';
         $responseAuthorization = $this->getAuthorization($status);
+        $reason = 'AUTHORIZATION';
+        $responseAuthorization->setReasonCode($reason);
+        $validUntil = '2018-01-01';
+        $responseAuthorization->setValidUntil($validUntil);
+
         $this->client->expects($this->once())
             ->method('authorizeOrder')
             ->with($order, $authorization, $apiContext)
             ->willReturn($responseAuthorization);
 
-        $this->expectExceptionMessage(
-            "Could not complete \"Payment Authorization\" for Entity[id: {$paymentId}, status: {$status}]."
-        );
+        $expectedMessage = "$message. Reason {$reason}";
+        $this->exceptionFactory->expects($this->once())
+            ->method('createOperationExecutionFailedException')
+            ->with($message, $reason)
+            ->willReturn(new OperationExecutionFailedException($expectedMessage));
+
+        $this->expectExceptionMessage($expectedMessage);
         $this->expectException(OperationExecutionFailedException::class);
 
         $this->logger->expects($this->once())
@@ -488,9 +631,8 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
                 [
                     'paymentId'           => $paymentId,
                     'authorization state' => $status,
-                    'reason code'         => null,
-                    'valid until'         => null,
-                    'processor response'  => null
+                    'reason code'         => $reason,
+                    'valid until'         => $validUntil,
                 ]
             );
 
@@ -541,23 +683,36 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
+        $expectedMessage = 'Order Id is required.';
+
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn(new RuntimeException($expectedMessage));
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Order Id is required.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->capturePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testCaptureShouldLogPayPalConnectionExceptionAndThrowOwnExceptionInReplaceOfSDK()
     {
+        $payPalSdkExceptionMessage = 'Internal Server Error';
+        $expectedStatusCode = 'AGREEMENT_ALREADY_CANCELLED';
+        $expectedDetails = 'Exception description';
+        $expectedLink = 'https://developer.paypal.com/docs/api/payments/#errors';
+        $debugId = 'PxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+
         $payPalConnectionException = new PayPalConnectionException(
             'https://api.sandbox.paypal.com/v1/payments/payment',
             'Internal Server Error'
         );
 
+        $paymentId = '1xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-        $paymentInfo = $this->getPaymentInfo(null, $orderId);
+        $paymentInfo = $this->getPaymentInfo($paymentId, $orderId);
 
         $apiContextInfo = $this->getApiContextInfo(
             'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
@@ -583,25 +738,49 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->method('captureOrder')
             ->with($order, $capture, $apiContext)
             ->willThrowException($payPalConnectionException);
+        $exceptionInfo = new ExceptionInfo(
+            $payPalSdkExceptionMessage,
+            $expectedStatusCode,
+            $expectedDetails,
+            $expectedLink,
+            $debugId,
+            $paymentInfo
+        );
+        $this->payPalSDKObjectTranslator
+            ->expects($this->once())
+            ->method('getExceptionInfo')
+            ->with($payPalConnectionException, $paymentInfo)
+            ->willReturn($exceptionInfo);
+
+        $expectedExceptionMessage = 'Could not capture payment.';
+        $connectionException = new ConnectionException($expectedExceptionMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createConnectionException')
+            ->with('Could not capture payment', $exceptionInfo, $payPalConnectionException)
+            ->willReturn($connectionException);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not connect to PayPal server. Reason: Internal Server Error',
+                "Could not capture payment. [Reason: {$payPalSdkExceptionMessage}, Code: {$expectedStatusCode}, " .
+                "Payment Id: {$paymentId} Details: {$expectedDetails}, Informational Link: {$expectedLink} " .
+                "Debug Id: {$debugId}].",
                 [
-                    'exception' => $payPalConnectionException
+                    'exception' => $payPalConnectionException,
+                    'exceptionInfo' => $exceptionInfo
                 ]
             );
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Could not connect to PayPal server.');
+        $this->expectExceptionMessage($expectedExceptionMessage);
 
         $this->transport->capturePayment($paymentInfo, $apiContextInfo);
     }
 
     public function testCaptureShouldLogExceptionsAndThrowOwnExceptionsInReplaceOfSDKExceptions()
     {
-        $exception = new \Exception('Fatal Error');
+        $payPalSDKMessage = 'Fatal Error';
+        $exception = new \Exception($payPalSDKMessage);
 
         $orderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
@@ -632,17 +811,24 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($order, $capture, $apiContext)
             ->willThrowException($exception);
 
+        $expectedMessage = "Could not capture payment. Reason: {$payPalSDKMessage}";
+        $runtimeException = new RuntimeException($expectedMessage);
+        $this->exceptionFactory->expects($this->once())
+            ->method('createRuntimeException')
+            ->with($expectedMessage)
+            ->willReturn($runtimeException);
+
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not capture payment. Reason: Fatal Error',
+                $expectedMessage,
                 [
                     'exception' => $exception
                 ]
             );
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not capture payment.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $this->transport->capturePayment($paymentInfo, $apiContextInfo);
     }
@@ -682,15 +868,19 @@ class PayPalTransportTest extends \PHPUnit_Framework_TestCase
             ->with($order, $capture, $apiContext)
             ->willReturn($responseCapture);
 
-        $this->expectExceptionMessage(
-            "Could not complete \"Capture Payment\" for Entity[id: {$paymentId}, status: {$status}]."
-        );
+        $expectedMessage = 'Could not capture payment.';
+        $this->exceptionFactory->expects($this->once())
+            ->method('createOperationExecutionFailedException')
+            ->with($expectedMessage, null)
+            ->willReturn(new OperationExecutionFailedException($expectedMessage));
+
+        $this->expectExceptionMessage($expectedMessage);
         $this->expectException(OperationExecutionFailedException::class);
 
         $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Could not capture payment.',
+                $expectedMessage,
                 [
                     'paymentId'     => $paymentId,
                     'capture state' => $status

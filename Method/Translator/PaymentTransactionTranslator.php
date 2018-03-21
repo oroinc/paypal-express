@@ -6,6 +6,7 @@ use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Model\ShippingAwareInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
@@ -46,24 +47,32 @@ class PaymentTransactionTranslator
     protected $router;
 
     /**
+     * @var ExceptionFactory
+     */
+    protected $exceptionFactory;
+
+    /**
      * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
      * @param LineItemTranslator        $lineItemTranslator
      * @param DoctrineHelper            $doctrineHelper
      * @param TaxProvider               $taxProvider
      * @param RouterInterface           $router
+     * @param ExceptionFactory          $exceptionFactory
      */
     public function __construct(
         SupportedCurrenciesHelper $supportedCurrenciesHelper,
         LineItemTranslator $lineItemTranslator,
         DoctrineHelper $doctrineHelper,
         TaxProvider $taxProvider,
-        RouterInterface $router
+        RouterInterface $router,
+        ExceptionFactory $exceptionFactory
     ) {
         $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
         $this->lineItemTranslator        = $lineItemTranslator;
         $this->doctrineHelper            = $doctrineHelper;
         $this->taxProvider               = $taxProvider;
         $this->router                    = $router;
+        $this->exceptionFactory          = $exceptionFactory;
     }
 
     /**
@@ -100,27 +109,32 @@ class PaymentTransactionTranslator
 
     /**
      * @param PaymentTransaction $paymentTransaction
+     *
+     * @throws UnsupportedCurrencyException
+     * @throws UnsupportedValueException
      */
     protected function validateTransaction(PaymentTransaction $paymentTransaction)
     {
         $currency = $paymentTransaction->getCurrency();
 
         if (!$this->supportedCurrenciesHelper->isSupportedCurrency($currency)) {
-            $supportedCurrencyCodes = $this->supportedCurrenciesHelper->getSupportedCurrencyCodes();
-            $exception = UnsupportedCurrencyException::create($currency, $supportedCurrencyCodes);
+            $exception = $this->exceptionFactory->createUnsupportedCurrencyException($currency);
 
             throw $exception;
         }
         if ($this->supportedCurrenciesHelper->isCurrencyWithUnsupportedDecimals($currency)) {
             $amount = (float)$paymentTransaction->getAmount();
             if ($amount > floor($amount)) {
-                throw new UnsupportedValueException(
-                    sprintf(
-                        'Decimal amount "%s" is not supported for currency "%s"',
-                        $paymentTransaction->getAmount(),
-                        $currency
-                    )
-                );
+                $exception = $this->exceptionFactory
+                    ->createUnsupportedValueException(
+                        sprintf(
+                            'Decimal amount "%s" is not supported for currency "%s"',
+                            $paymentTransaction->getAmount(),
+                            $currency
+                        )
+                    );
+
+                throw $exception;
             }
         }
     }

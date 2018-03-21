@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
-use Oro\Bundle\PayPalExpressBundle\Exception\OperationExecutionFailedException;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
@@ -42,18 +42,26 @@ class PayPalTransport implements PayPalTransportInterface
     protected $logger;
 
     /**
+     * @var ExceptionFactory
+     */
+    protected $exceptionFactory;
+
+    /**
      * @param PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator
      * @param PayPalClient                       $payPalClient
      * @param LoggerInterface                    $logger
+     * @param ExceptionFactory                   $exceptionFactory
      */
     public function __construct(
         PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator,
         PayPalClient $payPalClient,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ExceptionFactory $exceptionFactory
     ) {
         $this->payPalSDKObjectTranslator = $payPalSDKObjectTranslator;
         $this->payPalClient              = $payPalClient;
         $this->logger                    = $logger;
+        $this->exceptionFactory = $exceptionFactory;
     }
 
     /**
@@ -71,34 +79,16 @@ class PayPalTransport implements PayPalTransportInterface
 
             $paymentInfo->setPaymentId($payment->getId());
         } catch (PayPalConnectionException $connectionException) {
-            $this->logger->error(
-                sprintf(
-                    'Could not connect to PayPal server. Reason: %s',
-                    $connectionException->getMessage()
-                ),
-                [
-                    'exception' => $connectionException
-                ]
-            );
-
-            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+            $this->processConnectionException($connectionException, $paymentInfo, 'Could not create payment');
         } catch (\Throwable $exception) {
-            $this->logger->error(
-                sprintf(
-                    'Could not create payment for PayPal. Reason: %s',
-                    $exception->getMessage()
-                ),
-                [
-                    'exception' => $exception
-                ]
-            );
-
-            throw new RuntimeException('Could not create payment for PayPal.', 0, $exception);
+            $this->processException($exception, 'Could not create payment');
         }
 
         if ($payment->getState() != self::PAYMENT_CREATED_STATUS) {
+            $message = 'Could not create the payment.';
+
             $this->logger->error(
-                'Could not create the payment.',
+                $message,
                 [
                     'Payment state'  => $payment->getState(),
                     'Payment id'     => $payment->getId(),
@@ -106,12 +96,9 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw OperationExecutionFailedException::create(
-                'Create Payment',
-                $paymentInfo->getPaymentId(),
-                $payment->getState(),
-                $payment->getFailureReason()
-            );
+            $exception = $this->exceptionFactory
+                ->createOperationExecutionFailedException($message, $payment->getFailureReason());
+            throw $exception;
         }
 
 
@@ -133,34 +120,16 @@ class PayPalTransport implements PayPalTransportInterface
             $order = $this->getPaymentOrder($payment);
             $paymentInfo->setOrderId($order->getId());
         } catch (PayPalConnectionException $connectionException) {
-            $this->logger->error(
-                sprintf(
-                    'Could not connect to PayPal server. Reason: %s',
-                    $connectionException->getMessage()
-                ),
-                [
-                    'exception' => $connectionException
-                ]
-            );
-
-            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+            $this->processConnectionException($connectionException, $paymentInfo, 'Could not execute payment');
         } catch (\Throwable $exception) {
-            $this->logger->error(
-                sprintf(
-                    'Could not execute payment. Reason: %s',
-                    $exception->getMessage()
-                ),
-                [
-                    'exception' => $exception
-                ]
-            );
-
-            throw new RuntimeException('Could not execute payment.', 0, $exception);
+            $this->processException($exception, 'Could not execute payment');
         }
 
         if ($payment->getState() != self::PAYMENT_EXECUTED_STATUS) {
+            $message = 'Could not executed payment.';
+
             $this->logger->error(
-                'Could not executed payment.',
+                $message,
                 [
                     'paymentId'      => $paymentInfo->getPaymentId(),
                     'payment state'  => $payment->getState(),
@@ -168,12 +137,9 @@ class PayPalTransport implements PayPalTransportInterface
                 ]
             );
 
-            throw OperationExecutionFailedException::create(
-                'Payment Execution',
-                $paymentInfo->getPaymentId(),
-                $payment->getState(),
-                $payment->getFailureReason()
-            );
+            $exception = $this->exceptionFactory
+                ->createOperationExecutionFailedException($message, $payment->getFailureReason());
+            throw $exception;
         }
     }
 
@@ -208,25 +174,27 @@ class PayPalTransport implements PayPalTransportInterface
         $order = $relatedResource->getOrder();
 
         if (!$order instanceof Order) {
-            throw new RuntimeException(
-                sprintf(
-                    'Order was not created for payment "%s"',
-                    $payment->getId()
-                )
-            );
+            $exception = $this->exceptionFactory
+                ->createRuntimeException(
+                    sprintf(
+                        'Order was not created for payment "%s"',
+                        $payment->getId()
+                    )
+                );
+            throw $exception;
         }
 
         return $order;
     }
 
     /**
-     * @param PaymentInfo    $paymentInfo
-     * @param ApiContextInfo $apiContextInfo
+     * {@inheritdoc}
      */
     public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {
-            throw new RuntimeException('Order Id is required.');
+            $exception = $this->exceptionFactory->createRuntimeException('Order Id is required.');
+            throw $exception;
         }
 
         try {
@@ -234,49 +202,26 @@ class PayPalTransport implements PayPalTransportInterface
             $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
             $authorize = $this->doAuthorize($paymentInfo, $order, $apiContext);
         } catch (PayPalConnectionException $connectionException) {
-            $this->logger->error(
-                sprintf(
-                    'Could not connect to PayPal server. Reason: %s',
-                    $connectionException->getMessage()
-                ),
-                [
-                    'exception' => $connectionException
-                ]
-            );
-
-            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+            $this->processConnectionException($connectionException, $paymentInfo, 'Could not authorize payment');
         } catch (\Throwable $exception) {
-            $this->logger->error(
-                sprintf(
-                    'Could not authorize payment. Reason: %s',
-                    $exception->getMessage()
-                ),
-                [
-                    'exception' => $exception
-                ]
-            );
-
-            throw new RuntimeException('Could not authorize payment.', 0, $exception);
+            $this->processException($exception, 'Could not authorize payment');
         }
 
         if ($authorize->getState() != self::ORDER_PAYMENT_AUTHORIZED_STATUS) {
+            $message = 'Could not authorize payment.';
             $this->logger->error(
-                'Could not authorize payment.',
+                $message,
                 [
                     'paymentId'           => $paymentInfo->getPaymentId(),
                     'authorization state' => $authorize->getState(),
                     'reason code'         => $authorize->getReasonCode(),
                     'valid until'         => $authorize->getValidUntil(),
-                    'processor response'  => $authorize->getProcessorResponse()
                 ]
             );
 
-            throw OperationExecutionFailedException::create(
-                'Payment Authorization',
-                $paymentInfo->getPaymentId(),
-                $authorize->getState(),
-                $authorize->getReasonCode()
-            );
+            $exception = $this->exceptionFactory
+                ->createOperationExecutionFailedException($message, $authorize->getReasonCode());
+            throw $exception;
         }
     }
 
@@ -300,7 +245,8 @@ class PayPalTransport implements PayPalTransportInterface
     public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {
-            throw new RuntimeException('Order Id is required.');
+            $exception = $this->exceptionFactory->createRuntimeException('Order Id is required.');
+            throw $exception;
         }
 
         try {
@@ -308,46 +254,85 @@ class PayPalTransport implements PayPalTransportInterface
             $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
             $capture = $this->doCapture($paymentInfo, $order, $apiContext);
         } catch (PayPalConnectionException $connectionException) {
-            $this->logger->error(
-                sprintf(
-                    'Could not connect to PayPal server. Reason: %s',
-                    $connectionException->getMessage()
-                ),
-                [
-                    'exception' => $connectionException
-                ]
-            );
-
-            throw new ConnectionException('Could not connect to PayPal server.', 0, $connectionException);
+            $this->processConnectionException($connectionException, $paymentInfo, 'Could not capture payment');
         } catch (\Throwable $exception) {
-            $this->logger->error(
-                sprintf(
-                    'Could not capture payment. Reason: %s',
-                    $exception->getMessage()
-                ),
-                [
-                    'exception' => $exception
-                ]
-            );
-
-            throw new RuntimeException('Could not capture payment.', 0, $exception);
+            $this->processException($exception, 'Could not capture payment');
         }
 
         if ($capture->getState() != self::ORDER_PAYMENT_CAPTURED_STATUS) {
+            $message = 'Could not capture payment.';
+
             $this->logger->error(
-                'Could not capture payment.',
+                $message,
                 [
                     'paymentId'     => $paymentInfo->getPaymentId(),
                     'capture state' => $capture->getState()
                 ]
             );
 
-            throw OperationExecutionFailedException::create(
-                'Capture Payment',
-                $paymentInfo->getPaymentId(),
-                $capture->getState()
-            );
+            $exception = $this->exceptionFactory
+                ->createOperationExecutionFailedException($message);
+            throw $exception;
         }
+    }
+
+    /**
+     * Connection exception will be raised on any PayPal API exception by SDK
+     *
+     * @param PayPalConnectionException $connectionException
+     * @param PaymentInfo               $paymentInfo
+     * @param string                    $message
+     *
+     * @throws ConnectionException
+     */
+    protected function processConnectionException(
+        PayPalConnectionException $connectionException,
+        PaymentInfo $paymentInfo,
+        $message
+    ) {
+        $exceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($connectionException, $paymentInfo);
+
+        $this->logger->error(
+            sprintf(
+                '%s. [Reason: %s, Code: %s, Payment Id: %s Details: %s, Informational Link: %s Debug Id: %s].',
+                $message,
+                $exceptionInfo->getMessage(),
+                $exceptionInfo->getStatusCode(),
+                $paymentInfo->getPaymentId(),
+                $exceptionInfo->getDetails(),
+                $exceptionInfo->getRelatedResourceLink(),
+                $exceptionInfo->getDebugId()
+            ),
+            [
+                'exception' => $connectionException,
+                'exceptionInfo' => $exceptionInfo
+            ]
+        );
+
+        $exception = $this->exceptionFactory->createConnectionException($message, $exceptionInfo, $connectionException);
+        throw $exception;
+    }
+
+    /**
+     * Internal PHP exception usually not related to API
+     *
+     * @param \Throwable $exception
+     * @param string     $message
+     *
+     * @throws RuntimeException
+     */
+    protected function processException(\Throwable $exception, $message)
+    {
+        $message = sprintf(
+            '%s. Reason: %s',
+            $message,
+            $exception->getMessage()
+        );
+
+        $this->logger->error($message, ['exception' => $exception]);
+
+        $exception = $this->exceptionFactory->createRuntimeException($message, $exception);
+        throw $exception;
     }
 
     /**
