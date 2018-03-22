@@ -14,7 +14,11 @@ class PurchaseAction extends AbstractPaymentAction
      */
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        $paymentTransaction->setAction($this->getName());
+        /**
+         * Should be the one of not success payment statuses to avoid incorrect status in payment entity
+         * @see \Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider::getStatusByEntityAndTransactions
+         */
+        $paymentTransaction->setAction('create_payment');
 
         try {
             $route = $this->payPalTransportFacade->getPayPalPaymentRoute($paymentTransaction, $config);
