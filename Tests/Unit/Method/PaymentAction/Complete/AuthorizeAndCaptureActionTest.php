@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\Complete;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
+use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
@@ -56,7 +57,7 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->action->executeAction($transaction, $config);
 
-        $this->assertEquals($this->action->getName(), $transaction->getAction());
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
         $this->assertFalse($transaction->isActive());
         $this->assertTrue($transaction->isSuccessful());
 
