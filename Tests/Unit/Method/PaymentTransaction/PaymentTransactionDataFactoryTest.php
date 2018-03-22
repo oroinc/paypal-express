@@ -99,11 +99,6 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResponse, $actualResponse);
     }
 
-    public function testCreateRequestDataFromArray()
-    {
-
-    }
-
     public function testCreateRequestData()
     {
         $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -167,10 +162,5 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit_Framework_TestCase
         $expectedRequest->setTotalAmount($expectedTotal);
 
         $this->assertEquals($expectedRequest, $actualRequest);
-    }
-
-    public function testCreateRequestDataShouldWorkWithoutPaymentInfo()
-    {
-        $this->markTestIncomplete('TODO: Complete test before merging the PR for BB-13880.');
     }
 }
