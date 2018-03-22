@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\Complet
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
+use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
@@ -62,5 +63,62 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($transaction->isSuccessful());
 
         $this->assertEquals(['successful' => true], $result);
+    }
+
+    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
+    {
+        $transaction = new PaymentTransaction();
+
+        $config = new PayPalExpressConfig(
+            '',
+            '',
+            '',
+            '',
+            '',
+            CompleteVirtualAction::NAME,
+            AuthorizeAndCaptureAction::NAME,
+            true
+        );
+
+        $expectedMessage = 'Order Id is required';
+
+        $this->facade->expects($this->any())
+            ->method('executePayPalPayment')
+            ->willThrowException(new RuntimeException($expectedMessage));
+
+        $result = $this->action->executeAction($transaction, $config);
+
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
+        $this->assertFalse($transaction->isActive());
+        $this->assertFalse($transaction->isSuccessful());
+
+        $this->assertEquals(['successful' => false, 'message' => $expectedMessage], $result);
+    }
+
+    public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
+    {
+        $transaction = new PaymentTransaction();
+
+        $config = new PayPalExpressConfig(
+            '',
+            '',
+            '',
+            '',
+            '',
+            CompleteVirtualAction::NAME,
+            AuthorizeAndCaptureAction::NAME,
+            true
+        );
+
+        $expectedMessage = 'Order Id is required';
+
+        $this->facade->expects($this->any())
+            ->method('executePayPalPayment')
+            ->willThrowException(new \RuntimeException($expectedMessage));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->action->executeAction($transaction, $config);
     }
 }
