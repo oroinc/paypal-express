@@ -100,7 +100,7 @@ class PaymentTransactionRequestData
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTotalAmount()
     {
