@@ -251,7 +251,30 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($captured->getIsFinalCapture());
     }
 
-    public function testGetExceptionInfo()
+    /**
+     * @dataProvider getExceptionInfoDataProvider
+     *
+     * @param array         $data
+     * @param ExceptionInfo $expectedExceptionInfo
+     */
+    public function testGetExceptionInfo(array $data, ExceptionInfo $expectedExceptionInfo)
+    {
+        $exception = new PayPalConnectionException($data['url'], $data['message'], $data['code']);
+        $exception->setData($data['data']);
+
+        $paymentInfo = $data['paymentInfo'];
+
+        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
+
+        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @return array
+     */
+    public function getExceptionInfoDataProvider()
     {
         $message         = 'Order is already voided, expired, or completed.';
         $statusCode      = 'ORDER_ALREADY_COMPLETED';
@@ -263,87 +286,241 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
         $exceptionMessage = 'Got Http response code 400 when accessing ' .
             'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
-        $exception        = new PayPalConnectionException($url, $exceptionMessage);
 
-        $rawData = json_encode(
-            [
-                'message'          => $message,
-                'name'             => $statusCode,
-                'details'          => $details,
-                'information_link' => $informationLink,
-                'debug_id'         => $debugId
+        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
+
+        return [
+            'should parse original SDK exception correctly' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $message,
+                    $statusCode,
+                    $details,
+                    $informationLink,
+                    $debugId,
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    )
+                )
+            ],
+            'should set original exception message as message in case data is empty' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => null,
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $exceptionMessage,
+                    400,
+                    '',
+                    '',
+                    '',
+                    $paymentInfo,
+                    null
+                )
+            ],
+            'should set original exception message as message in case data could not be parsed' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => 'some incorrect response',
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $exceptionMessage,
+                    400,
+                    '',
+                    '',
+                    '',
+                    $paymentInfo,
+                    'some incorrect response'
+                )
+            ],
+            'should set original exception message as message in case if data does not provide message' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $exceptionMessage,
+                    $statusCode,
+                    $details,
+                    $informationLink,
+                    $debugId,
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    )
+                )
+            ],
+            'should set original exception code as status code in case if data does not provide code' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'message'          => $message,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $message,
+                    400,
+                    $details,
+                    $informationLink,
+                    $debugId,
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'message'          => $message,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    )
+                )
+            ],
+            'should work correctly if data does not provide details' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $message,
+                    $statusCode,
+                    '',
+                    $informationLink,
+                    $debugId,
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'information_link' => $informationLink,
+                            'debug_id'         => $debugId
+                        ]
+                    )
+                )
+            ],
+            'should work correctly if data does not provide information link' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'debug_id'         => $debugId
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $message,
+                    $statusCode,
+                    $details,
+                    '',
+                    $debugId,
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'debug_id'         => $debugId
+                        ]
+                    )
+                )
+            ],
+            'should work correctly if data does not provide debug id' => [
+                'data'     => [
+                    'url'         => $url,
+                    'message'     => $exceptionMessage,
+                    'code'        => 400,
+                    'data'        => json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                        ]
+                    ),
+                    'paymentInfo' => $paymentInfo
+                ],
+                'expected' => new ExceptionInfo(
+                    $message,
+                    $statusCode,
+                    $details,
+                    $informationLink,
+                    '',
+                    $paymentInfo,
+                    json_encode(
+                        [
+                            'message'          => $message,
+                            'name'             => $statusCode,
+                            'details'          => $details,
+                            'information_link' => $informationLink,
+                        ]
+                    )
+                )
             ]
-        );
-        $exception->setData($rawData);
-
-        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
-
-        $expectedExceptionInfo = new ExceptionInfo(
-            $message,
-            $statusCode,
-            $details,
-            $informationLink,
-            $debugId,
-            $paymentInfo,
-            $rawData
-        );
-
-        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
-
-        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
-    }
-
-    public function testGetExceptionInfoShouldSetOriginalErrorForExceptionInfoIfDataIsNull()
-    {
-        $statusCode      = 400;
-
-        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
-        $exceptionMessage = 'Got Http response code 400 when accessing ' .
-            'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
-        $exception        = new PayPalConnectionException($url, $exceptionMessage, $statusCode);
-
-        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
-
-        $expectedExceptionInfo = new ExceptionInfo(
-            $exceptionMessage,
-            $statusCode,
-            '',
-            '',
-            '',
-            $paymentInfo
-        );
-
-        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
-
-        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
-    }
-
-    public function testGetExceptionInfoShouldSetOriginalErrorForExceptionInfoIfDataCouldNotBeParsed()
-    {
-        $statusCode      = 400;
-
-        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
-        $exceptionMessage = 'Got Http response code 400 when accessing ' .
-            'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
-        $exception        = new PayPalConnectionException($url, $exceptionMessage, $statusCode);
-        $rawData = 'incorrect data';
-        $exception->setData($rawData);
-
-        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
-
-        $expectedExceptionInfo = new ExceptionInfo(
-            $exceptionMessage,
-            $statusCode,
-            '',
-            '',
-            '',
-            $paymentInfo,
-            $rawData
-        );
-
-        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
-
-        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
+        ];
     }
 
     /**
