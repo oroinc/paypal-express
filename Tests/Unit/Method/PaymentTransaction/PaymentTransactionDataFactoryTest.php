@@ -141,8 +141,36 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedRequest, $actualRequest);
     }
 
+    public function testCreateRequestDataFromArray()
+    {
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPaymentActionName = PaymentMethodInterface::CAPTURE;
+        $expectedOnCompleteAction = AuthorizeAndCaptureAction::NAME;
+        $expectedTotal = '22.34';
+        $expectedCurrency = 'USD';
+
+        $actualRequest = $this->factory->createRequestDataFromArray(
+            [
+                PaymentTransactionRequestData::PAYMENT_ID_FIELD_KEY => $expectedPaymentId,
+                PaymentTransactionRequestData::PAYMENT_ACTION_FIELD_KEY => $expectedPaymentActionName,
+                PaymentTransactionRequestData::PAYMENT_ACTION_CONFIG_FIELD_KEY => $expectedOnCompleteAction,
+                PaymentTransactionRequestData::TOTAL_AMOUNT_FIELD_KEY => $expectedTotal,
+                PaymentTransactionRequestData::CURRENCY_FIELD_KEY => $expectedCurrency,
+            ]
+        );
+
+        $expectedRequest = new PaymentTransactionRequestData();
+        $expectedRequest->setPaymentId($expectedPaymentId);
+        $expectedRequest->setPaymentActionConfig($expectedOnCompleteAction);
+        $expectedRequest->setPaymentAction($expectedPaymentActionName);
+        $expectedRequest->setCurrency($expectedCurrency);
+        $expectedRequest->setTotalAmount($expectedTotal);
+
+        $this->assertEquals($expectedRequest, $actualRequest);
+    }
+
     public function testCreateRequestDataShouldWorkWithoutPaymentInfo()
     {
-
+        $this->markTestIncomplete('TODO: Complete test before merging the PR for BB-13880.');
     }
 }

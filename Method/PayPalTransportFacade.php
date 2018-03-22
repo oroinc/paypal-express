@@ -86,12 +86,12 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
         try {
             $this->updateRequest($paymentTransaction, $config);
 
-            $response = $this->paymentTransactionDataFactory
+            $responseData = $this->paymentTransactionDataFactory
                 ->createResponseDataFromArray($paymentTransaction->getResponse());
 
             $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-            $paymentInfo->setPaymentId($response->getPaymentId());
-            $paymentInfo->setPayerId($response->getPayerId());
+            $paymentInfo->setPaymentId($responseData->getPaymentId());
+            $paymentInfo->setPayerId($responseData->getPayerId());
 
             $apiContext = $this->methodConfigTranslator->getApiContextInfo($config);
 
@@ -116,12 +116,12 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
 
             $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
 
-            $response = $this->paymentTransactionDataFactory
+            $responseData = $this->paymentTransactionDataFactory
                 ->createResponseDataFromArray($authorizedTransaction->getResponse());
 
-            $paymentInfo->setOrderId($response->getOrderId());
-            $paymentInfo->setPaymentId($response->getPaymentId());
-            $paymentInfo->setPayerId($response->getPayerId());
+            $paymentInfo->setOrderId($responseData->getOrderId());
+            $paymentInfo->setPaymentId($responseData->getPaymentId());
+            $paymentInfo->setPayerId($responseData->getPayerId());
 
             $apiContext  = $this->methodConfigTranslator->getApiContextInfo($config);
 
@@ -140,11 +140,11 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
             $this->updateRequest($paymentTransaction, $config);
 
             $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-            $response = $this->paymentTransactionDataFactory
+            $responseData = $this->paymentTransactionDataFactory
                 ->createResponseDataFromArray($paymentTransaction->getResponse());
-            $paymentInfo->setOrderId($response->getOrderId());
-            $paymentInfo->setPaymentId($response->getPaymentId());
-            $paymentInfo->setPayerId($response->getPayerId());
+            $paymentInfo->setOrderId($responseData->getOrderId());
+            $paymentInfo->setPaymentId($responseData->getPaymentId());
+            $paymentInfo->setPayerId($responseData->getPayerId());
 
             $apiContext  = $this->methodConfigTranslator->getApiContextInfo($config);
 
@@ -160,10 +160,10 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
      */
     protected function updateRequest(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        $paymentTransactionData = $this->paymentTransactionDataFactory
+        $requestData = $this->paymentTransactionDataFactory
             ->createRequestData($paymentTransaction, $config);
 
-        $paymentTransaction->setRequest($paymentTransactionData->toArray());
+        $paymentTransaction->setRequest($requestData->toArray());
     }
 
     /**
@@ -176,9 +176,9 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
         PayPalExpressConfigInterface $config,
         PaymentInfo $paymentInfo = null
     ) {
-        $paymentTransactionData = $this->paymentTransactionDataFactory
+        $responseData = $this->paymentTransactionDataFactory
             ->createResponseData($paymentTransaction, $config, $paymentInfo);
 
-        $paymentTransaction->setResponse($paymentTransactionData->toArray());
+        $paymentTransaction->setResponse($responseData->toArray());
     }
 }
