@@ -99,6 +99,37 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResponse, $actualResponse);
     }
 
+    public function testCreateResponseDataFromArray()
+    {
+        $expectedPayerId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedOrderId = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPaymentActionName = PaymentMethodInterface::CAPTURE;
+        $expectedOnCompleteAction = AuthorizeAndCaptureAction::NAME;
+
+        $transaction = new PaymentTransaction();
+        $transaction->setAction($expectedPaymentActionName);
+
+        $expectedArray = [
+            PaymentTransactionResponseData::PAYMENT_ID_FIELD_KEY            => $expectedPaymentId,
+            PaymentTransactionResponseData::ORDER_ID_FIELD_KEY              => $expectedOrderId,
+            PaymentTransactionResponseData::PAYMENT_ACTION_CONFIG_FIELD_KEY => $expectedOnCompleteAction,
+            PaymentTransactionResponseData::PAYMENT_ACTION_FIELD_KEY        => $expectedPaymentActionName,
+            PaymentTransactionResponseData::PAYER_ID_FIELD_KEY              => $expectedPayerId,
+        ];
+
+        $actualResponse = $this->factory->createResponseDataFromArray($expectedArray);
+
+        $expectedResponse = new PaymentTransactionResponseData();
+        $expectedResponse->setPayerId($expectedPayerId);
+        $expectedResponse->setPaymentId($expectedPaymentId);
+        $expectedResponse->setOrderId($expectedOrderId);
+        $expectedResponse->setPaymentActionConfig($expectedOnCompleteAction);
+        $expectedResponse->setPaymentAction($expectedPaymentActionName);
+
+        $this->assertEquals($expectedResponse, $actualResponse);
+    }
+
     public function testCreateRequestData()
     {
         $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
