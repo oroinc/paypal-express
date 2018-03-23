@@ -42,6 +42,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $tax = 1;
         $subtotal = 19;
         $currency = 'USD';
+        $invoiceNumber = 5;
 
         $fooItemName = 'foo item';
         $fooQuantity = 2;
@@ -66,18 +67,13 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
             $items
         );
 
         $redirectRoutesInfo = new RedirectRoutesInfo($successRoute, $failedRoute);
 
         $actualPayment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $redirectRoutesInfo);
-
-        /** @var Transaction $transaction */
-        $transaction = $actualPayment->getTransactions()[0];
-
-        $invoiceNumber = $transaction->getInvoiceNumber();
-        $this->assertNotEmpty($invoiceNumber);
 
         $itemList = new ItemList();
         $itemList->addItem($this->getItem($fooItemName, $currency, $fooQuantity, $fooPrice));
@@ -204,6 +200,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             0.1,
             1.4,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            5,
             []
         );
         $paymentInfo->setPayerId($payerId);
@@ -222,7 +219,8 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             0.5,
             0.1,
             1.4,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            5
         );
 
         $expectedAmount = $this->getAmount($totalAmount, $currency);
@@ -241,7 +239,8 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
             0.5,
             0.1,
             1.4,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            5
         );
 
         $expectedAmount = $this->getAmount($totalAmount, $currency);
@@ -287,7 +286,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $exceptionMessage = 'Got Http response code 400 when accessing ' .
             'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
 
-        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '');
+        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '', 1);
 
         return [
             'should parse original SDK exception correctly' => [

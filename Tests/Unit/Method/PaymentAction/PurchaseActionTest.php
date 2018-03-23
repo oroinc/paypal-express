@@ -5,7 +5,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
 
