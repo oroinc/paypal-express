@@ -37,6 +37,11 @@ class PaymentInfo
     protected $method;
 
     /**
+     * @var string
+     */
+    protected $invoiceNumber;
+
+    /**
      * @var ItemInfo[]
      */
     protected $items = [];
@@ -63,6 +68,7 @@ class PaymentInfo
      * @param float      $tax
      * @param float      $subtotal
      * @param string     $method
+     * @param string     $invoiceNumber
      * @param ItemInfo[] $items
      */
     public function __construct(
@@ -72,15 +78,17 @@ class PaymentInfo
         $tax,
         $subtotal,
         $method,
+        $invoiceNumber,
         array $items = []
     ) {
-        $this->totalAmount = $totalAmount;
-        $this->currency    = $currency;
-        $this->shipping    = $shipping;
-        $this->tax         = $tax;
-        $this->subtotal    = $subtotal;
-        $this->method      = $method;
-        $this->items       = $items;
+        $this->totalAmount   = $totalAmount;
+        $this->currency      = $currency;
+        $this->shipping      = $shipping;
+        $this->tax           = $tax;
+        $this->subtotal      = $subtotal;
+        $this->method        = $method;
+        $this->invoiceNumber = $invoiceNumber;
+        $this->items         = $items;
     }
 
     /**
@@ -132,6 +140,21 @@ class PaymentInfo
         return $this->method;
     }
 
+    /**
+     * @return string
+     */
+    public function getInvoiceNumber()
+    {
+        return $this->invoiceNumber;
+    }
+
+    /**
+     * @param string $invoiceNumber
+     */
+    public function setInvoiceNumber($invoiceNumber)
+    {
+        $this->invoiceNumber = $invoiceNumber;
+    }
 
     /**
      * @return ItemInfo[]

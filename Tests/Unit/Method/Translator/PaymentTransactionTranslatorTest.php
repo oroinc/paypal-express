@@ -93,6 +93,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
+        $invoiceNumber = 567;
 
         $fooItemName = 'foo item';
         $fooQuantity = 2;
@@ -103,7 +104,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $fooLineItem = new OrderLineItem();
         $barLineItem = new OrderLineItem();
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, [$fooLineItem, $barLineItem]);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber, [$fooLineItem, $barLineItem]);
         $paymentEntityId = 42;
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
@@ -137,6 +138,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
             [
                 $fooPaymentItemInfo,
                 $barPaymentItemInfo
@@ -155,6 +157,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
+        $invoiceNumber = 567;
 
         $fooLineItem = new FooLineItemStub();
         $barLineItem = new FooLineItemStub();
@@ -163,6 +166,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $paymentEntity->setCurrency($currency);
         $paymentEntity->setSubtotal($subtotal);
         $paymentEntity->testLineItems = [$fooLineItem, $barLineItem];
+        $paymentEntity->setIdentifier($invoiceNumber);
 
         $paymentEntityId = 42;
 
@@ -194,12 +198,34 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
             []
         );
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
+    }
+
+    public function testGetPaymentInfoWillGenerateInvoiceNumberIfEntityIsNotAnOrder()
+    {
+        $totalAmount = 25.39;
+        $currency = 'USD';
+
+        $paymentEntity = new QuxPaymentEntityStub();
+
+        $paymentEntityId = 42;
+
+        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
+
+        $this->doctrineHelper->expects($this->once())
+            ->method('getEntity')
+            ->with(QuxPaymentEntityStub::class, $paymentEntityId)
+            ->willReturn($paymentEntity);
+
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
+        $this->assertNotEmpty($actualPaymentInfo->getInvoiceNumber());
     }
 
     public function testGetPaymentInfoWillWorkCorrectlyEvenIfPaymentEntityDoesNotSupportLineItems()
@@ -209,7 +235,6 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
-
 
         $paymentEntity = new QuxPaymentEntityStub();
         $paymentEntity->testSubtotal = $subtotal;
@@ -232,6 +257,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItemInfo');
 
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
         $expectedPaymentInfo = new PaymentInfo(
             $totalAmount,
             $currency,
@@ -239,10 +266,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $actualPaymentInfo->getInvoiceNumber(),
             []
         );
-
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
@@ -271,6 +297,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(BarPaymentEntityStub::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
         $expectedPaymentInfo = new PaymentInfo(
             $totalAmount,
             $currency,
@@ -278,10 +305,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             0,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $actualPaymentInfo->getInvoiceNumber(),
             []
         );
-
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
@@ -310,6 +336,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(BazPaymentEntityStub::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
         $expectedPaymentInfo = new PaymentInfo(
             $totalAmount,
             $currency,
@@ -317,10 +345,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $tax,
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $actualPaymentInfo->getInvoiceNumber(),
             []
         );
-
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
@@ -332,8 +359,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
+        $invoiceNumber = 567;
 
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, []);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber, []);
         $paymentEntityId = 42;
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
@@ -375,7 +403,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $tax = 1.04;
         $subtotal = 12;
 
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, []);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, 5, []);
         $paymentEntityId = 42;
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
@@ -448,11 +476,12 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
      * @param string $currency
      * @param float  $shipping
      * @param float  $subtotal
+     * @param string $identifier
      * @param array  $lineItems
      *
      * @return Order
      */
-    protected function getOrder($currency, $shipping, $subtotal, array $lineItems)
+    protected function getOrder($currency, $shipping, $subtotal, $identifier, array $lineItems)
     {
         $order = new Order();
         $order->setEstimatedShippingCostAmount($shipping);
@@ -461,6 +490,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         foreach ($lineItems as $lineItem) {
             $order->addLineItem($lineItem);
         }
+        $order->setIdentifier($identifier);
 
         return $order;
     }

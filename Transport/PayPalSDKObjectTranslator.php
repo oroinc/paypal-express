@@ -60,7 +60,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
             ->setTotal($paymentInfo->getTotalAmount())
             ->setDetails($details);
 
-        $invoiceNumber = uniqid();
+        $invoiceNumber = $paymentInfo->getInvoiceNumber();
         $transaction = new Transaction();
         $transaction->setAmount($amount)
             ->setItemList($itemList)

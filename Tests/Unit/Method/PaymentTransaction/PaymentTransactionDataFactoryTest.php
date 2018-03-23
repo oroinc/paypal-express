@@ -50,7 +50,8 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit_Framework_TestCase
             0,
             0,
             0,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            1
         );
         $paymentInfo->setOrderId($expectedOrderId);
         $paymentInfo->setPaymentId($expectedPaymentId);
