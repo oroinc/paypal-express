@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
+use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\OrderBundle\Model\ShippingAwareInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
@@ -92,6 +93,7 @@ class PaymentTransactionTranslator
         $tax = $this->taxProvider->getTax($paymentEntity);
         $subtotal = $this->getSubtotal($paymentEntity);
         $method = PaymentInfo::PAYMENT_METHOD_PAYPAL;
+        $invoiceNumber = $this->getInvoiceNumber($paymentEntity);
         $paymentItems = $this->getPaymentItems($paymentEntity, $currency);
 
         $paymentInfo = new PaymentInfo(
@@ -101,6 +103,7 @@ class PaymentTransactionTranslator
             $tax,
             $subtotal,
             $method,
+            $invoiceNumber,
             $paymentItems
         );
 
@@ -202,6 +205,20 @@ class PaymentTransactionTranslator
         }
 
         return 0;
+    }
+
+    /**
+     * @param $paymentEntity
+     *
+     * @return string
+     */
+    protected function getInvoiceNumber($paymentEntity)
+    {
+        if ($paymentEntity instanceof Order) {
+            return $paymentEntity->getIdentifier();
+        }
+
+        return uniqid();
     }
 
     /**
