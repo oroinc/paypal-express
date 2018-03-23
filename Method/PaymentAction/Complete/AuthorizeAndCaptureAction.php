@@ -25,7 +25,6 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
 
         try {
             $this->payPalTransportFacade->executePayPalPayment($paymentTransaction, $config);
-            $this->payPalTransportFacade->authorizePayment($paymentTransaction, $config);
             $this->payPalTransportFacade->capturePayment($paymentTransaction, $paymentTransaction, $config);
             $paymentTransaction
                 ->setSuccessful(true)

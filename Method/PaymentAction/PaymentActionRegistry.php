@@ -35,7 +35,8 @@ class PaymentActionRegistry
     public function getPaymentAction($paymentActionName)
     {
         if (!$this->isActionSupported($paymentActionName)) {
-            $exception = $this->exceptionFactory->createRuntimeException('Payment Action is not supported');
+            $exception = $this->exceptionFactory
+                ->createRuntimeException(sprintf('Payment Action "%s" is not supported', $paymentActionName));
             throw $exception;
         }
 
