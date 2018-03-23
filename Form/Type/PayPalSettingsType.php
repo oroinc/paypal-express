@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Form\Type;
 
 use Oro\Bundle\LocaleBundle\Form\Type\LocalizedFallbackValueCollectionType;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\ActionsProviderInterface;
 use Oro\Bundle\SecurityBundle\Form\DataTransformer\Factory\CryptedDataTransformerFactory;
 
 use Symfony\Component\Form\AbstractType;
@@ -25,9 +25,9 @@ class PayPalSettingsType extends AbstractType
     protected $cryptedDataTransformerFactory;
 
     /**
-     * @var CompletePaymentActionRegistry
+     * @var ActionsProviderInterface
      */
-    protected $completePaymentActionRegistry;
+    protected $actionsProvider;
 
     /**
      * @var TranslatorInterface
@@ -36,16 +36,16 @@ class PayPalSettingsType extends AbstractType
 
     /**
      * @param CryptedDataTransformerFactory $cryptedDataTransformerFactory
-     * @param CompletePaymentActionRegistry $completePaymentActionRegistry
+     * @param ActionsProviderInterface      $actionsProvider
      * @param TranslatorInterface           $translator
      */
     public function __construct(
         CryptedDataTransformerFactory $cryptedDataTransformerFactory,
-        CompletePaymentActionRegistry $completePaymentActionRegistry,
+        ActionsProviderInterface $actionsProvider,
         TranslatorInterface $translator
     ) {
         $this->cryptedDataTransformerFactory = $cryptedDataTransformerFactory;
-        $this->completePaymentActionRegistry = $completePaymentActionRegistry;
+        $this->actionsProvider               = $actionsProvider;
         $this->translator                    = $translator;
     }
 
@@ -62,7 +62,7 @@ class PayPalSettingsType extends AbstractType
                 'paymentAction',
                 ChoiceType::class,
                 [
-                    'choices'           => $this->completePaymentActionRegistry->getRegisteredActions(),
+                    'choices'           => $this->actionsProvider->getRegisteredActions(),
                     'choices_as_values' => true,
                     'choice_label'      => function ($action) {
                         return $this->translator->trans(
