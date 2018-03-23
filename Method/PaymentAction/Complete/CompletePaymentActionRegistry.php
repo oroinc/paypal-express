@@ -4,10 +4,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
 
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
 
-class CompletePaymentActionRegistry extends PaymentActionRegistry
+class CompletePaymentActionRegistry extends PaymentActionRegistry implements ActionsProviderInterface
 {
     /**
-     * @return string[]
+     * {@inheritdoc}
      */
     public function getRegisteredActions()
     {

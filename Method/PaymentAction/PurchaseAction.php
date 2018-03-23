@@ -9,6 +9,8 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 class PurchaseAction extends AbstractPaymentAction
 {
+    const PAYMENT_TRANSACTION_ACTION_NAME = 'create_payment';
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +20,7 @@ class PurchaseAction extends AbstractPaymentAction
          * Should be the one of not success payment statuses to avoid incorrect status in payment entity
          * @see \Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider::getStatusByEntityAndTransactions
          */
-        $paymentTransaction->setAction('create_payment');
+        $paymentTransaction->setAction(self::PAYMENT_TRANSACTION_ACTION_NAME);
 
         try {
             $route = $this->payPalTransportFacade->getPayPalPaymentRoute($paymentTransaction, $config);

@@ -1,16 +1,15 @@
 <?php
 
-namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\Complete;
+namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CaptureAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
 
-class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
+class CaptureActionTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportFacadeInterface
@@ -18,7 +17,7 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
     protected $facade;
 
     /**
-     * @var AuthorizeAndCaptureAction
+     * @var CaptureAction
      */
     protected $action;
 
@@ -26,12 +25,14 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facade = $this->createMock(PayPalTransportFacadeInterface::class);
 
-        $this->action = new AuthorizeAndCaptureAction($this->facade);
+        $this->action = new CaptureAction($this->facade);
     }
 
     public function testExecuteAction()
     {
         $transaction = new PaymentTransaction();
+        $sourceTransaction = new PaymentTransaction();
+        $transaction->setSourcePaymentTransaction($sourceTransaction);
 
         $config = new PayPalExpressConfig(
             '',
@@ -39,18 +40,14 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
             '',
             '',
             '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
+            '',
+            PaymentMethodInterface::CAPTURE,
             true
         );
 
-        $this->facade->expects($this->at(0))
-            ->method('executePayPalPayment')
-            ->with($transaction, $config);
-
-        $this->facade->expects($this->at(1))
+        $this->facade->expects($this->once())
             ->method('capturePayment')
-            ->with($transaction, $transaction, $config);
+            ->with($transaction, $sourceTransaction, $config);
 
         $result = $this->action->executeAction($transaction, $config);
 
@@ -61,7 +58,7 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['successful' => true], $result);
     }
 
-    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
+    public function testExecuteActionShouldReturnAnErrorIfSourceTransactionDoesNotSet()
     {
         $transaction = new PaymentTransaction();
 
@@ -71,15 +68,50 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
             '',
             '',
             '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
+            '',
+            PaymentMethodInterface::CAPTURE,
+            true
+        );
+
+        $this->facade->expects($this->never())
+            ->method('capturePayment');
+
+        $result = $this->action->executeAction($transaction, $config);
+
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
+        $this->assertFalse($transaction->isActive());
+        $this->assertFalse($transaction->isSuccessful());
+
+        $this->assertEquals(
+            [
+                'successful' => false,
+                'message' => 'Could not capture payment, transaction with approved payment not found'
+            ],
+            $result
+        );
+    }
+
+    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
+    {
+        $transaction = new PaymentTransaction();
+        $sourceTransaction = new PaymentTransaction();
+        $transaction->setSourcePaymentTransaction($sourceTransaction);
+
+        $config = new PayPalExpressConfig(
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            PaymentMethodInterface::CAPTURE,
             true
         );
 
         $expectedMessage = 'Order Id is required';
 
         $this->facade->expects($this->any())
-            ->method('executePayPalPayment')
+            ->method('capturePayment')
             ->willThrowException(new RuntimeException($expectedMessage));
 
         $result = $this->action->executeAction($transaction, $config);
@@ -94,6 +126,8 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
     public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
     {
         $transaction = new PaymentTransaction();
+        $sourceTransaction = new PaymentTransaction();
+        $transaction->setSourcePaymentTransaction($sourceTransaction);
 
         $config = new PayPalExpressConfig(
             '',
@@ -101,15 +135,15 @@ class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
             '',
             '',
             '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
+            '',
+            PaymentMethodInterface::CAPTURE,
             true
         );
 
         $expectedMessage = 'Order Id is required';
 
         $this->facade->expects($this->any())
-            ->method('executePayPalPayment')
+            ->method('capturePayment')
             ->willThrowException(new \RuntimeException($expectedMessage));
 
         $this->expectException(\RuntimeException::class);
