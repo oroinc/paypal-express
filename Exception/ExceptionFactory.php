@@ -2,7 +2,8 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class ExceptionFactory
@@ -21,45 +22,7 @@ class ExceptionFactory
     }
 
     /**
-     * @param string        $message
-     * @param ExceptionInfo $exceptionInfo
-     * @param \Exception    $previous
-     *
-     * @return ConnectionException
-     */
-    public function createConnectionException($message, ExceptionInfo $exceptionInfo, \Exception $previous)
-    {
-        $message = sprintf(
-            '%s. Reason: %s, Code: %s, Information Link: %s',
-            $message,
-            $exceptionInfo->getMessage(),
-            $exceptionInfo->getStatusCode(),
-            $exceptionInfo->getRelatedResourceLink()
-        );
-
-        $connectionException = new ConnectionException($message, $previous->getCode(), $previous);
-        $connectionException->setExceptionInfo($exceptionInfo);
-
-        return $connectionException;
-    }
-
-    /**
-     * @param string      $message
-     * @param string|null $failureReason
-     *
-     * @return OperationExecutionFailedException
-     */
-    public function createOperationExecutionFailedException($message, $failureReason = null)
-    {
-        if ($failureReason) {
-            $message .= " Reason: {$failureReason}.";
-        }
-
-        return new OperationExecutionFailedException($message);
-    }
-
-    /**
-     * @param string          $invalidCurrency
+     * @param string $invalidCurrency
      *
      * @return UnsupportedCurrencyException
      */

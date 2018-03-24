@@ -4,7 +4,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AbstractPaymentAction;
 
@@ -31,10 +30,8 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
                 ->setActive(false);
 
             return ['successful' => true];
-        } catch (ExceptionInterface $e) {
-            $paymentTransaction
-                ->setSuccessful(false)
-                ->setActive(false);
+        } catch (\Throwable $e) {
+            $this->handleError($paymentTransaction, $e);
 
             return ['successful' => false, 'message' => $e->getMessage()];
         }

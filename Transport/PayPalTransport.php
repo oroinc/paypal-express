@@ -2,22 +2,18 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
-use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
-use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactoryInterface;
 
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 use PayPal\Api\Order;
 use PayPal\Api\Payment;
 use PayPal\Api\RelatedResources;
-use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
-
-use Psr\Log\LoggerInterface;
 
 class PayPalTransport implements PayPalTransportInterface
 {
@@ -29,38 +25,30 @@ class PayPalTransport implements PayPalTransportInterface
     /**
      * @var PayPalSDKObjectTranslatorInterface
      */
-    protected $payPalSDKObjectTranslator;
+    protected $translator;
 
     /**
      * @var PayPalClient
      */
-    protected $payPalClient;
+    protected $client;
 
     /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var ExceptionFactory
+     * @var TransportExceptionFactoryInterface
      */
     protected $exceptionFactory;
 
     /**
-     * @param PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator
+     * @param PayPalSDKObjectTranslatorInterface $translator
      * @param PayPalClient                       $payPalClient
-     * @param LoggerInterface                    $logger
-     * @param ExceptionFactory                   $exceptionFactory
+     * @param TransportExceptionFactoryInterface $exceptionFactory
      */
     public function __construct(
-        PayPalSDKObjectTranslatorInterface $payPalSDKObjectTranslator,
+        PayPalSDKObjectTranslatorInterface $translator,
         PayPalClient $payPalClient,
-        LoggerInterface $logger,
-        ExceptionFactory $exceptionFactory
+        TransportExceptionFactoryInterface $exceptionFactory
     ) {
-        $this->payPalSDKObjectTranslator = $payPalSDKObjectTranslator;
-        $this->payPalClient              = $payPalClient;
-        $this->logger                    = $logger;
+        $this->translator = $translator;
+        $this->client = $payPalClient;
         $this->exceptionFactory = $exceptionFactory;
     }
 
@@ -73,37 +61,81 @@ class PayPalTransport implements PayPalTransportInterface
         RedirectRoutesInfo $redirectRoutesInfo
     ) {
         try {
-            $payment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $redirectRoutesInfo);
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $payment = $this->payPalClient->createPayment($payment, $apiContext);
+            $payment = $this->translator->getPayment($paymentInfo, $redirectRoutesInfo);
+            $apiContext = $this->translator->getApiContext($apiContextInfo);
+            $payment = $this->client->createPayment($payment, $apiContext);
 
             $paymentInfo->setPaymentId($payment->getId());
-        } catch (PayPalConnectionException $connectionException) {
-            $this->processConnectionException($connectionException, $paymentInfo, 'Could not create payment');
-        } catch (\Throwable $exception) {
-            $this->processException($exception, 'Could not create payment');
+        } catch (\Throwable $throwable) {
+            throw  $this->createTransportException(
+                'Create payment failed.',
+                $throwable,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getPaymentErrorContext($payment ?? null)
+            );
         }
 
         if ($payment->getState() != self::PAYMENT_CREATED_STATUS) {
-            $message = 'Could not create the payment.';
-
-            $this->logger->error(
-                $message,
-                [
-                    'Payment state'  => $payment->getState(),
-                    'Payment id'     => $payment->getId(),
-                    'Failure reason' => $payment->getFailureReason(),
-                ]
+            throw $this->createTransportException(
+                'Unexpected state of payment after create.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getPaymentErrorContext($payment)
             );
-
-            $exception = $this->exceptionFactory
-                ->createOperationExecutionFailedException($message, $payment->getFailureReason());
-            throw $exception;
         }
 
-
-
         return $payment->getApprovalLink();
+    }
+
+
+    /**
+     * @param string     $message
+     * @param \Throwable $throwable
+     * @param array      ...$contexts
+     * @return TransportException
+     */
+    protected function createTransportException($message, \Throwable $throwable = null, ...$contexts)
+    {
+        foreach ($contexts as &$context) {
+            $context = array_filter($context);
+        }
+        $errorContext = array_merge(...$contexts);
+        return $this->exceptionFactory->createTransportException(
+            $message,
+            $errorContext,
+            $throwable
+        );
+    }
+
+    /**
+     * @param PaymentInfo|null $paymentInfo
+     * @return array
+     */
+    protected function getPaymentInfoErrorContext(PaymentInfo $paymentInfo = null)
+    {
+        if (!$paymentInfo) {
+            return [];
+        }
+        return [
+            'payment_id' => $paymentInfo->getPaymentId(),
+            'order_id'   => $paymentInfo->getOrderId(),
+        ];
+    }
+
+    /**
+     * @param Payment|null $payment
+     * @return array
+     */
+    protected function getPaymentErrorContext(Payment $payment = null)
+    {
+        if (!$payment) {
+            return [];
+        }
+        return [
+            'payment_id'             => $payment->getId(),
+            'payment_state'          => $payment->getState(),
+            'payment_failure_reason' => $payment->getFailureReason(),
+        ];
     }
 
     /**
@@ -112,34 +144,31 @@ class PayPalTransport implements PayPalTransportInterface
     public function executePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         try {
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $payment = $this->payPalClient->getPaymentById($paymentInfo->getPaymentId(), $apiContext);
+            $apiContext = $this->translator->getApiContext($apiContextInfo);
+            $payment = $this->client->getPaymentById($paymentInfo->getPaymentId(), $apiContext);
 
             $payment = $this->doExecute($payment, $paymentInfo, $apiContext);
 
-            $order = $this->getPaymentOrder($payment);
+            $order = $this->getPaymentOrder($paymentInfo, $payment);
             $paymentInfo->setOrderId($order->getId());
-        } catch (PayPalConnectionException $connectionException) {
-            $this->processConnectionException($connectionException, $paymentInfo, 'Could not execute payment');
-        } catch (\Throwable $exception) {
-            $this->processException($exception, 'Could not execute payment');
+        } catch (TransportException $exception) {
+            throw $exception;
+        } catch (\Throwable $throwable) {
+            throw $this->createTransportException(
+                'Execute payment failed.',
+                $throwable,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getPaymentErrorContext($payment ?? null)
+            );
         }
 
         if ($payment->getState() != self::PAYMENT_EXECUTED_STATUS) {
-            $message = 'Could not executed payment.';
-
-            $this->logger->error(
-                $message,
-                [
-                    'paymentId'      => $paymentInfo->getPaymentId(),
-                    'payment state'  => $payment->getState(),
-                    'failure reason' => $payment->getFailureReason()
-                ]
+            throw $this->createTransportException(
+                'Unexpected state of payment after execute.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getPaymentErrorContext($payment)
             );
-
-            $exception = $this->exceptionFactory
-                ->createOperationExecutionFailedException($message, $payment->getFailureReason());
-            throw $exception;
         }
     }
 
@@ -152,18 +181,19 @@ class PayPalTransport implements PayPalTransportInterface
      */
     protected function doExecute(Payment $payment, PaymentInfo $paymentInfo, ApiContext $apiContext)
     {
-        $execution = $this->payPalSDKObjectTranslator->getPaymentExecution($paymentInfo);
-        $payment = $this->payPalClient->executePayment($payment, $execution, $apiContext);
+        $execution = $this->translator->getPaymentExecution($paymentInfo);
+        $payment = $this->client->executePayment($payment, $execution, $apiContext);
 
         return $payment;
     }
 
     /**
-     * @param Payment $payment
+     * @param PaymentInfo $paymentInfo
+     * @param Payment     $payment
      *
      * @return Order
      */
-    protected function getPaymentOrder(Payment $payment)
+    protected function getPaymentOrder(PaymentInfo $paymentInfo, Payment $payment)
     {
         $transactions = $payment->getTransactions();
         $transaction = reset($transactions);
@@ -174,14 +204,12 @@ class PayPalTransport implements PayPalTransportInterface
         $order = $relatedResource->getOrder();
 
         if (!$order instanceof Order) {
-            $exception = $this->exceptionFactory
-                ->createRuntimeException(
-                    sprintf(
-                        'Order was not created for payment "%s"',
-                        $payment->getId()
-                    )
-                );
-            throw $exception;
+            throw $this->createTransportException(
+                'Order was not created for payment after execute.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getPaymentErrorContext($payment)
+            );
         }
 
         return $order;
@@ -193,36 +221,50 @@ class PayPalTransport implements PayPalTransportInterface
     public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {
-            $exception = $this->exceptionFactory->createRuntimeException('Order Id is required.');
-            throw $exception;
+            throw $this->createTransportException(
+                'Cannot authorize payment. Order Id is required.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo)
+            );
         }
 
         try {
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
-            $authorize = $this->doAuthorize($paymentInfo, $order, $apiContext);
-        } catch (PayPalConnectionException $connectionException) {
-            $this->processConnectionException($connectionException, $paymentInfo, 'Could not authorize payment');
-        } catch (\Throwable $exception) {
-            $this->processException($exception, 'Could not authorize payment');
-        }
-
-        if ($authorize->getState() != self::ORDER_PAYMENT_AUTHORIZED_STATUS) {
-            $message = 'Could not authorize payment.';
-            $this->logger->error(
-                $message,
-                [
-                    'paymentId'           => $paymentInfo->getPaymentId(),
-                    'authorization state' => $authorize->getState(),
-                    'reason code'         => $authorize->getReasonCode(),
-                    'valid until'         => $authorize->getValidUntil(),
-                ]
+            $apiContext = $this->translator->getApiContext($apiContextInfo);
+            $order = $this->client->getOrderById($paymentInfo->getOrderId(), $apiContext);
+            $authorization = $this->doAuthorize($paymentInfo, $order, $apiContext);
+        } catch (\Throwable $throwable) {
+            throw $this->createTransportException(
+                'Payment order authorization failed.',
+                $throwable,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getAuthorizationErrorContext($authorization ?? null)
             );
-
-            $exception = $this->exceptionFactory
-                ->createOperationExecutionFailedException($message, $authorize->getReasonCode());
-            throw $exception;
         }
+
+        if ($authorization->getState() != self::ORDER_PAYMENT_AUTHORIZED_STATUS) {
+            throw $this->createTransportException(
+                'Unexpected state of payment authorization.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getAuthorizationErrorContext($authorization)
+            );
+        }
+    }
+
+    /**
+     * @param Authorization|null $authorization
+     * @return array
+     */
+    protected function getAuthorizationErrorContext(Authorization $authorization = null)
+    {
+        if (!$authorization) {
+            return [];
+        }
+        return [
+            'authorization_state'       => $authorization->getState(),
+            'authorization_reason_code' => $authorization->getReasonCode(),
+            'authorization_valid_until' => $authorization->getValidUntil(),
+        ];
     }
 
     /**
@@ -234,8 +276,8 @@ class PayPalTransport implements PayPalTransportInterface
      */
     protected function doAuthorize(PaymentInfo $paymentInfo, Order $order, ApiContext $apiContext)
     {
-        $authorization = $this->payPalSDKObjectTranslator->getAuthorization($paymentInfo);
-        return $this->payPalClient->authorizeOrder($order, $authorization, $apiContext);
+        $authorization = $this->translator->getAuthorization($paymentInfo);
+        return $this->client->authorizeOrder($order, $authorization, $apiContext);
     }
 
     /**
@@ -245,94 +287,49 @@ class PayPalTransport implements PayPalTransportInterface
     public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {
-            $exception = $this->exceptionFactory->createRuntimeException('Order Id is required.');
-            throw $exception;
+            throw $this->createTransportException(
+                'Cannot capture payment. Order Id is required.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo)
+            );
         }
 
         try {
-            $apiContext = $this->payPalSDKObjectTranslator->getApiContext($apiContextInfo);
-            $order = $this->payPalClient->getOrderById($paymentInfo->getOrderId(), $apiContext);
+            $apiContext = $this->translator->getApiContext($apiContextInfo);
+            $order = $this->client->getOrderById($paymentInfo->getOrderId(), $apiContext);
             $capture = $this->doCapture($paymentInfo, $order, $apiContext);
-        } catch (PayPalConnectionException $connectionException) {
-            $this->processConnectionException($connectionException, $paymentInfo, 'Could not capture payment');
-        } catch (\Throwable $exception) {
-            $this->processException($exception, 'Could not capture payment');
+        } catch (\Throwable $throwable) {
+            throw $this->createTransportException(
+                'Payment capture failed.',
+                $throwable,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getCaptureErrorContext($capture ?? null)
+            );
         }
 
         if ($capture->getState() != self::ORDER_PAYMENT_CAPTURED_STATUS) {
-            $message = 'Could not capture payment.';
-
-            $this->logger->error(
-                $message,
-                [
-                    'paymentId'     => $paymentInfo->getPaymentId(),
-                    'capture state' => $capture->getState()
-                ]
+            throw $this->createTransportException(
+                'Unexpected payment state after capture.',
+                null,
+                $this->getPaymentInfoErrorContext($paymentInfo),
+                $this->getCaptureErrorContext($capture)
             );
-
-            $exception = $this->exceptionFactory
-                ->createOperationExecutionFailedException($message);
-            throw $exception;
         }
     }
 
     /**
-     * Connection exception will be raised on any PayPal API exception by SDK
-     *
-     * @param PayPalConnectionException $connectionException
-     * @param PaymentInfo               $paymentInfo
-     * @param string                    $message
-     *
-     * @throws ConnectionException
+     * @param Capture|null $capture
+     * @return array
      */
-    protected function processConnectionException(
-        PayPalConnectionException $connectionException,
-        PaymentInfo $paymentInfo,
-        $message
-    ) {
-        $exceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($connectionException, $paymentInfo);
-
-        $this->logger->error(
-            sprintf(
-                '%s. [Reason: %s, Code: %s, Payment Id: %s Details: %s, Informational Link: %s Debug Id: %s].',
-                $message,
-                $exceptionInfo->getMessage(),
-                $exceptionInfo->getStatusCode(),
-                $paymentInfo->getPaymentId(),
-                $exceptionInfo->getDetails(),
-                $exceptionInfo->getRelatedResourceLink(),
-                $exceptionInfo->getDebugId()
-            ),
-            [
-                'exception' => $connectionException,
-                'exceptionInfo' => $exceptionInfo
-            ]
-        );
-
-        $exception = $this->exceptionFactory->createConnectionException($message, $exceptionInfo, $connectionException);
-        throw $exception;
-    }
-
-    /**
-     * Internal PHP exception usually not related to API
-     *
-     * @param \Throwable $exception
-     * @param string     $message
-     *
-     * @throws RuntimeException
-     */
-    protected function processException(\Throwable $exception, $message)
+    protected function getCaptureErrorContext(Capture $capture = null)
     {
-        $message = sprintf(
-            '%s. Reason: %s',
-            $message,
-            $exception->getMessage()
-        );
-
-        $this->logger->error($message, ['exception' => $exception]);
-
-        $exception = $this->exceptionFactory->createRuntimeException($message, $exception);
-        throw $exception;
+        if (!$capture) {
+            return [];
+        }
+        return [
+            'parent_payment' => $capture->getParentPayment(),
+            'capture_state'  => $capture->getState(),
+        ];
     }
 
     /**
@@ -344,7 +341,7 @@ class PayPalTransport implements PayPalTransportInterface
      */
     protected function doCapture(PaymentInfo $paymentInfo, Order $order, ApiContext $apiContext)
     {
-        $captureDetails = $this->payPalSDKObjectTranslator->getCapturedDetails($paymentInfo);
-        return $this->payPalClient->captureOrder($order, $captureDetails, $apiContext);
+        $captureDetails = $this->translator->getCapturedDetails($paymentInfo);
+        return $this->client->captureOrder($order, $captureDetails, $apiContext);
     }
 }

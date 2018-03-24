@@ -26,8 +26,12 @@ services:
         arguments:
             - '@oro_paypal_express.pay_pal.translator.sdk_object'
             - '@oro_paypal_express.pay_pal.client'
-            - '@logger'
-            - '@oro_paypal_express.exception.factory'
+            - '@oro_paypal_express.transport.exception.factory'
+
+    oro_paypal_express.transport.exception.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactory
+        arguments:
+            - '@oro_paypal_express.pay_pal.translator.sdk_object'
 
     oro_paypal_express.event_listener.pay_pal_redirect:
         class: Oro\Bundle\PayPalExpressBundle\EventListener\PayPalRedirectListener

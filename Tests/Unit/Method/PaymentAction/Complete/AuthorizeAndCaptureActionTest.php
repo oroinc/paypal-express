@@ -2,119 +2,55 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\Complete;
 
-use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
-use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
+use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\AbstractPaymentActionTestCase;
 
-class AuthorizeAndCaptureActionTest extends \PHPUnit_Framework_TestCase
+class AuthorizeAndCaptureActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportFacadeInterface
+     * @return PaymentActionInterface
      */
-    protected $facade;
+    protected function createPaymentAction()
+    {
+        return new AuthorizeAndCaptureAction($this->facade, $this->logger);
+    }
 
     /**
-     * @var AuthorizeAndCaptureAction
+     * @return string
      */
-    protected $action;
-
-    protected function setUp()
+    protected function getExpectedPaymentTransactionAction()
     {
-        $this->facade = $this->createMock(PayPalTransportFacadeInterface::class);
+        return PaymentMethodInterface::CAPTURE;
+    }
 
-        $this->action = new AuthorizeAndCaptureAction($this->facade);
+    /**
+     * @param \Throwable $throwable
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
+    {
+        $this->facade->expects($this->any())
+            ->method('executePayPalPayment')
+            ->will($this->throwException($throwable));
     }
 
     public function testExecuteAction()
     {
-        $transaction = new PaymentTransaction();
-
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
-            true
-        );
-
         $this->facade->expects($this->at(0))
             ->method('executePayPalPayment')
-            ->with($transaction, $config);
+            ->with($this->paymentTransaction, $this->config);
 
         $this->facade->expects($this->at(1))
             ->method('capturePayment')
-            ->with($transaction, $transaction, $config);
+            ->with($this->paymentTransaction, $this->paymentTransaction, $this->config);
 
-        $result = $this->action->executeAction($transaction, $config);
+        $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertTrue($transaction->isSuccessful());
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        $this->assertFalse($this->paymentTransaction->isActive());
+        $this->assertTrue($this->paymentTransaction->isSuccessful());
 
         $this->assertEquals(['successful' => true], $result);
-    }
-
-    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
-    {
-        $transaction = new PaymentTransaction();
-
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
-            true
-        );
-
-        $expectedMessage = 'Order Id is required';
-
-        $this->facade->expects($this->any())
-            ->method('executePayPalPayment')
-            ->willThrowException(new RuntimeException($expectedMessage));
-
-        $result = $this->action->executeAction($transaction, $config);
-
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertFalse($transaction->isSuccessful());
-
-        $this->assertEquals(['successful' => false, 'message' => $expectedMessage], $result);
-    }
-
-    public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
-    {
-        $transaction = new PaymentTransaction();
-
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            CompleteVirtualAction::NAME,
-            AuthorizeAndCaptureAction::NAME,
-            true
-        );
-
-        $expectedMessage = 'Order Id is required';
-
-        $this->facade->expects($this->any())
-            ->method('executePayPalPayment')
-            ->willThrowException(new \RuntimeException($expectedMessage));
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        $this->action->executeAction($transaction, $config);
     }
 }
