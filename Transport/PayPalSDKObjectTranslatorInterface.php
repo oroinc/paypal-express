@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use PayPal\Api\Authorization;
@@ -64,9 +64,8 @@ interface PayPalSDKObjectTranslatorInterface
 
     /**
      * @param PayPalConnectionException $exception
-     * @param PaymentInfo               $paymentInfo
      *
-     * @return ExceptionInfo
+     * @return ErrorInfo
      */
-    public function getExceptionInfo(PayPalConnectionException $exception, PaymentInfo $paymentInfo);
+    public function getErrorInfo(PayPalConnectionException $exception);
 }

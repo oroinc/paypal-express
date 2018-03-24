@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 
@@ -88,7 +88,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
     {
         $credentials = $this->getApiCredentials($apiContextInfo->getCredentialsInfo());
         $apiContext = new ApiContext($credentials);
-        $apiContext->setConfig(['mode' => $apiContextInfo->isSandbox() ? static::MOD_SANDBOX : static::MOD_LIVE ]);
+        $apiContext->setConfig(['mode' => $apiContextInfo->isSandbox() ? static::MOD_SANDBOX : static::MOD_LIVE]);
         $apiContext->addRequestHeader('PayPal-Partner-Attribution-Id', static::APPLICATION_PARTNER_ID);
 
         return $apiContext;
@@ -146,10 +146,10 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
     /**
      * {@inheritdoc}
      */
-    public function getExceptionInfo(PayPalConnectionException $exception, PaymentInfo $paymentInfo)
+    public function getErrorInfo(PayPalConnectionException $exception)
     {
         $message = $exception->getMessage();
-        $statusCode = $exception->getCode();
+        $name = $exception->getCode();
         $details = '';
         $link = '';
         $debugId = '';
@@ -162,7 +162,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
                     $message = $parsedExceptionData['message'];
                 }
                 if (isset($parsedExceptionData['name'])) {
-                    $statusCode = $parsedExceptionData['name'];
+                    $name = $parsedExceptionData['name'];
                 }
                 if (isset($parsedExceptionData['details'])) {
                     $details = $parsedExceptionData['details'];
@@ -176,8 +176,15 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
             }
         }
 
-        $exceptionInfo = new ExceptionInfo($message, $statusCode, $details, $link, $debugId, $paymentInfo, $rawData);
+        $errorInfo = new ErrorInfo(
+            $message,
+            $name,
+            $details,
+            $link,
+            $debugId,
+            $rawData
+        );
 
-        return $exceptionInfo;
+        return $errorInfo;
     }
 }

@@ -4,83 +4,55 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
-use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CaptureAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 
-class CaptureActionTest extends \PHPUnit_Framework_TestCase
+class CaptureActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportFacadeInterface
+     * @return PaymentActionInterface
      */
-    protected $facade;
-
-    /**
-     * @var CaptureAction
-     */
-    protected $action;
-
-    protected function setUp()
+    protected function createPaymentAction()
     {
-        $this->facade = $this->createMock(PayPalTransportFacadeInterface::class);
-
-        $this->action = new CaptureAction($this->facade);
+        return new CaptureAction($this->facade, $this->logger);
     }
 
-    public function testExecuteAction()
+    protected function createPaymentTransaction()
     {
         $transaction = new PaymentTransaction();
         $sourceTransaction = new PaymentTransaction();
         $transaction->setSourcePaymentTransaction($sourceTransaction);
+        return $transaction;
+    }
 
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            PaymentMethodInterface::CAPTURE,
-            true
-        );
-
+    public function testExecuteAction()
+    {
         $this->facade->expects($this->once())
             ->method('capturePayment')
-            ->with($transaction, $sourceTransaction, $config);
+            ->with($this->paymentTransaction, $this->paymentTransaction->getSourcePaymentTransaction(), $this->config);
 
-        $result = $this->action->executeAction($transaction, $config);
+        $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertTrue($transaction->isSuccessful());
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        $this->assertFalse($this->paymentTransaction->isActive());
+        $this->assertTrue($this->paymentTransaction->isSuccessful());
 
         $this->assertEquals(['successful' => true], $result);
     }
 
     public function testExecuteActionShouldReturnAnErrorIfSourceTransactionDoesNotSet()
     {
-        $transaction = new PaymentTransaction();
-
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            PaymentMethodInterface::CAPTURE,
-            true
-        );
+        $this->paymentTransaction = new PaymentTransaction();
 
         $this->facade->expects($this->never())
             ->method('capturePayment');
 
-        $result = $this->action->executeAction($transaction, $config);
+        $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertFalse($transaction->isSuccessful());
+        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        $this->assertFalse($this->paymentTransaction->isActive());
+        $this->assertFalse($this->paymentTransaction->isSuccessful());
 
         $this->assertEquals(
             [
@@ -91,64 +63,29 @@ class CaptureActionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
+    /**
+     * @param \Throwable $throwable
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
     {
-        $transaction = new PaymentTransaction();
-        $sourceTransaction = new PaymentTransaction();
-        $transaction->setSourcePaymentTransaction($sourceTransaction);
-
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            PaymentMethodInterface::CAPTURE,
-            true
-        );
-
-        $expectedMessage = 'Order Id is required';
-
         $this->facade->expects($this->any())
             ->method('capturePayment')
-            ->willThrowException(new RuntimeException($expectedMessage));
-
-        $result = $this->action->executeAction($transaction, $config);
-
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertFalse($transaction->isSuccessful());
-
-        $this->assertEquals(['successful' => false, 'message' => $expectedMessage], $result);
+            ->will($this->throwException($throwable));
     }
 
-    public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
+    /**
+     * @return string
+     */
+    protected function getExpectedPaymentTransactionAction()
     {
-        $transaction = new PaymentTransaction();
-        $sourceTransaction = new PaymentTransaction();
-        $transaction->setSourcePaymentTransaction($sourceTransaction);
+        return PaymentMethodInterface::CAPTURE;
+    }
 
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            PaymentMethodInterface::CAPTURE,
-            true
-        );
-
-        $expectedMessage = 'Order Id is required';
-
-        $this->facade->expects($this->any())
-            ->method('capturePayment')
-            ->willThrowException(new \RuntimeException($expectedMessage));
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        $this->action->executeAction($transaction, $config);
+    /**
+     * @return array
+     */
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception)
+    {
+        return ['successful' => false, 'message' => $exception->getMessage()];
     }
 }

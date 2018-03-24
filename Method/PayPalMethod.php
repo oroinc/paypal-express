@@ -12,11 +12,6 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 class PayPalMethod implements PaymentMethodInterface
 {
     /**
-     * @var PayPalTransportFacadeInterface
-     */
-    protected $payPalTransportFacade;
-
-    /**
      * @var PayPalConfigInterface
      */
     protected $config;
@@ -27,17 +22,14 @@ class PayPalMethod implements PaymentMethodInterface
     protected $paymentActionExecutor;
 
     /**
-     * @param PayPalTransportFacadeInterface $payPalTransportFacade
-     * @param PayPalExpressConfigInterface   $config
-     * @param PaymentActionExecutor          $paymentActionExecutor
+     * @param PayPalExpressConfigInterface $config
+     * @param PaymentActionExecutor        $paymentActionExecutor
      */
     public function __construct(
-        PayPalTransportFacadeInterface $payPalTransportFacade,
         PayPalExpressConfigInterface $config,
         PaymentActionExecutor $paymentActionExecutor
     ) {
-        $this->payPalTransportFacade = $payPalTransportFacade;
-        $this->config                = $config;
+        $this->config = $config;
         $this->paymentActionExecutor = $paymentActionExecutor;
     }
 

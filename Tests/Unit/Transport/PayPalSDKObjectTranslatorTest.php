@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
@@ -129,7 +129,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $successRoute,
         $failedRoute
     ) {
-        $payer           = new Payer();
+        $payer = new Payer();
         $payer->setPaymentMethod(PaymentInfo::PAYMENT_METHOD_PAYPAL);
 
         $details = new Details();
@@ -251,21 +251,19 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider getExceptionInfoDataProvider
+     * @dataProvider getErrorInfoDataProvider
      *
-     * @param array         $data
-     * @param ExceptionInfo $expectedExceptionInfo
+     * @param array     $data
+     * @param ErrorInfo $errorInfo
      */
-    public function testGetExceptionInfo(array $data, ExceptionInfo $expectedExceptionInfo)
+    public function testGetErrorInfo(array $data, ErrorInfo $errorInfo)
     {
         $exception = new PayPalConnectionException($data['url'], $data['message'], $data['code']);
         $exception->setData($data['data']);
 
-        $paymentInfo = $data['paymentInfo'];
+        $actualErrorInfo = $this->payPalSDKObjectTranslator->getErrorInfo($exception);
 
-        $actualExceptionInfo = $this->payPalSDKObjectTranslator->getExceptionInfo($exception, $paymentInfo);
-
-        $this->assertEquals($expectedExceptionInfo, $actualExceptionInfo);
+        $this->assertEquals($errorInfo, $actualErrorInfo);
     }
 
     /**
@@ -273,28 +271,26 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    public function getExceptionInfoDataProvider()
+    public function getErrorInfoDataProvider()
     {
-        $message         = 'Order is already voided, expired, or completed.';
-        $statusCode      = 'ORDER_ALREADY_COMPLETED';
-        $details         = 'If the buyer\'s funding source has insufficient funds, restart the payment and ' .
+        $message = 'Order is already voided, expired, or completed.';
+        $statusCode = 'ORDER_ALREADY_COMPLETED';
+        $details = 'If the buyer\'s funding source has insufficient funds, restart the payment and ' .
             'prompt the buyer to choose another payment method that is available on your site.';
         $informationLink = 'https://developer.paypal.com/docs/api/payments/#errors';
-        $debugId         = '2879152bf38c1';
+        $debugId = '2879152bf38c1';
 
-        $url              = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
+        $url = 'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture';
         $exceptionMessage = 'Got Http response code 400 when accessing ' .
             'https://api.sandbox.paypal.com/v1/payments/orders/O-1DV55626YT3253642/capture.';
 
-        $paymentInfo = new PaymentInfo(0, 'USD', 0, 0, 0, '', 1);
-
         return [
-            'should parse original SDK exception correctly' => [
+            'should parse original SDK exception correctly'                                             => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
                             'message'          => $message,
                             'name'             => $statusCode,
@@ -302,16 +298,14 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                             'information_link' => $informationLink,
                             'debug_id'         => $debugId
                         ]
-                    ),
-                    'paymentInfo' => $paymentInfo
+                    )
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $message,
                     $statusCode,
                     $details,
                     $informationLink,
                     $debugId,
-                    $paymentInfo,
                     json_encode(
                         [
                             'message'          => $message,
@@ -323,48 +317,44 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             ],
-            'should set original exception message as message in case data is empty' => [
+            'should set original exception message as message in case data is empty'                    => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => null,
-                    'paymentInfo' => $paymentInfo
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => null,
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $exceptionMessage,
                     400,
                     '',
                     '',
                     '',
-                    $paymentInfo,
                     null
                 )
             ],
-            'should set original exception message as message in case data could not be parsed' => [
+            'should set original exception message as message in case data could not be parsed'         => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => 'some incorrect response',
-                    'paymentInfo' => $paymentInfo
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => 'some incorrect response',
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $exceptionMessage,
                     400,
                     '',
                     '',
                     '',
-                    $paymentInfo,
                     'some incorrect response'
                 )
             ],
             'should set original exception message as message in case if data does not provide message' => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
                             'name'             => $statusCode,
                             'details'          => $details,
@@ -372,15 +362,13 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                             'debug_id'         => $debugId
                         ]
                     ),
-                    'paymentInfo' => $paymentInfo
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $exceptionMessage,
                     $statusCode,
                     $details,
                     $informationLink,
                     $debugId,
-                    $paymentInfo,
                     json_encode(
                         [
                             'name'             => $statusCode,
@@ -391,12 +379,12 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             ],
-            'should set original exception code as status code in case if data does not provide code' => [
+            'should set original exception code as status code in case if data does not provide code'   => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
                             'message'          => $message,
                             'details'          => $details,
@@ -404,15 +392,13 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                             'debug_id'         => $debugId
                         ]
                     ),
-                    'paymentInfo' => $paymentInfo
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $message,
                     400,
                     $details,
                     $informationLink,
                     $debugId,
-                    $paymentInfo,
                     json_encode(
                         [
                             'message'          => $message,
@@ -423,12 +409,12 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             ],
-            'should work correctly if data does not provide details' => [
+            'should work correctly if data does not provide details'                                    => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
                             'message'          => $message,
                             'name'             => $statusCode,
@@ -436,15 +422,13 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                             'debug_id'         => $debugId
                         ]
                     ),
-                    'paymentInfo' => $paymentInfo
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $message,
                     $statusCode,
                     '',
                     $informationLink,
                     $debugId,
-                    $paymentInfo,
                     json_encode(
                         [
                             'message'          => $message,
@@ -455,44 +439,42 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             ],
-            'should work correctly if data does not provide information link' => [
+            'should work correctly if data does not provide information link'                           => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
-                            'message'          => $message,
-                            'name'             => $statusCode,
-                            'details'          => $details,
-                            'debug_id'         => $debugId
+                            'message'  => $message,
+                            'name'     => $statusCode,
+                            'details'  => $details,
+                            'debug_id' => $debugId
                         ]
                     ),
-                    'paymentInfo' => $paymentInfo
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $message,
                     $statusCode,
                     $details,
                     '',
                     $debugId,
-                    $paymentInfo,
                     json_encode(
                         [
-                            'message'          => $message,
-                            'name'             => $statusCode,
-                            'details'          => $details,
-                            'debug_id'         => $debugId
+                            'message'  => $message,
+                            'name'     => $statusCode,
+                            'details'  => $details,
+                            'debug_id' => $debugId
                         ]
                     )
                 )
             ],
-            'should work correctly if data does not provide debug id' => [
+            'should work correctly if data does not provide debug id'                                   => [
                 'data'     => [
-                    'url'         => $url,
-                    'message'     => $exceptionMessage,
-                    'code'        => 400,
-                    'data'        => json_encode(
+                    'url'     => $url,
+                    'message' => $exceptionMessage,
+                    'code'    => 400,
+                    'data'    => json_encode(
                         [
                             'message'          => $message,
                             'name'             => $statusCode,
@@ -500,15 +482,13 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
                             'information_link' => $informationLink,
                         ]
                     ),
-                    'paymentInfo' => $paymentInfo
                 ],
-                'expected' => new ExceptionInfo(
+                'expected' => new ErrorInfo(
                     $message,
                     $statusCode,
                     $details,
                     $informationLink,
                     '',
-                    $paymentInfo,
                     json_encode(
                         [
                             'message'          => $message,
@@ -523,7 +503,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param float $amount
+     * @param float  $amount
      * @param string $currency
      *
      * @return Amount
