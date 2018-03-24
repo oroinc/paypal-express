@@ -2,112 +2,61 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 
-use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
-use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
 
-class PurchaseActionTest extends \PHPUnit_Framework_TestCase
+class PurchaseActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportFacadeInterface
+     * @return PaymentActionInterface
      */
-    protected $facade;
-
-    /**
-     * @var PurchaseAction
-     */
-    protected $action;
-
-    protected function setUp()
+    protected function createPaymentAction()
     {
-        $this->facade = $this->createMock(PayPalTransportFacadeInterface::class);
-
-        $this->action = new PurchaseAction($this->facade);
+        return new PurchaseAction($this->facade, $this->logger);
     }
 
     public function testExecuteAction()
     {
         $expectedUrl = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=EC-60385559L1062554J';
 
-        $transaction = new PaymentTransaction();
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            true
-        );
-
         $this->facade->expects($this->once())
             ->method('getPayPalPaymentRoute')
-            ->with($transaction, $config)
+            ->with($this->paymentTransaction, $this->config)
             ->willReturn($expectedUrl);
 
-        $result = $this->action->executeAction($transaction, $config);
+        $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME, $transaction->getAction());
-        $this->assertTrue($transaction->isActive());
-        $this->assertTrue($transaction->isSuccessful());
+        $this->assertEquals(PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME, $this->paymentTransaction->getAction());
+        $this->assertTrue($this->paymentTransaction->isActive());
+        $this->assertTrue($this->paymentTransaction->isSuccessful());
 
         $this->assertEquals(['purchaseRedirectUrl' => $expectedUrl], $result);
     }
 
-    public function testExecuteActionShouldRecoverAfterPayPalInnerException()
+    /**
+     * @param \Throwable $throwable
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
     {
-        $transaction = new PaymentTransaction();
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            true
-        );
-
-        $expectedMessage = 'Order Id is required';
         $this->facade->expects($this->once())
             ->method('getPayPalPaymentRoute')
-            ->willThrowException(new RuntimeException($expectedMessage));
-
-        $result = $this->action->executeAction($transaction, $config);
-
-        $this->assertEquals(PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME, $transaction->getAction());
-        $this->assertFalse($transaction->isActive());
-        $this->assertFalse($transaction->isSuccessful());
-
-        $this->assertEquals([], $result);
+            ->will($this->throwException($throwable));
     }
 
-    public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
+    /**
+     * @return string
+     */
+    protected function getExpectedPaymentTransactionAction()
     {
-        $transaction = new PaymentTransaction();
-        $config = new PayPalExpressConfig(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            true
-        );
+        return PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME;
+    }
 
-        $expectedMessage = 'Order Id is required';
-        $this->facade->expects($this->once())
-            ->method('getPayPalPaymentRoute')
-            ->willThrowException(new \RuntimeException($expectedMessage));
-
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        $this->action->executeAction($transaction, $config);
+    /**
+     * @return array
+     */
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception)
+    {
+        return [];
     }
 }

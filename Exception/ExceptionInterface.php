@@ -2,6 +2,6 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
-interface ExceptionInterface
+interface ExceptionInterface extends \Throwable
 {
 }

@@ -65,7 +65,6 @@ services:
     oro_paypal_express.method.factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
         arguments:
-            - '@oro_paypal_express.method.paypal_transport_facade'
             - '@oro_paypal_express.method.payment_action.executor'
 
     oro_paypal_express.method.provider:
@@ -77,11 +76,11 @@ services:
         tags:
             - { name: oro_payment.payment_method_provider }
 
-
     oro_paypal_express.method.payment_action.abstract:
         abstract: true
         arguments:
             - '@oro_paypal_express.method.paypal_transport_facade'
+            - '@logger'
 
     oro_paypal_express.method.payment_action.complete.authorize:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeOnCompleteAction

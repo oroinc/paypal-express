@@ -2,14 +2,12 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Exception;
 
-use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
-use Oro\Bundle\PayPalExpressBundle\Exception\OperationExecutionFailedException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ExceptionInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 use PayPal\Exception\PayPalConnectionException;
@@ -31,53 +29,6 @@ class ExceptionFactoryTest extends \PHPUnit_Framework_TestCase
         $this->supportedCurrenciesHelper = $this->createMock(SupportedCurrenciesHelper::class);
 
         $this->factory = new ExceptionFactory($this->supportedCurrenciesHelper);
-    }
-
-    public function testCreateConnectionException()
-    {
-        $message = 'Could not Capture payment.';
-
-        $expectedReason = 'Order is already voided, expired, or completed.';
-        $expectedStatusCode = 'ORDER_ALREADY_COMPLETED';
-        $expectedLink = 'https://developer.paypal.com/docs/api/payments/#errors';
-
-        $paymentInfo = $this->createMock(PaymentInfo::class);
-
-        $exceptionInfo = new ExceptionInfo(
-            $expectedReason,
-            $expectedStatusCode,
-            '',
-            $expectedLink,
-            '',
-            $paymentInfo
-        );
-
-        $previousException = new PayPalConnectionException('', '');
-
-        $expectedMessage = "{$message}. Reason: {$expectedReason}, Code: {$expectedStatusCode}," .
-            " Information Link: {$expectedLink}";
-        $expectedException = new ConnectionException($expectedMessage, 0, $previousException);
-        $expectedException->setExceptionInfo($exceptionInfo);
-
-        $actualConnectionException = $this->factory
-            ->createConnectionException($message, $exceptionInfo, $previousException);
-
-        $this->assertEquals($expectedException, $actualConnectionException);
-    }
-
-    public function testCreateOperationExecutionFailedException()
-    {
-        $message = 'Could not execute payment.';
-
-        $expectedReason = 'UNABLE_TO_COMPLETE_TRANSACTION';
-
-        $expectedMessage = "{$message} Reason: {$expectedReason}.";
-        $expectedException = new OperationExecutionFailedException($expectedMessage);
-
-        $actualException = $this->factory
-            ->createOperationExecutionFailedException($message, $expectedReason);
-
-        $this->assertEquals($expectedException, $actualException);
     }
 
     public function testCreateUnsupportedCurrencyException()

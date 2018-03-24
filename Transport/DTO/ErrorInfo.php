@@ -2,7 +2,12 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
-class ExceptionInfo
+/**
+ * Representation of API error.
+ *
+ * @see https://developer.paypal.com/docs/api/payments/#definition-error
+ */
+class ErrorInfo
 {
     /**
      * @var string Error message
@@ -13,7 +18,7 @@ class ExceptionInfo
      * @var string Error status code
      *
      */
-    protected $statusCode;
+    protected $name;
 
     /**
      * @var string Error details usually user friendly description
@@ -24,7 +29,7 @@ class ExceptionInfo
     /**
      * @var string Link to related resource if exist
      */
-    protected $relatedResourceLink;
+    protected $informationLink;
 
     /**
      * @var string Pay Pal debug ID
@@ -32,40 +37,32 @@ class ExceptionInfo
     protected $debugId;
 
     /**
-     * @var PaymentInfo
-     */
-    protected $relatedPayment;
-
-    /**
      * @var mixed Response data could contain sensitive information and should not be stored unencrypted
      */
     protected $rawData;
 
     /**
-     * @param string      $message
-     * @param string      $statusCode
-     * @param string      $details
-     * @param string      $relatedResourceLink
-     * @param string      $debugId
-     * @param PaymentInfo $relatedPayment
-     * @param mixed       $rawData
+     * @param string $message
+     * @param string $name
+     * @param string $details
+     * @param string $informationLink
+     * @param string $debugId
+     * @param mixed  $rawData
      */
     public function __construct(
         $message,
-        $statusCode,
+        $name,
         $details,
-        $relatedResourceLink,
+        $informationLink,
         $debugId,
-        PaymentInfo $relatedPayment,
         $rawData = null
     ) {
-        $this->message             = $message;
-        $this->statusCode          = $statusCode;
-        $this->details             = $details;
-        $this->relatedResourceLink = $relatedResourceLink;
-        $this->relatedPayment      = $relatedPayment;
-        $this->debugId             = $debugId;
-        $this->rawData             = $rawData;
+        $this->message = $message;
+        $this->name = $name;
+        $this->details = $details;
+        $this->informationLink = $informationLink;
+        $this->debugId = $debugId;
+        $this->rawData = $rawData;
     }
 
     /**
@@ -79,9 +76,9 @@ class ExceptionInfo
     /**
      * @return string
      */
-    public function getStatusCode()
+    public function getName()
     {
-        return $this->statusCode;
+        return $this->name;
     }
 
     /**
@@ -95,9 +92,9 @@ class ExceptionInfo
     /**
      * @return string
      */
-    public function getRelatedResourceLink()
+    public function getInformationLink()
     {
-        return $this->relatedResourceLink;
+        return $this->informationLink;
     }
 
     /**
@@ -114,5 +111,16 @@ class ExceptionInfo
     public function getRawData()
     {
         return $this->rawData;
+    }
+
+    public function toArray()
+    {
+        return [
+            'message'          => $this->getMessage(),
+            'name'             => $this->getName(),
+            'details'          => $this->getDetails(),
+            'information_link' => $this->getInformationLink(),
+            'debug_id'         => $this->getDebugId(),
+        ];
     }
 }
