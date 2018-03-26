@@ -6,6 +6,7 @@ use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
@@ -131,6 +132,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
      * @param string|null $id
      * @param string|null $state
      * @param string|null $failureReason
+     *
      * @return Payment
      */
     protected function createPayment($id = null, $state = null, $failureReason = null)
@@ -145,6 +147,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @param string $id
      * @param string $approvalLink
+     *
      * @return Payment
      */
     protected function createPaymentWithApprovedLink($id, $approvalLink)
@@ -163,8 +166,8 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
      * @param Order  $order
      * @param null   $id
      * @param string $state
-     *
      * @param string $failureReason
+     *
      * @return Payment
      */
     protected function createPaymentWithOrder(Order $order = null, $id = null, $state = null, $failureReason = null)
@@ -180,19 +183,24 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
         return $payment;
     }
 
+    /**
+     * @param                 $expectedMessage
+     * @param Context         $expectedContext
+     * @param \Throwable|null $expectedPrevious
+     */
     protected function expectTransportException(
         $expectedMessage,
-        array $expectedContext,
+        Context $expectedContext,
         \Throwable $expectedPrevious = null
     ) {
         $expectedExceptionMessage = 'Test payment exception message';
-        $expectedException = new TransportException($expectedExceptionMessage, $expectedContext);
+        $expectedException = new TransportException($expectedExceptionMessage, $expectedContext->getContext());
 
         $this->paymentExceptionFactory->expects($this->once())
             ->method('createTransportException')
             ->with(
                 $this->callback(
-                    function($message) use ($expectedMessage) {
+                    function ($message) use ($expectedMessage) {
                         $this->assertEquals(
                             $expectedMessage,
                             $message,
@@ -203,10 +211,10 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
                 ),
                 $this->callback(
                     function ($context) use ($expectedContext) {
-                        $this->assertInternalType(
-                            'array',
+                        $this->assertInstanceOf(
+                            Context::class,
                             $context,
-                            'Failed assert that createTransportException\'s argument $context is array'
+                            'Failed assert that createTransportException\'s argument $context is ' . Context::class
                         );
                         $this->assertEquals(
                             $expectedContext,
@@ -217,7 +225,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
                     }
                 ),
                 $this->callback(
-                    function($previous) use ($expectedPrevious) {
+                    function ($previous) use ($expectedPrevious) {
                         $this->assertEquals(
                             $expectedPrevious,
                             $previous,
@@ -254,6 +262,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @param string|null $id
      * @param string|null $state
+     *
      * @return Order
      */
     protected function createOrder($id = null, $state = null)
@@ -261,6 +270,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
         $order = new Order();
         $order->setId($id);
         $order->setState($state);
+
         return $order;
     }
 }

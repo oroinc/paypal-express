@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Exception;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
@@ -54,7 +55,7 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
 
         $actualException = $this->factory->createTransportException(
             $mainMessage,
-            [],
+            new Context(),
             $payPalConnectionException
         );
 
@@ -158,7 +159,7 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
 
         $actualException = $this->factory->createTransportException(
             $mainMessage,
-            [],
+            new Context(),
             $previousException
         );
 
@@ -205,7 +206,7 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
 
         $actualException = $this->factory->createTransportException(
             $mainMessage,
-            [],
+            new Context(),
             $previousError
         );
 
@@ -240,7 +241,7 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $mainMessage = 'Cannot process payment.';
 
-        $actualException = $this->factory->createTransportException($mainMessage);
+        $actualException = $this->factory->createTransportException($mainMessage, new Context());
 
         $this->assertInstanceOf(TransportException::class, $actualException);
         $this->assertEquals($mainMessage, $actualException->getMessage());
@@ -278,7 +279,7 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
 
         $actualException = $this->factory->createTransportException(
             '',
-            [],
+            new Context(),
             $payPalConnectionException
         );
 
