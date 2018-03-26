@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
 use PayPal\Api\Authorization;
 
@@ -58,9 +59,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Cannot authorize payment. Order Id is required.',
-            [
-                'payment_id' => $this->expectedPaymentId,
-            ],
+            (new Context())->setPaymentInfo($this->paymentInfo),
             null
         );
 
@@ -95,10 +94,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Payment order authorization failed.',
-            [
-                'payment_id' => $this->expectedPaymentId,
-                'order_id' => $this->expectedOrderId,
-            ],
+            (new Context())->setPaymentInfo($this->paymentInfo),
             $clientException
         );
 
@@ -141,13 +137,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Unexpected state of payment authorization.',
-            [
-                'payment_id' => $this->expectedPaymentId,
-                'order_id' => $this->expectedOrderId,
-                'authorization_state' => $expectedAuthorizationState,
-                'authorization_reason_code' => $expectedAuthorizationReasonCode,
-                'authorization_valid_until' => $expectedAuthorizationValidUntil
-            ],
+            (new Context())->setPaymentInfo($this->paymentInfo)->setAuthorization($responseAuthorization),
             null
         );
 
