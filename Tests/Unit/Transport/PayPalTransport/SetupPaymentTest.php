@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 
 class SetupPaymentTest extends AbstractTransportTestCase
 {
@@ -52,7 +53,8 @@ class SetupPaymentTest extends AbstractTransportTestCase
             ->with($payment, $this->apiContext)
             ->willReturn($createdPayment);
 
-        $actualApprovalUrl = $this->transport->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);
+        $actualApprovalUrl = $this->transport
+            ->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);
         $this->assertEquals($expectedApprovalUrl, $actualApprovalUrl);
         $this->assertEquals($expectedPaymentId, $this->paymentInfo->getPaymentId());
     }
@@ -63,11 +65,12 @@ class SetupPaymentTest extends AbstractTransportTestCase
 
         $this->expectTranslatorGetApiContext();
 
+        $expectedPayment = $this->createPayment();
         $this->translator
             ->expects($this->once())
             ->method('getPayment')
             ->with($this->paymentInfo, $this->redirectRoutesInfo)
-            ->willReturn($this->createPayment());
+            ->willReturn($expectedPayment);
 
         $this->client->expects($this->once())
             ->method('createPayment')
@@ -75,7 +78,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Create payment failed.',
-            [],
+            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($expectedPayment),
             $clientException
         );
 
@@ -106,11 +109,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Unexpected state of payment after create.',
-            [
-                'payment_id'             => $expectedPaymentId,
-                'payment_state'          => $expectedPaymentState,
-                'payment_failure_reason' => $expectedFailureReason,
-            ],
+            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($failedPayment),
             null
         );
 

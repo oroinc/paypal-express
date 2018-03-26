@@ -6,9 +6,10 @@ interface TransportExceptionFactoryInterface
 {
     /**
      * @param string          $message
-     * @param array           $context
+     * @param Context         $context
      * @param \Throwable|null $throwable
+     *
      * @return TransportException
      */
-    public function createTransportException($message, array $context = [], \Throwable $throwable = null);
+    public function createTransportException($message, Context $context, \Throwable $throwable = null);
 }

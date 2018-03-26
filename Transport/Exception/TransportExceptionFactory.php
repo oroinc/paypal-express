@@ -24,17 +24,15 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
     }
 
     /**
-     * @param string          $message
-     * @param array           $errorContext
-     * @param \Throwable|null $throwable
-     * @return TransportException
+     * {@inheritdoc}
      */
-    public function createTransportException($message, array $errorContext = [], \Throwable $throwable = null)
+    public function createTransportException($message, Context $errorContext, \Throwable $throwable = null)
     {
         $errorInfo = $this->getErrorInfo($throwable);
         $message = $this->processMessage($message, $throwable, $errorInfo);
-        $errorContext = $this->processErrorContext($errorContext, $errorInfo);
-        return $this->createTransportExceptionInstance($message, $errorContext, $throwable);
+        $errorContext->addErrorInfo($errorInfo);
+
+        return new TransportException($message, $errorContext->getContext(), $throwable);
     }
 
     /**
@@ -126,28 +124,5 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
             $resultMessage .= static::MESSAGE_PARTS_DELIMITER;
         }
         return trim($resultMessage);
-    }
-
-    /**
-     * @param array           $errorContext
-     * @param ErrorInfo|null  $errorInfo
-     * @return array
-     */
-    protected function processErrorContext(array $errorContext, ErrorInfo $errorInfo = null) {
-        if ($errorInfo) {
-            $errorContext['error_info'] = $errorInfo->toArray();
-        }
-        return $errorContext;
-    }
-
-    /**
-     * @param string          $message
-     * @param array           $errorContext
-     * @param \Throwable|null $throwable
-     * @return TransportException
-     */
-    protected function createTransportExceptionInstance($message, array $errorContext = [], \Throwable $throwable = null)
-    {
-        return new TransportException($message, $errorContext, $throwable);
     }
 }
