@@ -9,7 +9,7 @@ oro:
                 tooltip: Sandbox accounts can be created on PayPal Developer website at developer.paypal.com
             client_id:
                 label: Client ID
-                tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
+                tooltip: When the Sandbox Mode is enabled please make sure to use the Client ID from a Sandbox account
             client_secret:
                 label: Client Secret
                 tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
