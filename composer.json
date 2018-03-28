@@ -16,6 +16,7 @@
     "require": {
         "php": ">=7.0",
         "oro/commerce": "1.6.*",
+        "psr/log": "1.0.0",
         "paypal/rest-api-sdk-php": "1.7.1"
     },
     "repositories": {
