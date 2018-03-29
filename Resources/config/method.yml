@@ -35,6 +35,9 @@ services:
     oro_paypal_express.method.translator.line_item:
         public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
+        arguments:
+            - '@oro_payment.provider.extract_options'
+            - '@translator'
 
     oro_paypal_express.method.translator.method_config:
         public: false
@@ -48,6 +51,7 @@ services:
             - '@oro_paypal_express.method.translator.line_item'
             - '@oro_entity.doctrine_helper'
             - '@oro_paypal_express.pay_pal.provider.tax'
+            - '@oro_payment.provider.surcharge'
             - '@router'
             - '@oro_paypal_express.exception.factory'
 

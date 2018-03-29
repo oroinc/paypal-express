@@ -28,3 +28,5 @@ oro:
                 authorize_and_capture: Authorize and Capture
         checkout:
             redirect_to_paypal: 'You will be redirected to PayPal website to complete your purchase after the order review step.'
+        discount:
+            pay_pal_item.label: Discount
