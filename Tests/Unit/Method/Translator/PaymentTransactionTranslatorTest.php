@@ -6,6 +6,8 @@ use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\OrderBundle\Entity\OrderLineItem;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
+use Oro\Bundle\PaymentBundle\Model\Surcharge;
+use Oro\Bundle\PaymentBundle\Provider\SurchargeProvider;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
@@ -53,6 +55,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
     protected $taxProvider;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|SurchargeProvider
+     */
+    protected $surchargeProvider;
+
+    /**
      * @var \PHPUnit_Framework_MockObject_MockObject|RouterInterface
      */
     protected $router;
@@ -72,6 +79,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->taxProvider = $this->createMock(TaxProvider::class);
 
+        $this->surchargeProvider = $this->createMock(SurchargeProvider::class);
+
         $this->router = $this->createMock(RouterInterface::class);
 
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
@@ -81,6 +90,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $this->lineItemTranslator,
             $this->doctrineHelper,
             $this->taxProvider,
+            $this->surchargeProvider,
             $this->router,
             $this->exceptionFactory
         );
@@ -89,25 +99,22 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
     public function testGetPaymentInfo()
     {
         $totalAmount = 25.39;
-        $currency = 'USD';
+
         $shipping = 12.35;
         $tax = 1.04;
         $subtotal = 12;
         $invoiceNumber = 567;
 
-        $fooItemName = 'foo item';
-        $fooQuantity = 2;
-        $fooPrice = 6;
-        $barItemName = 'bar item';
-        $barQuantity = 1;
-        $barPrice = 6;
+        $currency = 'USD';
 
-        $fooLineItem = new OrderLineItem();
-        $barLineItem = new OrderLineItem();
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber, [$fooLineItem, $barLineItem]);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
         $paymentEntityId = 42;
 
-        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
+        $surcharges = $this->getSurcharge(0, $shipping);
+        $this->surchargeProvider->expects($this->once())
+            ->method('getSurcharges')
+            ->with($paymentEntity)
+            ->willReturn($surcharges);
 
         $this->taxProvider->expects($this->once())
             ->method('getTax')
@@ -119,17 +126,14 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             ->with(Order::class, $paymentEntityId)
             ->willReturn($paymentEntity);
 
-        $fooPaymentItemInfo = new ItemInfo($fooItemName, $currency, $fooQuantity, $fooPrice);
-        $barPaymentItemInfo = new ItemInfo($barItemName, $currency, $barQuantity, $barPrice);
+        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
-        $this->lineItemTranslator->expects($this->exactly(2))
-            ->method('getPaymentItemInfo')
-            ->willReturnMap(
-                [
-                    [$fooLineItem, $currency, $fooPaymentItemInfo],
-                    [$barLineItem, $currency, $barPaymentItemInfo],
-                ]
-            );
+        $fooPaymentItemInfo = new ItemInfo('foo item', $currency, 2, 6);
+        $barPaymentItemInfo = new ItemInfo('bar item', $currency, 1, 6);
+
+        $this->lineItemTranslator->expects($this->once())
+            ->method('getPaymentItems')
+            ->willReturn([$fooPaymentItemInfo, $barPaymentItemInfo]);
 
         $expectedPaymentInfo = new PaymentInfo(
             $totalAmount,
@@ -150,63 +154,6 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
 
-    public function testGetPaymentInfoWillIgnoreLineItemsWhichCouldNotBeTranslated()
-    {
-        $totalAmount = 25.39;
-        $currency = 'USD';
-        $shipping = 12.35;
-        $tax = 1.04;
-        $subtotal = 12;
-        $invoiceNumber = 567;
-
-        $fooLineItem = new FooLineItemStub();
-        $barLineItem = new FooLineItemStub();
-        $paymentEntity = new FooPaymentEntityStub();
-        $paymentEntity->setEstimatedShippingCostAmount($shipping);
-        $paymentEntity->setCurrency($currency);
-        $paymentEntity->setSubtotal($subtotal);
-        $paymentEntity->testLineItems = [$fooLineItem, $barLineItem];
-        $paymentEntity->setIdentifier($invoiceNumber);
-
-        $paymentEntityId = 42;
-
-        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
-
-        $this->taxProvider->expects($this->once())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(FooPaymentEntityStub::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
-
-        $this->lineItemTranslator->expects($this->exactly(2))
-            ->method('getPaymentItemInfo')
-            ->willReturnMap(
-                [
-                    [$fooLineItem, $currency, null],
-                    [$barLineItem, $currency, null],
-                ]
-            );
-
-        $expectedPaymentInfo = new PaymentInfo(
-            $totalAmount,
-            $currency,
-            $shipping,
-            $tax,
-            $subtotal,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            $invoiceNumber,
-            []
-        );
-
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
-
-        $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
-    }
-
     public function testGetPaymentInfoWillGenerateInvoiceNumberIfEntityIsNotAnOrder()
     {
         $totalAmount = 25.39;
@@ -216,12 +163,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
+        $this->setupSurchargeStub();
+        $this->setupDoctrineHelperStub(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(QuxPaymentEntityStub::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
@@ -242,20 +186,14 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
+        $this->setupSurchargeStub(0, $shipping);
+        $this->setupTaxStub($paymentEntity, $tax);
+        $this->setupDoctrineHelperStub(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
+
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
-        $this->taxProvider->expects($this->once())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(QuxPaymentEntityStub::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
-
         $this->lineItemTranslator->expects($this->never())
-            ->method('getPaymentItemInfo');
+            ->method('getPaymentItems');
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
@@ -285,17 +223,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
+        $this->setupSurchargeStub(0, $shipping);
+        $this->setupTaxStub($paymentEntity, $tax);
+        $this->setupDoctrineHelperStub(BarPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
+
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
-
-        $this->taxProvider->expects($this->once())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(BarPaymentEntityStub::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
         $expectedPaymentInfo = new PaymentInfo(
@@ -312,72 +244,29 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
 
-    public function testGetPaymentInfoWillUseZeroAsShippingValueIfItIsNotSupportedByPaymentEntity()
-    {
-        $totalAmount = 25.39;
-        $currency = 'USD';
-        $tax = 1.04;
-        $subtotal = 12;
-
-        $paymentEntity = new BazPaymentEntityStub();
-        $paymentEntity->testSubtotal = $subtotal;
-
-        $paymentEntityId = 42;
-
-        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
-
-        $this->taxProvider->expects($this->once())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(BazPaymentEntityStub::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
-
-        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
-
-        $expectedPaymentInfo = new PaymentInfo(
-            $totalAmount,
-            $currency,
-            0,
-            $tax,
-            $subtotal,
-            PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            $actualPaymentInfo->getInvoiceNumber(),
-            []
-        );
-
-        $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
-    }
-
     public function testGetPaymentInfoWillThrowAnExceptionIfUnsupportedCurrencyUsed()
     {
         $totalAmount = 25.39;
         $currency = 'Unknown Currency';
         $shipping = 12.35;
-        $tax = 1.04;
         $subtotal = 12;
         $invoiceNumber = 567;
 
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber, []);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
         $paymentEntityId = 42;
+
+        $this->setupSurchargeStub(0, $shipping);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $this->taxProvider->expects($this->never())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
+            ->method('getTax');
 
         $this->doctrineHelper->expects($this->never())
-            ->method('getEntity')
-            ->with(Order::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
+            ->method('getEntity');
 
         $this->lineItemTranslator->expects($this->never())
-            ->method('getPaymentItemInfo');
+            ->method('getPaymentItems');
 
         $expectedMessage =sprintf(
             'Currency "%s" is not supported. Only next currencies are supported: "%s"',
@@ -400,26 +289,23 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $totalAmount = 25.39;
         $currency = 'JPY';
         $shipping = 12.35;
-        $tax = 1.04;
         $subtotal = 12;
 
-        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, 5, []);
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, 5);
         $paymentEntityId = 42;
+
+        $this->setupSurchargeStub();
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $this->taxProvider->expects($this->never())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
+            ->method('getTax');
 
         $this->doctrineHelper->expects($this->never())
-            ->method('getEntity')
-            ->with(Order::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
+            ->method('getEntity');
 
         $this->lineItemTranslator->expects($this->never())
-            ->method('getPaymentItemInfo');
+            ->method('getPaymentItems');
 
         $expectedMessage = sprintf('Decimal amount "%s" is not supported for currency "%s"', $totalAmount, $currency);
         $unsupportedValueException = new UnsupportedValueException($expectedMessage);
@@ -431,6 +317,34 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->expectExceptionMessage($expectedMessage);
 
         $this->translator->getPaymentInfo($paymentTransaction);
+    }
+
+    /**
+     * @param float $surchargeDiscount
+     * @param float $surchargeShipping
+     */
+    protected function setupSurchargeStub($surchargeDiscount = 0.0, $surchargeShipping = 0.0)
+    {
+        $surcharges = $this->getSurcharge($surchargeDiscount, $surchargeShipping);
+        $this->surchargeProvider->expects($this->any())
+            ->method('getSurcharges')
+            ->willReturn($surcharges);
+    }
+
+    protected function setupTaxStub($paymentEntity, $tax)
+    {
+        $this->taxProvider->expects($this->any())
+            ->method('getTax')
+            ->with($paymentEntity)
+            ->willReturn($tax);
+    }
+
+    protected function setupDoctrineHelperStub($class, $id, $entity)
+    {
+        $this->doctrineHelper->expects($this->any())
+            ->method('getEntity')
+            ->with($class, $id)
+            ->willReturn($entity);
     }
 
     public function testGetRedirectRoutes()
@@ -473,23 +387,35 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param float $discount
+     * @param float $shipping
+     *
+     * @return Surcharge
+     */
+    protected function getSurcharge($discount, $shipping)
+    {
+        $surcharge = new Surcharge();
+
+        $surcharge->setDiscountAmount($discount);
+        $surcharge->setShippingAmount($shipping);
+
+        return $surcharge;
+    }
+
+    /**
      * @param string $currency
      * @param float  $shipping
      * @param float  $subtotal
      * @param string $identifier
-     * @param array  $lineItems
      *
      * @return Order
      */
-    protected function getOrder($currency, $shipping, $subtotal, $identifier, array $lineItems)
+    protected function getOrder($currency, $shipping, $subtotal, $identifier)
     {
         $order = new Order();
         $order->setEstimatedShippingCostAmount($shipping);
         $order->setCurrency($currency);
         $order->setSubtotal($subtotal);
-        foreach ($lineItems as $lineItem) {
-            $order->addLineItem($lineItem);
-        }
         $order->setIdentifier($identifier);
 
         return $order;

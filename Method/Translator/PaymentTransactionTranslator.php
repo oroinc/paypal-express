@@ -2,11 +2,11 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
-use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
-use Oro\Bundle\OrderBundle\Model\ShippingAwareInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
+use Oro\Bundle\PaymentBundle\Model\Surcharge;
+use Oro\Bundle\PaymentBundle\Provider\SurchargeProvider;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
@@ -43,6 +43,11 @@ class PaymentTransactionTranslator
     protected $taxProvider;
 
     /**
+     * @var SurchargeProvider
+     */
+    protected $surchargeProvider;
+
+    /**
      * @var RouterInterface
      */
     protected $router;
@@ -57,6 +62,7 @@ class PaymentTransactionTranslator
      * @param LineItemTranslator        $lineItemTranslator
      * @param DoctrineHelper            $doctrineHelper
      * @param TaxProvider               $taxProvider
+     * @param SurchargeProvider         $surchargeProvider
      * @param RouterInterface           $router
      * @param ExceptionFactory          $exceptionFactory
      */
@@ -65,6 +71,7 @@ class PaymentTransactionTranslator
         LineItemTranslator $lineItemTranslator,
         DoctrineHelper $doctrineHelper,
         TaxProvider $taxProvider,
+        SurchargeProvider $surchargeProvider,
         RouterInterface $router,
         ExceptionFactory $exceptionFactory
     ) {
@@ -72,6 +79,7 @@ class PaymentTransactionTranslator
         $this->lineItemTranslator        = $lineItemTranslator;
         $this->doctrineHelper            = $doctrineHelper;
         $this->taxProvider               = $taxProvider;
+        $this->surchargeProvider         = $surchargeProvider;
         $this->router                    = $router;
         $this->exceptionFactory          = $exceptionFactory;
     }
@@ -87,14 +95,16 @@ class PaymentTransactionTranslator
 
         $paymentEntity = $this->getPaymentEntity($paymentTransaction);
 
+        $surcharge = $this->surchargeProvider->getSurcharges($paymentEntity);
+
+        $shipping = $surcharge->getShippingAmount();
         $amount = $paymentTransaction->getAmount();
-        $currency = $paymentTransaction->getCurrency();
-        $shipping = $this->getShipping($paymentEntity);
         $tax = $this->taxProvider->getTax($paymentEntity);
-        $subtotal = $this->getSubtotal($paymentEntity);
+        $subtotal = $this->getSubtotal($paymentEntity, $surcharge);
         $method = PaymentInfo::PAYMENT_METHOD_PAYPAL;
         $invoiceNumber = $this->getInvoiceNumber($paymentEntity);
-        $paymentItems = $this->getPaymentItems($paymentEntity, $currency);
+        $currency = $paymentTransaction->getCurrency();
+        $paymentItems = $this->getPaymentItems($paymentEntity, $surcharge, $currency);
 
         $paymentInfo = new PaymentInfo(
             $amount,
@@ -143,21 +153,17 @@ class PaymentTransactionTranslator
     }
 
     /**
-     * @param object $paymentEntity
-     * @param string $currency
+     * @param object    $paymentEntity
+     * @param Surcharge $surcharge
+     * @param string    $currency
      *
      * @return array
      */
-    protected function getPaymentItems($paymentEntity, $currency)
+    protected function getPaymentItems($paymentEntity, Surcharge $surcharge, $currency)
     {
         $paymentItems = [];
         if ($paymentEntity instanceof LineItemsAwareInterface) {
-            foreach ($paymentEntity->getLineItems() as $lineItem) {
-                $itemInfo = $this->lineItemTranslator->getPaymentItemInfo($lineItem, $currency);
-                if ($itemInfo) {
-                    $paymentItems[] = $itemInfo;
-                }
-            }
+            $paymentItems = $this->lineItemTranslator->getPaymentItems($paymentEntity, $surcharge, $currency);
         }
 
         return $paymentItems;
@@ -175,33 +181,20 @@ class PaymentTransactionTranslator
     }
 
     /**
-     * @param object $paymentEntity
-     *
-     * @return int|float
-     */
-    protected function getShipping($paymentEntity)
-    {
-        if ($paymentEntity instanceof ShippingAwareInterface) {
-            $cost = $paymentEntity->getShippingCost();
-            if ($cost instanceof Price) {
-                return $cost->getValue();
-            }
-
-            return (float)$cost;
-        }
-
-        return 0;
-    }
-
-    /**
      * @param $paymentEntity
      *
      * @return float|int
      */
-    protected function getSubtotal($paymentEntity)
+    protected function getSubtotal($paymentEntity, Surcharge $surcharge)
     {
         if ($paymentEntity instanceof SubtotalAwareInterface) {
-            return $paymentEntity->getSubtotal();
+            $discount = $surcharge->getDiscountAmount();
+            /**
+             * Subtotal does not include Discount
+             *
+             * Discount amount is negative value
+             */
+            return $paymentEntity->getSubtotal() + $discount;
         }
 
         return 0;
