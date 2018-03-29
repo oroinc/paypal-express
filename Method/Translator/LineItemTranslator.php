@@ -2,32 +2,73 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
-use Oro\Bundle\CurrencyBundle\Entity\PriceAwareInterface;
+use Oro\Bundle\PaymentBundle\Model\Surcharge;
+use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
-use Oro\Bundle\ProductBundle\Model\ProductLineItemInterface;
+use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
+
+use Symfony\Component\Translation\TranslatorInterface;
 
 class LineItemTranslator
 {
+    const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
+
     /**
-     * @param object   $lineItem
-     * @param string   $currency
-     *
-     * @return ItemInfo|null
+     * @var ExtractOptionsProvider
      */
-    public function getPaymentItemInfo($lineItem, $currency)
+    protected $optionsProvider;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @param ExtractOptionsProvider $optionsProvider
+     * @param TranslatorInterface    $translator
+     */
+    public function __construct(ExtractOptionsProvider $optionsProvider, TranslatorInterface $translator)
     {
-        if (!$lineItem instanceof ProductLineItemInterface || !$lineItem instanceof PriceAwareInterface) {
-            return null;
+        $this->optionsProvider = $optionsProvider;
+        $this->translator = $translator;
+    }
+
+    /**
+     * @param LineItemsAwareInterface $paymentItem
+     * @param Surcharge               $surcharge
+     * @param string                  $currency
+     *
+     * @return ItemInfo[]
+     */
+    public function getPaymentItems(LineItemsAwareInterface $paymentItem, Surcharge $surcharge, $currency)
+    {
+        $lineItems = $this->optionsProvider->getLineItemPaymentOptions($paymentItem);
+        if (!$lineItems) {
+            return [];
         }
 
-        $lineItem->getProduct();
+        $result = [];
+        foreach ($lineItems as $lineItem) {
+            $result[] = new ItemInfo(
+                $lineItem->getName(),
+                $lineItem->getCurrency(),
+                (int)$lineItem->getQty(),
+                $lineItem->getCost()
+            );
+        }
 
-        $result = new ItemInfo(
-            $lineItem->getProduct()->getName()->getString(),
-            $currency,
-            $lineItem->getQuantity(),
-            $lineItem->getPrice()->getValue()
-        );
+        /**
+         * We could not send discount to paypal in current api version
+         * and should add product with negative amount as workaround for it
+         */
+        if ($surcharge->getDiscountAmount() != 0) {
+            $result[] = new ItemInfo(
+                $this->translator->trans(static::DISCOUNT_ITEM_LABEL),
+                $currency,
+                1,
+                $surcharge->getDiscountAmount()
+            );
+        }
 
         return $result;
     }

@@ -6,13 +6,6 @@ use Oro\Bundle\OrderBundle\Entity\Order;
 
 class FooPaymentEntityStub extends Order
 {
-    public $testLineItems;
-
-    public function getLineItems()
-    {
-        return $this->testLineItems;
-    }
-
     public function setId($id)
     {
         $this->id = $id;
