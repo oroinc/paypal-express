@@ -13,14 +13,6 @@ use PayPal\Rest\ApiContext;
 class PayPalClient
 {
     /**
-     * Apply workaround for issue with invalid ssl constant in pay_pal sdk
-     */
-    public function __construct()
-    {
-        PayPalHttpConfig::$defaultCurlOptions[CURLOPT_SSLVERSION] = CURL_SSLVERSION_TLSv1_2;
-    }
-
-    /**
      * @param string     $paymentId
      * @param ApiContext $apiContext
      *
