@@ -1,4 +1,8 @@
 oro:
+    payment:
+        paymenttransaction:
+            types:
+                create_payment.label: Pending payment
     paypal_express:
         channel_type.label: PayPal Express
         settings:
