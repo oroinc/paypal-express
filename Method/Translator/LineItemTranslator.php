@@ -49,6 +49,14 @@ class LineItemTranslator
 
         $result = [];
         foreach ($lineItems as $lineItem) {
+            /**
+             * Workaround to skip line items which is not actually line items(like tax)
+             * @see \Oro\Bundle\TaxBundle\EventListener\ExtractLineItemPaymentOptionsListener::onExtractLineItemPaymentOptions
+             */
+            if (!$lineItem->getCurrency()) {
+                continue;
+            }
+
             $result[] = new ItemInfo(
                 $lineItem->getName(),
                 $lineItem->getCurrency(),
