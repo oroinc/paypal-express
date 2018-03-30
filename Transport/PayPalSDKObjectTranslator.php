@@ -89,6 +89,10 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         $credentials = $this->getApiCredentials($apiContextInfo->getCredentialsInfo());
         $apiContext = new ApiContext($credentials);
         $apiContext->setConfig(['mode' => $apiContextInfo->isSandbox() ? static::MOD_SANDBOX : static::MOD_LIVE]);
+        /**
+         * Apply workaround for issue with invalid ssl constant in pay_pal sdk
+         */
+        $apiContext->setConfig(['http.CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1]);
         $apiContext->addRequestHeader('PayPal-Partner-Attribution-Id', static::APPLICATION_PARTNER_ID);
 
         return $apiContext;
