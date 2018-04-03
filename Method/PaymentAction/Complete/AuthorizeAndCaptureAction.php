@@ -31,7 +31,7 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
 
             return ['successful' => true];
         } catch (\Throwable $e) {
-            $this->handleError($paymentTransaction, $e);
+            $this->handlePaymentTransactionError($paymentTransaction, $e);
 
             return ['successful' => false, 'message' => $e->getMessage()];
         }

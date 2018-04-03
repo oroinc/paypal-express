@@ -5,7 +5,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Migrations\Schema;
 use Doctrine\DBAL\Schema\Schema;
 use Oro\Bundle\MigrationBundle\Migration\Installation;
 use Oro\Bundle\MigrationBundle\Migration\QueryBag;
-use Oro\Bundle\PayPalBundle\Migrations\Schema\v1_0\CreatePayPalSettings;
+use Oro\Bundle\PayPalExpressBundle\Migrations\Schema\v1_0;
 
 class OroPayPalExpressBundleInstaller implements Installation
 {
@@ -23,7 +23,7 @@ class OroPayPalExpressBundleInstaller implements Installation
      */
     public function up(Schema $schema, QueryBag $queries)
     {
-        $createPayPalSettings = new CreatePayPalSettings();
+        $createPayPalSettings = new v1_0\CreatePayPalSettings();
         $createPayPalSettings->up($schema, $queries);
     }
 }

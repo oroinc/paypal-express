@@ -70,6 +70,7 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
         arguments:
             - '@oro_paypal_express.method.payment_action.executor'
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
 
     oro_paypal_express.method.provider:
         class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodProvider

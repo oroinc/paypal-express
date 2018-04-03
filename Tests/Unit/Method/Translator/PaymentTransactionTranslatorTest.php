@@ -4,7 +4,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
-use Oro\Bundle\OrderBundle\Entity\OrderLineItem;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Model\Surcharge;
 use Oro\Bundle\PaymentBundle\Provider\SurchargeProvider;
@@ -15,9 +14,6 @@ use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\BarPaymentEntityStub;
-use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\BazPaymentEntityStub;
-use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooLineItemStub;
-use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\QuxPaymentEntityStub;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
