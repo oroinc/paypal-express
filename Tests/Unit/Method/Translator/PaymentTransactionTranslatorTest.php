@@ -94,11 +94,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPaymentInfo()
     {
-        $totalAmount = 25.39;
+        $totalAmount = 31.39;
 
         $shipping = 12.35;
         $tax = 1.04;
-        $subtotal = 12;
+        $subtotal = 18;
         $invoiceNumber = 567;
 
         $currency = 'USD';
@@ -106,30 +106,17 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
         $paymentEntityId = 42;
 
-        $surcharges = $this->getSurcharge(0, $shipping);
-        $this->surchargeProvider->expects($this->once())
-            ->method('getSurcharges')
-            ->with($paymentEntity)
-            ->willReturn($surcharges);
-
-        $this->taxProvider->expects($this->once())
-            ->method('getTax')
-            ->with($paymentEntity)
-            ->willReturn($tax);
-
-        $this->doctrineHelper->expects($this->once())
-            ->method('getEntity')
-            ->with(Order::class, $paymentEntityId)
-            ->willReturn($paymentEntity);
+        $this->setupDoctrineHelperMock(Order::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, 0.0, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
-        $fooPaymentItemInfo = new ItemInfo('foo item', $currency, 2, 6);
-        $barPaymentItemInfo = new ItemInfo('bar item', $currency, 1, 6);
-
-        $this->lineItemTranslator->expects($this->once())
-            ->method('getPaymentItems')
-            ->willReturn([$fooPaymentItemInfo, $barPaymentItemInfo]);
+        $expectedPaymentItemsInfo = [
+            $this->getPaymentItemInfo('foo item', $currency, 2, 6),
+            $this->getPaymentItemInfo('foo item', $currency, 1, 6),
+        ];
+        $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
 
         $expectedPaymentInfo = new PaymentInfo(
             $totalAmount,
@@ -139,10 +126,51 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
             $invoiceNumber,
-            [
-                $fooPaymentItemInfo,
-                $barPaymentItemInfo
-            ]
+            $expectedPaymentItemsInfo
+        );
+
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
+        $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
+    }
+
+    public function testGetPaymentInfoWithDiscountAmount()
+    {
+        $totalAmount = 30.39;
+
+        $shipping = 12.35;
+        $discountAmount = -1;
+        $tax = 1.04;
+        $subtotal = 18;
+        $invoiceNumber = 567;
+
+        $currency = 'USD';
+
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
+        $paymentEntityId = 42;
+
+        $this->setupDoctrineHelperMock(Order::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, $discountAmount, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
+
+        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
+
+        $expectedPaymentItemsInfo = [
+            $this->getPaymentItemInfo('foo item', $currency, 2, 6),
+            $this->getPaymentItemInfo('foo item', $currency, 1, 6),
+        ];
+        $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
+
+        $expectedSubtotal = $subtotal + $discountAmount;
+        $expectedPaymentInfo = new PaymentInfo(
+            $totalAmount,
+            $currency,
+            $shipping,
+            $tax,
+            $expectedSubtotal,
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
+            $expectedPaymentItemsInfo
         );
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
@@ -159,8 +187,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
-        $this->setupSurchargeStub();
-        $this->setupDoctrineHelperStub(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity);
+        $this->setupDoctrineHelperMock(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
@@ -182,9 +210,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
-        $this->setupSurchargeStub(0, $shipping);
-        $this->setupTaxStub($paymentEntity, $tax);
-        $this->setupDoctrineHelperStub(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, 0, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
+        $this->setupDoctrineHelperMock(QuxPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
@@ -219,9 +247,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $paymentEntityId = 42;
 
-        $this->setupSurchargeStub(0, $shipping);
-        $this->setupTaxStub($paymentEntity, $tax);
-        $this->setupDoctrineHelperStub(BarPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, 0, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
+        $this->setupDoctrineHelperMock(BarPaymentEntityStub::class, $paymentEntityId, $paymentEntity);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
@@ -251,7 +279,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
         $paymentEntityId = 42;
 
-        $this->setupSurchargeStub(0, $shipping);
+        $this->setupSurchargeMock($paymentEntity, 0, $shipping);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
@@ -264,7 +292,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->lineItemTranslator->expects($this->never())
             ->method('getPaymentItems');
 
-        $expectedMessage =sprintf(
+        $expectedMessage = sprintf(
             'Currency "%s" is not supported. Only next currencies are supported: "%s"',
             $currency,
             implode($this->supportedCurrenciesHelper->getSupportedCurrencyCodes())
@@ -290,7 +318,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, 5);
         $paymentEntityId = 42;
 
-        $this->setupSurchargeStub();
+        $this->setupSurchargeMock($paymentEntity);
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
@@ -316,18 +344,20 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param float $surchargeDiscount
-     * @param float $surchargeShipping
+     * @param object $paymentEntity
+     * @param float  $surchargeDiscount
+     * @param float  $surchargeShipping
      */
-    protected function setupSurchargeStub($surchargeDiscount = 0.0, $surchargeShipping = 0.0)
+    protected function setupSurchargeMock($paymentEntity, $surchargeDiscount = 0.0, $surchargeShipping = 0.0)
     {
         $surcharges = $this->getSurcharge($surchargeDiscount, $surchargeShipping);
         $this->surchargeProvider->expects($this->any())
             ->method('getSurcharges')
+            ->with($paymentEntity)
             ->willReturn($surcharges);
     }
 
-    protected function setupTaxStub($paymentEntity, $tax)
+    protected function setupTaxMock($paymentEntity, $tax)
     {
         $this->taxProvider->expects($this->any())
             ->method('getTax')
@@ -335,12 +365,24 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
             ->willReturn($tax);
     }
 
-    protected function setupDoctrineHelperStub($class, $id, $entity)
+    protected function setupDoctrineHelperMock($class, $id, $entity)
     {
         $this->doctrineHelper->expects($this->any())
             ->method('getEntity')
             ->with($class, $id)
             ->willReturn($entity);
+    }
+
+    /**
+     * @param object $paymentEntity
+     * @param array  $paymentItems
+     */
+    protected function setupLineItemTranslatorMock($paymentEntity, array $paymentItems)
+    {
+        $this->lineItemTranslator->expects($this->once())
+            ->method('getPaymentItems')
+            ->with($paymentEntity)
+            ->willReturn($paymentItems);
     }
 
     public function testGetRedirectRoutes()
@@ -419,9 +461,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $currency
-     * @param float $totalAmount
+     * @param float  $totalAmount
      * @param object $paymentEntity
-     * @param int $paymentEntityId
+     * @param int    $paymentEntityId
      *
      * @return PaymentTransaction
      */
@@ -434,5 +476,24 @@ class PaymentTransactionTranslatorTest extends \PHPUnit_Framework_TestCase
         $paymentTransaction->setEntityIdentifier($paymentEntityId);
 
         return $paymentTransaction;
+    }
+
+    /**
+     * @param string $name
+     * @param string $currency
+     * @param int    $quantity
+     * @param float  $amount
+     * @return ItemInfo
+     */
+    protected function getPaymentItemInfo($name, $currency, $quantity, $amount)
+    {
+        $itemInfo = new ItemInfo(
+            $name,
+            $currency,
+            $quantity,
+            $amount
+        );
+
+        return $itemInfo;
     }
 }

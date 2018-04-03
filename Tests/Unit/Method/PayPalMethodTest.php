@@ -49,7 +49,7 @@ class PayPalMethodTest extends \PHPUnit_Framework_TestCase
     {
         $action = 'execute';
         $paymentTransaction = new PaymentTransaction();
-        $expectedResult = ['successful' => false, 'message' => 'Payment was executed.'];
+        $expectedResult = ['successful' => true, 'message' => 'Payment was executed.'];
 
         $this->actionExecutor->expects($this->once())
             ->method('executeAction')

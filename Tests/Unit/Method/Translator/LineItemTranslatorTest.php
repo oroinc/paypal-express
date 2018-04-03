@@ -36,81 +36,148 @@ class LineItemTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->lineItemTranslator = new LineItemTranslator($this->extractOptionsProvider, $this->translator);
     }
 
-    public function testGetPaymentItems()
+    public function testCanGetPaymentItemsForTwoLineItems()
     {
         $currency = 'USD';
 
-        $fooName = 'Foo Test Item';
-        $expectedFooQuantity = 1;
-        $fooQuantity = 1.00;
-        $fooPriceAmount = 1.23;
-        $expectedFooItemInfo = new ItemInfo($fooName, $currency, $expectedFooQuantity, $fooPriceAmount);
-
-        $barName = 'Bar Test Item';
-        $expectedBarQuantity = 2;
-        $barQuantity = 2.00;
-        $barPriceAmount = 4.25;
-        $expectedBarItemInfo = new ItemInfo($barName, $currency, $expectedBarQuantity, $barPriceAmount);
-
-        $expectedPaymentItems = [$expectedFooItemInfo, $expectedBarItemInfo];
-
-        $surcharge = new Surcharge();
-
-        $order = new Order();
-
-        $lineItemOptionsModels = [
-            $this->getLineItemOptionModel($fooName, $currency, $fooQuantity, $fooPriceAmount),
-            $this->getLineItemOptionModel($barName, $currency, $barQuantity, $barPriceAmount),
+        $orderLineItems = [
+            $this->createLineItemOptionModel(
+                'Foo Test Item',
+                $currency,
+                1.00,
+                1.23
+            ),
+            $this->createLineItemOptionModel(
+                'Bar Test Item',
+                $currency,
+                2.00,
+                4.25
+            )
         ];
-        $this->extractOptionsProvider->expects($this->once())
-            ->method('getLineItemPaymentOptions')
-            ->with($order)
-            ->willReturn($lineItemOptionsModels);
 
-        $paymentItems = $this->lineItemTranslator->getPaymentItems($order, $surcharge, $currency);
-        $this->assertEquals($expectedPaymentItems, $paymentItems);
+        $expectedPaymentItemsInfo = [
+            $this->createPaymentItemInfo(
+                'Foo Test Item',
+                $currency,
+                1,
+                1.23
+            ),
+            $this->createPaymentItemInfo(
+                'Bar Test Item',
+                $currency,
+                2,
+                4.25
+            )
+        ];
 
-        foreach ($paymentItems as $paymentItem) {
-            /**
-             * Assert Equals does not support value type check, as a workaround manual assertions was added
-             */
-            $this->assertInternalType('integer', $paymentItem->getQuantity());
-        }
+        $order = $this->createOrderWithExpectedLineItems($orderLineItems);
+
+        $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $this->createSurcharge(), $currency);
+
+        $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
     }
 
-    public function testGetPaymentItemsWillReturnNegativeAmountDiscountItemIfDiscountPresented()
+    public function testCanConvertPaymentItemsQuantityToInteger()
     {
         $currency = 'USD';
 
-        $fooName = 'Foo Test Item';
-        $fooQuantity = 1;
-        $fooPriceAmount = 1.23;
-        $expectedFooItemInfo = new ItemInfo($fooName, $currency, $fooQuantity, $fooPriceAmount);
+        $orderLineItems = [
+            $this->createLineItemOptionModel(
+                'Foo Test Item',
+                $currency,
+                2.75,
+                1.23
+            )
+        ];
 
-        $discountItemName = 'Bar Test Item';
-        $discountQuantity = 1;
+        $expectedPaymentItemsInfo = [
+            $this->createPaymentItemInfo(
+                'Foo Test Item',
+                $currency,
+                2,
+                1.23
+            )
+        ];
+
+        $order = $this->createOrderWithExpectedLineItems($orderLineItems);
+
+        $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $this->createSurcharge(), $currency);
+
+        $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
+        $this->assertInternalType('integer', $actualPaymentItems[0]->getQuantity());
+    }
+
+    public function testCanConvertDiscountAmountToPaymentItem()
+    {
+        $currency = 'USD';
         $discountAmount = -0.02;
-        $expectedDiscountItemInfo = new ItemInfo($discountItemName, $currency, $discountQuantity, $discountAmount);
+        $discountItemName = 'Discount';
+        $surcharge = $this->createSurchargeWithDiscountAmount($discountAmount, $discountItemName);
 
-        $expectedPaymentItems = [$expectedFooItemInfo, $expectedDiscountItemInfo];
+        $orderLineItems = [
+            $this->createLineItemOptionModel(
+                'Foo Test Item',
+                $currency,
+                2.75,
+                1.23
+            )
+        ];
 
-        $surcharge = new Surcharge();
-        $surcharge->setDiscountAmount($discountAmount);
-        $this->translator->expects($this->once())
-            ->method('trans')
-            ->with(LineItemTranslator::DISCOUNT_ITEM_LABEL)
-            ->willReturn($discountItemName);
+        $expectedPaymentItemsInfo = [
+            $this->createPaymentItemInfo(
+                'Foo Test Item',
+                $currency,
+                2,
+                1.23
+            ),
+            $this->createPaymentItemInfo(
+                $discountItemName,
+                $currency,
+                1,
+                $discountAmount
+            ),
+        ];
 
-        $order = new Order();
-        $this->extractOptionsProvider->expects($this->once())
-            ->method('getLineItemPaymentOptions')
-            ->with($order)
-            ->willReturn([
-                $this->getLineItemOptionModel($fooName, $currency, $fooQuantity, $fooPriceAmount),
-            ]);
+        $order = $this->createOrderWithExpectedLineItems($orderLineItems);
 
-        $paymentItems = $this->lineItemTranslator->getPaymentItems($order, $surcharge, $currency);
-        $this->assertEquals($expectedPaymentItems, $paymentItems);
+        $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $surcharge, $currency);
+
+        $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
+    }
+
+    public function testCanIgnoreTaxLineItemsWithoutCurrency()
+    {
+        $currency = 'USD';
+
+        $orderLineItems = [
+            $this->createLineItemOptionModel(
+                'Foo Test Item',
+                $currency,
+                2.75,
+                1.23
+            ),
+            $this->createLineItemOptionModel(
+                'Tax Item',
+                null,
+                1.00,
+                4.25
+            )
+        ];
+
+        $expectedPaymentItemsInfo = [
+            $this->createPaymentItemInfo(
+                'Foo Test Item',
+                $currency,
+                2,
+                1.23
+            )
+        ];
+
+        $order = $this->createOrderWithExpectedLineItems($orderLineItems);
+
+        $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $this->createSurcharge(), $currency);
+
+        $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
     }
 
     /**
@@ -121,7 +188,7 @@ class LineItemTranslatorTest extends \PHPUnit_Framework_TestCase
      *
      * @return LineItemOptionModel
      */
-    protected function getLineItemOptionModel($name, $currency, $quantity, $amount)
+    protected function createLineItemOptionModel($name, $currency, $quantity, $amount)
     {
         $model = new LineItemOptionModel();
 
@@ -131,5 +198,66 @@ class LineItemTranslatorTest extends \PHPUnit_Framework_TestCase
         $model->setCost($amount);
 
         return $model;
+    }
+
+    /**
+     * @param string $name
+     * @param string $currency
+     * @param int    $quantity
+     * @param float  $amount
+     * @return ItemInfo
+     */
+    protected function createPaymentItemInfo($name, $currency, $quantity, $amount)
+    {
+        $itemInfo = new ItemInfo(
+            $name,
+            $currency,
+            $quantity,
+            $amount
+        );
+
+        return $itemInfo;
+    }
+
+    /**
+     * @param array $lineItemOptionsModels
+     * @return Order
+     */
+    protected function createOrderWithExpectedLineItems(array $lineItemOptionsModels = [])
+    {
+        $order = new Order();
+
+        $this->extractOptionsProvider->expects($this->once())
+            ->method('getLineItemPaymentOptions')
+            ->with($order)
+            ->willReturn($lineItemOptionsModels);
+
+        return $order;
+    }
+
+    /**
+     * @return Surcharge
+     */
+    protected function createSurcharge()
+    {
+        return new Surcharge();
+    }
+
+    /**
+     * @param float $discountAmount
+     * @param string $discountItemName
+     * @return Surcharge
+     */
+    protected function createSurchargeWithDiscountAmount($discountAmount, $discountItemName)
+    {
+        $surcharge = $this->createSurcharge();
+        $surcharge->setDiscountAmount($discountAmount);
+
+        $this->translator->expects($this->once())
+            ->method('trans')
+            ->with(LineItemTranslator::DISCOUNT_ITEM_LABEL)
+            ->willReturn($discountItemName);
+
+        return $surcharge;
     }
 }

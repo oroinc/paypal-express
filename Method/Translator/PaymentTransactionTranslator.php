@@ -181,27 +181,36 @@ class PaymentTransactionTranslator
     }
 
     /**
-     * @param $paymentEntity
+     * @param object|SubtotalAwareInterface $paymentEntity
+     * @param Surcharge                     $surcharge
      *
-     * @return float|int
+     * @return float
      */
     protected function getSubtotal($paymentEntity, Surcharge $surcharge)
     {
         if ($paymentEntity instanceof SubtotalAwareInterface) {
-            $discount = $surcharge->getDiscountAmount();
-            /**
-             * Subtotal does not include Discount
-             *
-             * Discount amount is negative value
-             */
-            return $paymentEntity->getSubtotal() + $discount;
+            return $this->calculateSubtotal($paymentEntity, $surcharge);
         }
 
-        return 0;
+        return 0.0;
     }
 
     /**
-     * @param $paymentEntity
+     * Discount amount is not included in subtotal of Oro's payment entity,
+     * but it should be included in PayPal's payment DTO.
+     *
+     * @param SubtotalAwareInterface $paymentEntity
+     * @param Surcharge              $surcharge
+     * @return float
+     */
+    protected function calculateSubtotal(SubtotalAwareInterface $paymentEntity, Surcharge $surcharge)
+    {
+        // Discount amount is a negative number.
+        return $paymentEntity->getSubtotal() + $surcharge->getDiscountAmount();
+    }
+
+    /**
+     * @param object|Order $paymentEntity
      *
      * @return string
      */

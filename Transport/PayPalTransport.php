@@ -71,7 +71,7 @@ class PayPalTransport implements PayPalTransportInterface
             $context = new Context();
             $context->setPaymentInfo($paymentInfo)->setPayment($payment ?? null);
 
-            throw  $this->createTransportException('Create payment failed.', $throwable, $context);
+            throw $this->createTransportException('Create payment failed.', $throwable, $context);
         }
 
         if ($payment->getState() != self::PAYMENT_CREATED_STATUS) {
