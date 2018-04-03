@@ -16,29 +16,47 @@ class PaymentActionsCompilerPass implements CompilerPassInterface
     const COMPLETE_PAYMENT_ACTIONS_TAG_NAME = 'oro_paypal_express.complete_payment_action';
 
     /**
-     * You can modify the container here before it is dumped to PHP code.
-     *
-     * @param ContainerBuilder $container
+     * {@inheritdoc}
      */
     public function process(ContainerBuilder $container)
     {
-        $taggedServicesData = $container->findTaggedServiceIds(self::PAYMENT_ACTIONS_TAG_NAME);
-        $registryDefinition = $container->findDefinition(self::PAYMENT_ACTIONS_REGISTRY_SERVICE_ID);
-        $this->registerServices($registryDefinition, $taggedServicesData);
+        $this->registerPaymentActionsByTags(
+            $container,
+            self::PAYMENT_ACTIONS_REGISTRY_SERVICE_ID,
+            self::PAYMENT_ACTIONS_TAG_NAME
+        );
 
-        $taggedServicesData = $container->findTaggedServiceIds(self::COMPLETE_PAYMENT_ACTIONS_TAG_NAME);
-        $registryDefinition = $container->findDefinition(self::COMPLETE_PAYMENT_ACTIONS_REGISTRY_SERVICE_ID);
-        $this->registerServices($registryDefinition, $taggedServicesData);
+        $this->registerPaymentActionsByTags(
+            $container,
+            self::COMPLETE_PAYMENT_ACTIONS_REGISTRY_SERVICE_ID,
+            self::COMPLETE_PAYMENT_ACTIONS_TAG_NAME
+        );
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string           $registryServiceId
+     * @param string           $paymentActionServiceTag
+     */
+    private function registerPaymentActionsByTags(
+        ContainerBuilder $container,
+        $registryServiceId,
+        $paymentActionServiceTag
+    ) {
+        $registryDefinition = $container->findDefinition($registryServiceId);
+        $taggedServicesData = $container->findTaggedServiceIds($paymentActionServiceTag);
+        $paymentActionServicesIds = array_keys($taggedServicesData);
+        $this->registerPaymentActionServices($registryDefinition, $paymentActionServicesIds);
     }
 
     /**
      * @param Definition $registryDefinition
-     * @param array      $taggedServicesData
+     * @param string[]   $paymentActionServicesIds
      */
-    protected function registerServices(Definition $registryDefinition, array $taggedServicesData)
+    private function registerPaymentActionServices(Definition $registryDefinition, array $paymentActionServicesIds)
     {
-        foreach ($taggedServicesData as $serviceId => $tags) {
-            $taggedServiceReference = new Reference($serviceId);
+        foreach ($paymentActionServicesIds as $paymentActionServiceId) {
+            $taggedServiceReference = new Reference($paymentActionServiceId);
             $registryDefinition->addMethodCall('registerAction', [$taggedServiceReference]);
         }
     }

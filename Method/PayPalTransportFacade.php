@@ -5,9 +5,12 @@ namespace Oro\Bundle\PayPalExpressBundle\Method;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransportInterface;
 
 class PayPalTransportFacade implements PayPalTransportFacadeInterface
@@ -44,9 +47,9 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
         MethodConfigTranslator $methodConfigTranslator,
         PaymentTransactionDataFactory $paymentTransactionDataFactory
     ) {
-        $this->payPalTransport               = $payPalTransport;
-        $this->paymentTransactionTranslator  = $paymentTransactionTranslator;
-        $this->methodConfigTranslator        = $methodConfigTranslator;
+        $this->payPalTransport = $payPalTransport;
+        $this->paymentTransactionTranslator = $paymentTransactionTranslator;
+        $this->methodConfigTranslator = $methodConfigTranslator;
         $this->paymentTransactionDataFactory = $paymentTransactionDataFactory;
     }
 
@@ -60,9 +63,9 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
         try {
             $this->updateRequest($paymentTransaction, $config);
 
-            $paymentInfo        = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-            $redirectRoutesInfo = $this->paymentTransactionTranslator->getRedirectRoutes($paymentTransaction);
-            $apiContext         = $this->methodConfigTranslator->getApiContextInfo($config);
+            $paymentInfo = $this->createPaymentInfo($paymentTransaction);
+            $apiContext = $this->getApiContextInfo($config);
+            $redirectRoutesInfo = $this->createRedirectRoutesInfo($paymentTransaction);
 
             $paymentRoute = $this->payPalTransport->setupPayment($paymentInfo, $apiContext, $redirectRoutesInfo);
 
@@ -75,30 +78,75 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
     }
 
     /**
+     * @param PaymentTransaction $paymentTransaction
+     * @return PaymentInfo
+     */
+    protected function createPaymentInfo(PaymentTransaction $paymentTransaction)
+    {
+        return $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
+    }
+
+    /**
+     * @param PayPalExpressConfigInterface $config
+     * @return ApiContextInfo
+     */
+    protected function getApiContextInfo(PayPalExpressConfigInterface $config)
+    {
+        return $this->methodConfigTranslator->getApiContextInfo($config);
+    }
+
+    /**
+     * @param PaymentTransaction $paymentTransaction
+     * @return RedirectRoutesInfo
+     */
+    protected function createRedirectRoutesInfo(PaymentTransaction $paymentTransaction)
+    {
+        return $this->paymentTransactionTranslator->getRedirectRoutes($paymentTransaction);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function executePayPalPayment(
         PaymentTransaction $paymentTransaction,
         PayPalExpressConfigInterface $config
     ) {
-        $paymentInfo = null;
+        $this->updateRequest($paymentTransaction, $config);
+        $paymentInfo = $this->createPaymentInfoForExecutePayment($paymentTransaction);
+        $apiContext = $this->getApiContextInfo($config);
 
         try {
-            $this->updateRequest($paymentTransaction, $config);
-
-            $responseData = $this->paymentTransactionDataFactory
-                ->createResponseDataFromArray($paymentTransaction->getResponse());
-
-            $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-            $paymentInfo->setPaymentId($responseData->getPaymentId());
-            $paymentInfo->setPayerId($responseData->getPayerId());
-
-            $apiContext = $this->methodConfigTranslator->getApiContextInfo($config);
-
             $this->payPalTransport->executePayment($paymentInfo, $apiContext);
         } finally {
             $this->updateResponse($paymentTransaction, $config, $paymentInfo);
         }
+    }
+
+    /**
+     * @param PaymentTransaction $paymentTransaction
+     * @return PaymentInfo
+     */
+    protected function createPaymentInfoForExecutePayment(PaymentTransaction $paymentTransaction)
+    {
+        $paymentInfo = $this->createPaymentInfo($paymentTransaction);
+
+        $responseData = $this->createResponseDataByPaymentTransaction($paymentTransaction);
+        $paymentInfo->setPaymentId($responseData->getPaymentId());
+        $paymentInfo->setPayerId($responseData->getPayerId());
+
+        return $paymentInfo;
+    }
+
+    /**
+     * @param PaymentTransaction $paymentTransaction
+     * @return PaymentTransactionResponseData
+     */
+    protected function createResponseDataByPaymentTransaction(PaymentTransaction $paymentTransaction)
+    {
+        $responseData = $this->paymentTransactionDataFactory
+            ->createResponseDataFromArray($paymentTransaction->getResponse());
+
+        return $responseData;
     }
 
     /**
@@ -109,22 +157,11 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
         PaymentTransaction $authorizedTransaction,
         PayPalExpressConfigInterface $config
     ) {
-        $paymentInfo = null;
+        $this->updateRequest($paymentTransaction, $config);
+        $paymentInfo = $this->createPaymentInfoForCapturePayment($paymentTransaction, $authorizedTransaction);
+        $apiContext = $this->getApiContextInfo($config);
 
         try {
-            $this->updateRequest($paymentTransaction, $config);
-
-            $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-
-            $responseData = $this->paymentTransactionDataFactory
-                ->createResponseDataFromArray($authorizedTransaction->getResponse());
-
-            $paymentInfo->setOrderId($responseData->getOrderId());
-            $paymentInfo->setPaymentId($responseData->getPaymentId());
-            $paymentInfo->setPayerId($responseData->getPayerId());
-
-            $apiContext  = $this->methodConfigTranslator->getApiContextInfo($config);
-
             $this->payPalTransport->capturePayment($paymentInfo, $apiContext);
         } finally {
             $this->updateResponse($paymentTransaction, $config, $paymentInfo);
@@ -132,26 +169,54 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
     }
 
     /**
+     * @param PaymentTransaction $paymentTransaction
+     * @param PaymentTransaction $authorizedTransaction
+     * @return PaymentInfo
+     */
+    protected function createPaymentInfoForCapturePayment(
+        PaymentTransaction $paymentTransaction,
+        PaymentTransaction $authorizedTransaction
+    ) {
+        $paymentInfo = $this->createPaymentInfo($paymentTransaction);
+
+        $responseData = $this->createResponseDataByPaymentTransaction($authorizedTransaction);
+        $paymentInfo->setOrderId($responseData->getOrderId());
+        $paymentInfo->setPaymentId($responseData->getPaymentId());
+        $paymentInfo->setPayerId($responseData->getPayerId());
+
+        return $paymentInfo;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function authorizePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
+        $this->updateRequest($paymentTransaction, $config);
+        $paymentInfo = $this->createPaymentInfoForAuthorizePayment($paymentTransaction);
+        $apiContext = $this->getApiContextInfo($config);
+
         try {
-            $this->updateRequest($paymentTransaction, $config);
-
-            $paymentInfo = $this->paymentTransactionTranslator->getPaymentInfo($paymentTransaction);
-            $responseData = $this->paymentTransactionDataFactory
-                ->createResponseDataFromArray($paymentTransaction->getResponse());
-            $paymentInfo->setOrderId($responseData->getOrderId());
-            $paymentInfo->setPaymentId($responseData->getPaymentId());
-            $paymentInfo->setPayerId($responseData->getPayerId());
-
-            $apiContext  = $this->methodConfigTranslator->getApiContextInfo($config);
-
             $this->payPalTransport->authorizePayment($paymentInfo, $apiContext);
         } finally {
             $this->updateResponse($paymentTransaction, $config, $paymentInfo);
         }
+    }
+
+    /**
+     * @param PaymentTransaction $paymentTransaction
+     * @return PaymentInfo
+     */
+    protected function createPaymentInfoForAuthorizePayment(PaymentTransaction $paymentTransaction)
+    {
+        $paymentInfo = $this->createPaymentInfo($paymentTransaction);
+
+        $responseData = $this->createResponseDataByPaymentTransaction($paymentTransaction);
+        $paymentInfo->setOrderId($responseData->getOrderId());
+        $paymentInfo->setPaymentId($responseData->getPaymentId());
+        $paymentInfo->setPayerId($responseData->getPayerId());
+
+        return $paymentInfo;
     }
 
     /**
