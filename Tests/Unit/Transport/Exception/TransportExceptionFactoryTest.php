@@ -80,7 +80,8 @@ class TransportExceptionFactoryTest extends \PHPUnit_Framework_TestCase
                 'error_message'    => $reason,
                 'error_name'       => $errorName,
                 'information_link' => $infoLink,
-                'expectedMessage'  => "{$mainMessage} Reason: {$reason} Error Name: {$errorName}. Information Link: {$infoLink}."
+                'expectedMessage'  => "{$mainMessage} Reason: {$reason} Error Name: {$errorName}. " .
+                    "Information Link: {$infoLink}."
             ],
             'exception info has message and error name'             => [
                 'message'          => $mainMessage,

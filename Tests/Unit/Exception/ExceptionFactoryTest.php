@@ -7,10 +7,7 @@ use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
-use PayPal\Exception\PayPalConnectionException;
 
 class ExceptionFactoryTest extends \PHPUnit_Framework_TestCase
 {

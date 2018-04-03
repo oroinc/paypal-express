@@ -2,13 +2,10 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
-use Oro\Bundle\PayPalExpressBundle\Exception\ConnectionException;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
-use PayPal\Exception\PayPalConnectionException;
 
 interface PayPalExpressTransportInterface
 {

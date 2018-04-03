@@ -5,7 +5,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
 use Psr\Log\LoggerInterface;
