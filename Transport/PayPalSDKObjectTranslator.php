@@ -7,7 +7,6 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
-
 use PayPal\Api\Amount;
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;

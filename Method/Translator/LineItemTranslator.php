@@ -6,7 +6,6 @@ use Oro\Bundle\PaymentBundle\Model\Surcharge;
 use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
-
 use Symfony\Component\Translation\TranslatorInterface;
 
 class LineItemTranslator

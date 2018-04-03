@@ -3,7 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
-
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
 

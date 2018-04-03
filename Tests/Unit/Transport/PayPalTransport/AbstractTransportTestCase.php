@@ -11,7 +11,6 @@ use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
-
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactoryInterface;
 use PayPal\Api\Links;
 use PayPal\Api\Order;
@@ -20,7 +19,6 @@ use PayPal\Api\RelatedResources;
 use PayPal\Api\Transaction;
 use PayPal\Core\PayPalConstants;
 use PayPal\Rest\ApiContext;
-
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase

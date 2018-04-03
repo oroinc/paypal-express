@@ -3,7 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
-
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 use PayPal\Api\Order;

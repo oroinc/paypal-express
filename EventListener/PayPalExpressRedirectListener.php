@@ -5,7 +5,6 @@ namespace Oro\Bundle\PayPalExpressBundle\EventListener;
 use Oro\Bundle\PaymentBundle\Event\AbstractCallbackEvent;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
-
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
 
