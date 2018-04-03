@@ -6,7 +6,6 @@ use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\IntegrationBundle\Provider\TransportInterface;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Form\Type\PayPalExpressSettingsType;
-
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
