@@ -69,4 +69,3 @@ class PayPalView implements PaymentMethodViewInterface
         return $this->config->getPaymentMethodIdentifier();
     }
 }
-
