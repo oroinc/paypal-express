@@ -7,7 +7,6 @@ use PayPal\Api\Capture;
 use PayPal\Api\Order;
 use PayPal\Api\Payment;
 use PayPal\Api\PaymentExecution;
-use PayPal\Core\PayPalHttpConfig;
 use PayPal\Rest\ApiContext;
 
 class PayPalClient
