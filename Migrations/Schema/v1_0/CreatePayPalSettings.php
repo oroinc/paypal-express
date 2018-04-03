@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\PayPalBundle\Migrations\Schema\v1_0;
+namespace Oro\Bundle\PayPalExpressBundle\Migrations\Schema\v1_0;
 
 use Doctrine\DBAL\Schema\Schema;
 
@@ -36,13 +36,13 @@ class CreatePayPalSettings implements Migration
     }
 
     /**
-     * Create pp_express_label table
+     * Create oro_pp_express_label table
      *
      * @param Schema $schema
      */
     protected function createPpExpressLabelTable(Schema $schema)
     {
-        $table = $schema->createTable('pp_express_label');
+        $table = $schema->createTable('oro_pp_express_label');
         $table->addColumn('transport_id', 'integer', []);
         $table->addColumn('localized_value_id', 'integer', []);
         $table->setPrimaryKey(['transport_id', 'localized_value_id']);
@@ -51,13 +51,13 @@ class CreatePayPalSettings implements Migration
     }
 
     /**
-     * Create pp_express_short_label table
+     * Create oro_pp_express_short_label table
      *
      * @param Schema $schema
      */
     protected function createPpExpressShortLabelTable(Schema $schema)
     {
-        $table = $schema->createTable('pp_express_short_label');
+        $table = $schema->createTable('oro_pp_express_short_label');
         $table->addColumn('transport_id', 'integer', []);
         $table->addColumn('localized_value_id', 'integer', []);
         $table->setPrimaryKey(['transport_id', 'localized_value_id']);
@@ -66,14 +66,14 @@ class CreatePayPalSettings implements Migration
     }
 
     /**
-     * Add pp_express_label foreign keys.
+     * Add oro_pp_express_label foreign keys.
      *
      * @param Schema $schema
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function addPpExpressLabelForeignKeys(Schema $schema)
     {
-        $table = $schema->getTable('pp_express_label');
+        $table = $schema->getTable('oro_pp_express_label');
         $table->addForeignKeyConstraint(
             $schema->getTable('oro_integration_transport'),
             ['transport_id'],
@@ -89,14 +89,14 @@ class CreatePayPalSettings implements Migration
     }
 
     /**
-     * Add pp_express_short_label foreign keys.
+     * Add oro_pp_express_short_label foreign keys.
      *
      * @param Schema $schema
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function addPpExpressShortLabelForeignKeys(Schema $schema)
     {
-        $table = $schema->getTable('pp_express_short_label');
+        $table = $schema->getTable('oro_pp_express_short_label');
         $table->addForeignKeyConstraint(
             $schema->getTable('oro_integration_transport'),
             ['transport_id'],

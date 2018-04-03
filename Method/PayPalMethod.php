@@ -8,6 +8,7 @@ use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalBundle\Method\Config\PayPalConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
+use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class PayPalMethod implements PaymentMethodInterface
 {
@@ -22,15 +23,23 @@ class PayPalMethod implements PaymentMethodInterface
     protected $paymentActionExecutor;
 
     /**
+     * @var SupportedCurrenciesHelper
+     */
+    protected $supportedCurrenciesHelper;
+
+    /**
      * @param PayPalExpressConfigInterface $config
      * @param PaymentActionExecutor        $paymentActionExecutor
+     * @param SupportedCurrenciesHelper    $supportedCurrenciesHelper
      */
     public function __construct(
         PayPalExpressConfigInterface $config,
-        PaymentActionExecutor $paymentActionExecutor
+        PaymentActionExecutor $paymentActionExecutor,
+        SupportedCurrenciesHelper $supportedCurrenciesHelper
     ) {
         $this->config = $config;
         $this->paymentActionExecutor = $paymentActionExecutor;
+        $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
     }
 
     /**
@@ -56,7 +65,7 @@ class PayPalMethod implements PaymentMethodInterface
      */
     public function isApplicable(PaymentContextInterface $context)
     {
-        return true;
+        return $this->supportedCurrenciesHelper->isSupportedCurrency($context->getCurrency());
     }
 
     /**

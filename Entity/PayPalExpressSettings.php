@@ -59,7 +59,7 @@ class PayPalExpressSettings extends Transport
      *      orphanRemoval=true
      * )
      * @ORM\JoinTable(
-     *      name="pp_express_label",
+     *      name="oro_pp_express_label",
      *      joinColumns={
      *          @ORM\JoinColumn(name="transport_id", referencedColumnName="id", onDelete="CASCADE")
      *      },
@@ -79,7 +79,7 @@ class PayPalExpressSettings extends Transport
      *      orphanRemoval=true
      * )
      * @ORM\JoinTable(
-     *      name="pp_express_short_label",
+     *      name="oro_pp_express_short_label",
      *      joinColumns={
      *          @ORM\JoinColumn(name="transport_id", referencedColumnName="id", onDelete="CASCADE")
      *      },

@@ -2,8 +2,6 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class ExceptionFactory
