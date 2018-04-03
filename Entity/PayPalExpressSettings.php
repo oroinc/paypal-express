@@ -4,11 +4,8 @@ namespace Oro\Bundle\PayPalExpressBundle\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
-
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
-
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**

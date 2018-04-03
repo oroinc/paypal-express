@@ -8,7 +8,6 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactoryInterface;
-
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 use PayPal\Api\Order;

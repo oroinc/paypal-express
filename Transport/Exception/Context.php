@@ -4,7 +4,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport\Exception;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
-
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 use PayPal\Api\Payment;

@@ -3,7 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 
 use Doctrine\Common\Collections\Collection;
-
 use Oro\Bundle\IntegrationBundle\Generator\IntegrationIdentifierGeneratorInterface;
 use Oro\Bundle\LocaleBundle\Helper\LocalizationHelper;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;

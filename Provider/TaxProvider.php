@@ -3,7 +3,6 @@
 namespace Oro\Bundle\PayPalExpressBundle\Provider;
 
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
-
 use Psr\Log\LoggerInterface;
 
 class TaxProvider
