@@ -5,13 +5,13 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\ErrorContextAwareExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacadeInterface;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractPaymentAction implements PaymentActionInterface
 {
     /**
-     * @var PayPalTransportFacadeInterface
+     * @var PayPalExpressTransportFacadeInterface
      */
     protected $payPalTransportFacade;
 
@@ -21,7 +21,7 @@ abstract class AbstractPaymentAction implements PaymentActionInterface
     protected $logger;
 
     public function __construct(
-        PayPalTransportFacadeInterface $payPalTransportFacade,
+        PayPalExpressTransportFacadeInterface $payPalTransportFacade,
         LoggerInterface $logger
     ) {
         $this->payPalTransportFacade = $payPalTransportFacade;

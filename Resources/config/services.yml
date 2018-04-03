@@ -21,8 +21,8 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient
         public: false
 
-    oro_paypal_express.pay_pal.transport:
-        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport
+    oro_paypal_express.transport:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport
         arguments:
             - '@oro_paypal_express.pay_pal.translator.sdk_object'
             - '@oro_paypal_express.pay_pal.client'
@@ -33,8 +33,8 @@ services:
         arguments:
             - '@oro_paypal_express.pay_pal.translator.sdk_object'
 
-    oro_paypal_express.event_listener.pay_pal_redirect:
-        class: Oro\Bundle\PayPalExpressBundle\EventListener\PayPalRedirectListener
+    oro_paypal_express.event_listener.pay_pal_express_redirect:
+        class: Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener
         lazy: true
         arguments:
             - '@oro_paypal_express.method.provider'

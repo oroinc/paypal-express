@@ -7,13 +7,13 @@ use Oro\Bundle\PayPalExpressBundle\Exception;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacadeInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacadeInterface;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractPaymentActionTestCase extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportFacadeInterface
+     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalExpressTransportFacadeInterface
      */
     protected $facade;
 
@@ -39,7 +39,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->facade = $this->createMock(PayPalTransportFacadeInterface::class);
+        $this->facade = $this->createMock(PayPalExpressTransportFacadeInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->action = $this->createPaymentAction();

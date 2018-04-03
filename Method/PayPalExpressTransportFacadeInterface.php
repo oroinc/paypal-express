@@ -6,7 +6,7 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
-interface PayPalTransportFacadeInterface
+interface PayPalExpressTransportFacadeInterface
 {
     /**
      * @param PaymentTransaction           $paymentTransaction

@@ -6,16 +6,16 @@ use Oro\Bundle\PaymentBundle\Context\PaymentContextInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalMethod;
+use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethod;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 use Psr\Log\LoggerInterface;
 
-class PayPalMethodTest extends \PHPUnit_Framework_TestCase
+class PayPalExpressMethodTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var PayPalMethod
+     * @var PayPalExpressMethod
      */
-    protected $payPalMethod;
+    protected $payPalExpressMethod;
 
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|PayPalExpressConfigInterface
@@ -34,11 +34,11 @@ class PayPalMethodTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = $this->createMock(PayPalExpressConfigInterface::class);
-        $this->actionExecutor = $this->createMock(PaymentActionExecutor::class);
+        $this->config                    = $this->createMock(PayPalExpressConfigInterface::class);
+        $this->actionExecutor            = $this->createMock(PaymentActionExecutor::class);
         $this->supportedCurrenciesHelper = $this->createMock(SupportedCurrenciesHelper::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->payPalMethod = new PayPalMethod(
+        $this->logger                    = $this->createMock(LoggerInterface::class);
+        $this->payPalExpressMethod       = new PayPalExpressMethod(
             $this->config,
             $this->actionExecutor,
             $this->supportedCurrenciesHelper
@@ -57,7 +57,7 @@ class PayPalMethodTest extends \PHPUnit_Framework_TestCase
             ->willReturn($expectedResult);
 
 
-        $actualResult = $this->payPalMethod->execute($action, $paymentTransaction);
+        $actualResult = $this->payPalExpressMethod->execute($action, $paymentTransaction);
         $this->assertEquals($expectedResult, $actualResult);
     }
 
@@ -68,7 +68,7 @@ class PayPalMethodTest extends \PHPUnit_Framework_TestCase
         $context = $this->createPaymentContext($supportedCurrency);
         $this->expectCurrencyIsSupported($supportedCurrency, true);
 
-        $this->assertTrue($this->payPalMethod->isApplicable($context));
+        $this->assertTrue($this->payPalExpressMethod->isApplicable($context));
     }
 
     public function testIsApplicableReturnFalseWithNotSupportedCurrency()
@@ -78,7 +78,7 @@ class PayPalMethodTest extends \PHPUnit_Framework_TestCase
         $context = $this->createPaymentContext($supportedCurrency);
         $this->expectCurrencyIsSupported($supportedCurrency, false);
 
-        $this->assertFalse($this->payPalMethod->isApplicable($context));
+        $this->assertFalse($this->payPalExpressMethod->isApplicable($context));
     }
 
     /**

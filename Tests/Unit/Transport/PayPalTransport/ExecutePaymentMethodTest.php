@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
 use PayPal\Api\PaymentExecution;
 
 class ExecutePaymentMethodTest extends AbstractTransportTestCase
@@ -49,7 +49,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $executedPayment = $this->createPaymentWithOrder(
             $order,
             $this->expectedPaymentId,
-            PayPalTransport::PAYMENT_EXECUTED_STATUS
+            PayPalExpressTransport::PAYMENT_EXECUTED_STATUS
         );
 
         $this->client->expects($this->once())
@@ -127,7 +127,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
     public function testCanThrowExceptionWhenClientExecutePaymentFails()
     {
         $clientException = new \Exception();
-        $expectedPaymentState = PayPalTransport::PAYMENT_CREATED_STATUS;
+        $expectedPaymentState = PayPalExpressTransport::PAYMENT_CREATED_STATUS;
         $expectedFailureReason = null;
 
         $this->expectTranslatorGetApiContext();

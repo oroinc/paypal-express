@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\PayPalExpressBundle\Integration\PayPalChannelType;
+use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
 use Oro\Bundle\UserBundle\Migrations\Data\ORM\LoadAdminUserData;
 
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -49,7 +49,7 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
             $channel = new Channel();
             $channel->setOrganization($admin->getOrganization());
             $channel->setDefaultUserOwner($admin);
-            $channel->setType(PayPalChannelType::TYPE);
+            $channel->setType(PayPalExpressChannelType::TYPE);
             $channel->setName($item['name']);
             $channel->setEnabled(true);
 

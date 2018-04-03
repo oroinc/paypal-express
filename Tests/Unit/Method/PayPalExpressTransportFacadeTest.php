@@ -10,26 +10,26 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionRequestData;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
-use Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacade;
+use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacade;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransportInterface;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransportInterface;
 
-class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
+class PayPalExpressTransportFacadeTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var PayPalTransportFacade
+     * @var PayPalExpressTransportFacade
      */
     protected $facade;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalTransportInterface
+     * @var \PHPUnit_Framework_MockObject_MockObject|PayPalExpressTransportInterface
      */
-    protected $payPalTransport;
+    protected $payPalExpressTransport;
 
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|PaymentTransactionTranslator
@@ -48,13 +48,13 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->payPalTransport              = $this->createMock(PayPalTransportInterface::class);
-        $this->paymentTransactionTranslator = $this->createMock(PaymentTransactionTranslator::class);
-        $this->methodConfigTranslator       = $this->createMock(MethodConfigTranslator::class);
+        $this->payPalExpressTransport        = $this->createMock(PayPalExpressTransportInterface::class);
+        $this->paymentTransactionTranslator  = $this->createMock(PaymentTransactionTranslator::class);
+        $this->methodConfigTranslator        = $this->createMock(MethodConfigTranslator::class);
         $this->paymentTransactionDataFactory = $this->createMock(PaymentTransactionDataFactory::class);
 
-        $this->facade = new PayPalTransportFacade(
-            $this->payPalTransport,
+        $this->facade = new PayPalExpressTransportFacade(
+            $this->payPalExpressTransport,
             $this->paymentTransactionTranslator,
             $this->methodConfigTranslator,
             $this->paymentTransactionDataFactory
@@ -97,7 +97,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
             ->willReturn($redirectRoutesInfo);
 
         $expectedPaymentInfo = clone $paymentInfo;
-        $this->payPalTransport
+        $this->payPalExpressTransport
             ->expects($this->once())
             ->method('setupPayment')
             ->with($expectedPaymentInfo, $apiContextInfo, $redirectRoutesInfo)
@@ -194,7 +194,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
         $expectedPaymentInfo = clone $paymentInfo;
         $expectedPaymentInfo->setPaymentId($paymentId);
         $expectedPaymentInfo->setPayerId($payerId);
-        $this->payPalTransport
+        $this->payPalExpressTransport
             ->expects($this->once())
             ->method('executePayment')
             ->with($expectedPaymentInfo, $apiContextInfo);
@@ -293,7 +293,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
         $expectedPaymentInfo->setPayerId($payerId);
         $expectedPaymentInfo->setPaymentId($paymentId);
         $expectedPaymentInfo->setOrderId($orderId);
-        $this->payPalTransport
+        $this->payPalExpressTransport
             ->expects($this->once())
             ->method('capturePayment')
             ->with($expectedPaymentInfo, $apiContextInfo);
@@ -390,7 +390,7 @@ class PayPalTransportFacadeTest extends \PHPUnit_Framework_TestCase
         $expectedPaymentInfo->setPayerId($payerId);
         $expectedPaymentInfo->setPaymentId($paymentId);
         $expectedPaymentInfo->setOrderId($orderId);
-        $this->payPalTransport
+        $this->payPalExpressTransport
             ->expects($this->once())
             ->method('authorizePayment')
             ->with($expectedPaymentInfo, $apiContextInfo);

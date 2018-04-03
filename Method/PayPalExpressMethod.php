@@ -9,7 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
-class PayPalMethod implements PaymentMethodInterface
+class PayPalExpressMethod implements PaymentMethodInterface
 {
     /**
      * @var PayPalExpressConfigInterface
