@@ -19,7 +19,7 @@ class CaptureAction extends AbstractPaymentAction
             if (!$paymentTransaction->getSourcePaymentTransaction()) {
                 return [
                     'successful' => false,
-                    'message' => 'Could not capture payment, transaction with approved payment not found'
+                    'message' => 'oro.paypal_express.error_message.capture_action.source_payment_transaction_not_found'
                 ];
             }
             $sourceTransaction = $paymentTransaction->getSourcePaymentTransaction();
