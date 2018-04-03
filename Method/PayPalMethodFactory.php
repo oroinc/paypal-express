@@ -4,6 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Method;
 
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
+use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class PayPalMethodFactory implements PayPalMethodFactoryInterface
 {
@@ -13,11 +14,20 @@ class PayPalMethodFactory implements PayPalMethodFactoryInterface
     protected $payPalActionExecutor;
 
     /**
-     * @param PaymentActionExecutor $payPalActionExecutor
+     * @var SupportedCurrenciesHelper
      */
-    public function __construct(PaymentActionExecutor $payPalActionExecutor)
-    {
+    protected $supportedCurrenciesHelper;
+
+    /**
+     * @param PaymentActionExecutor $payPalActionExecutor
+     * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
+     */
+    public function __construct(
+        PaymentActionExecutor $payPalActionExecutor,
+        SupportedCurrenciesHelper $supportedCurrenciesHelper
+    ) {
         $this->payPalActionExecutor = $payPalActionExecutor;
+        $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
     }
 
     /**
@@ -25,6 +35,6 @@ class PayPalMethodFactory implements PayPalMethodFactoryInterface
      */
     public function create(PayPalExpressConfigInterface $config)
     {
-        return new PayPalMethod($config, $this->payPalActionExecutor);
+        return new PayPalMethod($config, $this->payPalActionExecutor, $this->supportedCurrenciesHelper);
     }
 }

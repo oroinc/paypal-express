@@ -29,7 +29,7 @@ class PurchaseAction extends AbstractPaymentAction
 
             return ['purchaseRedirectUrl' => $route];
         } catch (\Throwable $e) {
-            $this->handleError($paymentTransaction, $e);
+            $this->handlePaymentTransactionError($paymentTransaction, $e);
 
             return [];
         }
