@@ -5,14 +5,13 @@ namespace Oro\Bundle\PayPalExpressBundle\Method;
 use Oro\Bundle\PaymentBundle\Context\PaymentContextInterface;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
-use Oro\Bundle\PayPalBundle\Method\Config\PayPalConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 
 class PayPalMethod implements PaymentMethodInterface
 {
     /**
-     * @var PayPalConfigInterface
+     * @var PayPalExpressConfigInterface
      */
     protected $config;
 
@@ -35,8 +34,6 @@ class PayPalMethod implements PaymentMethodInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface
      */
     public function execute($action, PaymentTransaction $paymentTransaction)
     {
@@ -60,9 +57,7 @@ class PayPalMethod implements PaymentMethodInterface
     }
 
     /**
-     * @param string $actionName
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function supports($actionName)
     {
