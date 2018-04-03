@@ -4,7 +4,6 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Config;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
-
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
@@ -12,7 +11,6 @@ use Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsReposi
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfig;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactoryInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider;
-
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction;
 use Psr\Log\LoggerInterface;
 

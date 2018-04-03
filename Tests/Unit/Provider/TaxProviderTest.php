@@ -9,7 +9,6 @@ use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
 use Oro\Bundle\TaxBundle\Model\Result;
 use Oro\Bundle\TaxBundle\Model\ResultElement;
-
 use Psr\Log\LoggerInterface;
 
 class TaxProviderTest extends \PHPUnit_Framework_TestCase

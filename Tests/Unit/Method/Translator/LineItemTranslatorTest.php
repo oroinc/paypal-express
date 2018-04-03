@@ -8,7 +8,6 @@ use Oro\Bundle\PaymentBundle\Model\Surcharge;
 use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
-
 use Symfony\Component\Translation\TranslatorInterface;
 
 class LineItemTranslatorTest extends \PHPUnit_Framework_TestCase
