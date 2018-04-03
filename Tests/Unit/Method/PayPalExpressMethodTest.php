@@ -32,6 +32,11 @@ class PayPalExpressMethodTest extends \PHPUnit_Framework_TestCase
      */
     protected $supportedCurrenciesHelper;
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|LoggerInterface
+     */
+    protected $logger;
+
     protected function setUp()
     {
         $this->config                    = $this->createMock(PayPalExpressConfigInterface::class);

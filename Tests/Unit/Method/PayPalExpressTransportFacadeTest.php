@@ -76,7 +76,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit_Framework_TestCase
             0.2,
             1.99,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+            12
         );
         $apiContextInfo = new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), $isSandbox);
 
@@ -183,7 +183,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit_Framework_TestCase
             0.2,
             1.99,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+            12
         );
         $this->paymentTransactionTranslator
             ->expects($this->once())
@@ -261,7 +261,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit_Framework_TestCase
             0.2,
             1.99,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+            12
         );
         $apiContextInfo = new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), $isSandbox);
 
@@ -360,7 +360,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit_Framework_TestCase
             0.2,
             1.99,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
-            []
+            12
         );
         $apiContextInfo = new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), $isSandbox);
 
