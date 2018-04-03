@@ -9,7 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
 
-class PayPalRedirectListener
+class PayPalExpressRedirectListener
 {
     use LoggerAwareTrait;
 

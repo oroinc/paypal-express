@@ -11,12 +11,12 @@ use Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslato
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransportInterface;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransportInterface;
 
-class PayPalTransportFacade implements PayPalTransportFacadeInterface
+class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterface
 {
     /**
-     * @var PayPalTransportInterface
+     * @var PayPalExpressTransportInterface
      */
     protected $payPalTransport;
 
@@ -36,13 +36,13 @@ class PayPalTransportFacade implements PayPalTransportFacadeInterface
     protected $paymentTransactionDataFactory;
 
     /**
-     * @param PayPalTransportInterface      $payPalTransport
-     * @param PaymentTransactionTranslator  $paymentTransactionTranslator
-     * @param MethodConfigTranslator        $methodConfigTranslator
-     * @param PaymentTransactionDataFactory $paymentTransactionDataFactory
+     * @param PayPalExpressTransportInterface $payPalTransport
+     * @param PaymentTransactionTranslator    $paymentTransactionTranslator
+     * @param MethodConfigTranslator          $methodConfigTranslator
+     * @param PaymentTransactionDataFactory   $paymentTransactionDataFactory
      */
     public function __construct(
-        PayPalTransportInterface $payPalTransport,
+        PayPalExpressTransportInterface $payPalTransport,
         PaymentTransactionTranslator $paymentTransactionTranslator,
         MethodConfigTranslator $methodConfigTranslator,
         PaymentTransactionDataFactory $paymentTransactionDataFactory

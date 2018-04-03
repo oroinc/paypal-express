@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
 use PayPal\Api\Authorization;
 
 class AuthorizePaymentMethodTest extends AbstractTransportTestCase
@@ -43,7 +43,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
             ->with($this->paymentInfo)
             ->willReturn($authorization);
 
-        $responseAuthorization = $this->createAuthorization(PayPalTransport::ORDER_PAYMENT_AUTHORIZED_STATUS);
+        $responseAuthorization = $this->createAuthorization(PayPalExpressTransport::ORDER_PAYMENT_AUTHORIZED_STATUS);
 
         $this->client->expects($this->once())
             ->method('authorizeOrder')

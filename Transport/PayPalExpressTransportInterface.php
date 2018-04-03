@@ -10,7 +10,7 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use PayPal\Exception\PayPalConnectionException;
 
-interface PayPalTransportInterface
+interface PayPalExpressTransportInterface
 {
     /**
      * @param PaymentInfo        $paymentInfo

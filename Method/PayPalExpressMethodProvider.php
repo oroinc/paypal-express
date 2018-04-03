@@ -5,10 +5,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Method;
 use Oro\Bundle\PaymentBundle\Method\Provider\AbstractPaymentMethodProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProviderInterface;
 
-class PayPalMethodProvider extends AbstractPaymentMethodProvider
+class PayPalExpressMethodProvider extends AbstractPaymentMethodProvider
 {
     /**
-     * @var PayPalMethodFactoryInterface
+     * @var PayPalExpressMethodFactoryInterface
      */
     protected $payPalMethodFactory;
 
@@ -18,11 +18,11 @@ class PayPalMethodProvider extends AbstractPaymentMethodProvider
     protected $payPalExpressConfigProvider;
 
     /**
-     * @param PayPalMethodFactoryInterface         $payPalMethodFactory
+     * @param PayPalExpressMethodFactoryInterface  $payPalMethodFactory
      * @param PayPalExpressConfigProviderInterface $payPalExpressConfigProvider
      */
     public function __construct(
-        PayPalMethodFactoryInterface $payPalMethodFactory,
+        PayPalExpressMethodFactoryInterface $payPalMethodFactory,
         PayPalExpressConfigProviderInterface $payPalExpressConfigProvider
     ) {
         $this->payPalMethodFactory         = $payPalMethodFactory;

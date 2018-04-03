@@ -22,10 +22,10 @@ services:
 
     oro_paypal_express.method.view.factory:
         public: false
-        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewFactory
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalExpressViewFactory
 
     oro_paypal_express.method.view.provider:
-        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalViewProvider
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalExpressViewProvider
         arguments:
             - '@oro_paypal_express.method.view.factory'
             - '@oro_paypal_express.method.config.provider'
@@ -58,22 +58,22 @@ services:
     oro_paypal_express.method.payment_transaction_data_factory:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory
 
-    oro_paypal_express.method.paypal_transport_facade:
-        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalTransportFacade
+    oro_paypal_express.method.paypal_express_transport_facade:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacade
         arguments:
-            - '@oro_paypal_express.pay_pal.transport'
+            - '@oro_paypal_express.transport'
             - '@oro_paypal_express.method.translator.payment_transaction'
             - '@oro_paypal_express.method.translator.method_config'
             - '@oro_paypal_express.method.payment_transaction_data_factory'
 
     oro_paypal_express.method.factory:
-        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodFactory
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethodFactory
         arguments:
             - '@oro_paypal_express.method.payment_action.executor'
             - '@oro_paypal_express.pay_pal.helper.supported_currencies'
 
     oro_paypal_express.method.provider:
-        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalMethodProvider
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethodProvider
         public: false
         arguments:
             - '@oro_paypal_express.method.factory'
@@ -84,7 +84,7 @@ services:
     oro_paypal_express.method.payment_action.abstract:
         abstract: true
         arguments:
-            - '@oro_paypal_express.method.paypal_transport_facade'
+            - '@oro_paypal_express.method.paypal_express_transport_facade'
             - '@logger'
 
     oro_paypal_express.method.payment_action.complete.authorize:
