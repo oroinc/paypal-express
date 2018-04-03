@@ -16,7 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class PayPalSettingsType extends AbstractType
+class PayPalExpressSettingsType extends AbstractType
 {
     const BLOCK_PREFIX = 'oro_paypal_express_settings';
     /**

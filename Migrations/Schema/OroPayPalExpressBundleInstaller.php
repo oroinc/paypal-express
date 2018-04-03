@@ -23,7 +23,7 @@ class OroPayPalExpressBundleInstaller implements Installation
      */
     public function up(Schema $schema, QueryBag $queries)
     {
-        $createPayPalSettings = new v1_0\CreatePayPalSettings();
+        $createPayPalSettings = new v1_0\CreatePayPalExpressSettings();
         $createPayPalSettings->up($schema, $queries);
     }
 }

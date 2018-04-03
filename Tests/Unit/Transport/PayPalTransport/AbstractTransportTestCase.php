@@ -10,7 +10,7 @@ use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportException;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactoryInterface;
 use PayPal\Api\Links;
@@ -66,7 +66,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
     protected $apiContext;
 
     /**
-     * @var PayPalTransport
+     * @var PayPalExpressTransport
      */
     protected $transport;
 
@@ -85,7 +85,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
             'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ'
         );
 
-        $this->transport = new PayPalTransport(
+        $this->transport = new PayPalExpressTransport(
             $this->translator,
             $this->client,
             $this->paymentExceptionFactory
@@ -152,7 +152,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createPaymentWithApprovedLink($id, $approvalLink)
     {
-        $payment = $this->createPayment($id, PayPalTransport::PAYMENT_CREATED_STATUS);
+        $payment = $this->createPayment($id, PayPalExpressTransport::PAYMENT_CREATED_STATUS);
 
         $link = new Links();
         $link->setRel(PayPalConstants::APPROVAL_URL);

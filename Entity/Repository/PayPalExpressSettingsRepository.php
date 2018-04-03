@@ -5,7 +5,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Entity\Repository;
 use Doctrine\ORM\EntityRepository;
 
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\PayPalExpressBundle\Integration\PayPalChannelType;
+use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
 
 class PayPalExpressSettingsRepository extends EntityRepository
 {
@@ -19,7 +19,7 @@ class PayPalExpressSettingsRepository extends EntityRepository
             ->andWhere('channel.enabled = true')
             ->andWhere('channel.type = :type')
             ->orderBy('settings.id')
-            ->setParameter('type', PayPalChannelType::TYPE)
+            ->setParameter('type', PayPalExpressChannelType::TYPE)
             ->getQuery()
             ->getResult();
     }

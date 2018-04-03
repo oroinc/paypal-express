@@ -6,20 +6,20 @@ use Oro\Bundle\PaymentBundle\Method\View\AbstractPaymentMethodViewProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProviderInterface;
 
-class PayPalViewProvider extends AbstractPaymentMethodViewProvider
+class PayPalExpressViewProvider extends AbstractPaymentMethodViewProvider
 {
-    /** @var PayPalViewFactoryInterface */
+    /** @var PayPalExpressViewFactoryInterface */
     private $factory;
 
     /** @var PayPalExpressConfigProviderInterface */
     private $configProvider;
 
     /**
-     * @param PayPalViewFactoryInterface $factory
+     * @param PayPalExpressViewFactoryInterface    $factory
      * @param PayPalExpressConfigProviderInterface $configProvider
      */
     public function __construct(
-        PayPalViewFactoryInterface $factory,
+        PayPalExpressViewFactoryInterface $factory,
         PayPalExpressConfigProviderInterface $configProvider
     ) {
         $this->factory = $factory;

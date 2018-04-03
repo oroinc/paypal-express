@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
-use Oro\Bundle\PayPalExpressBundle\Transport\PayPalTransport;
+use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
 use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 
@@ -44,7 +44,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
             ->with($this->paymentInfo)
             ->willReturn($requestCapture);
 
-        $responseCapture = $this->createCapture(PayPalTransport::ORDER_PAYMENT_CAPTURED_STATUS);
+        $responseCapture = $this->createCapture(PayPalExpressTransport::ORDER_PAYMENT_CAPTURED_STATUS);
 
         $this->client->expects($this->once())
             ->method('captureOrder')

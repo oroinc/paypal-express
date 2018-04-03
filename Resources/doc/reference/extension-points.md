@@ -18,14 +18,14 @@ Responsible for communication with PayPal REST API through PayPalSDK and
 conversion of PayPalExpress DTO to PayPal SDK domain data objects.
 Reverse translation was not implemented yet.
 
-Anti-corruption layer includes: "PayPalTransport", "PayPalClient" and "PayPalSDKObjectTranslator"
+Anti-corruption layer includes: "PayPalExpressTransport", "PayPalClient" and "PayPalSDKObjectTranslator"
 and couple of DTO objects.
 
 The main goal of this layer is to hide actual way of communication with PayPalRest also it will help
 to avoid backward incompatible changes in case if PayPalRest will be changed in the future.
 It will be even more helpful in case if reverse integration will be implemented later.
 
-##### PayPalTransport #####
+##### PayPalExpressTransport #####
 
 Responsible for interaction with "PayPalClient" and "PayPalSDKObjectTranslator", also responsible for hide PayPal SDK exceptions
 from client code.

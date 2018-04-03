@@ -16,7 +16,7 @@ use PayPal\Api\Payment;
 use PayPal\Api\RelatedResources;
 use PayPal\Rest\ApiContext;
 
-class PayPalTransport implements PayPalTransportInterface
+class PayPalExpressTransport implements PayPalExpressTransportInterface
 {
     const PAYMENT_CREATED_STATUS = 'created';
     const PAYMENT_EXECUTED_STATUS = 'approved';
