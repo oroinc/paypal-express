@@ -13,6 +13,9 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransportInterface;
 
+/**
+ *
+ */
 class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterface
 {
     /**

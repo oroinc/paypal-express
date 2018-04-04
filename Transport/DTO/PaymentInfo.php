@@ -2,6 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
+/**
+ * Represent information about PayPal payment
+ */
 class PaymentInfo
 {
     const PAYMENT_METHOD_PAYPAL = 'paypal';

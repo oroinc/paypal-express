@@ -2,6 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 
+/**
+ * Represent PayPalExpress payment method configuration
+ */
 class PayPalExpressConfig implements PayPalExpressConfigInterface
 {
     /**

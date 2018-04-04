@@ -6,6 +6,11 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
+/**
+ * Responsible for construct:
+ * - @see PaymentTransactionRequestData
+ * - @see PaymentTransactionResponseData
+ */
 class PaymentTransactionDataFactory
 {
     /**

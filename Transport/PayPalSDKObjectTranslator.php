@@ -22,6 +22,9 @@ use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
+/**
+ * {@inheritdoc}
+ */
 class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
 {
     const MOD_SANDBOX = 'sandbox';

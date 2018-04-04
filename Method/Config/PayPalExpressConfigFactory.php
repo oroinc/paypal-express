@@ -9,6 +9,10 @@ use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\SecurityBundle\Encoder\Mcrypt;
 use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 
+/**
+ * Responsible for construct PayPalExpressConfig PayPalExpress payment method from Integration settings
+ * @see PayPalExpressConfigProvider
+ */
 class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
 {
     /**

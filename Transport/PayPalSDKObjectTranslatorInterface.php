@@ -15,6 +15,32 @@ use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
+/**
+ * Responsible for translation:
+ * -
+ *   from:
+ *      - @see PaymentInfo
+ *      - @see RedirectRoutesInfo
+ *   to: @see Payment
+ * -
+ *   from:  @see ApiContextInfo
+ *   to: @see ApiContext
+ * -
+ *   from:  @see CredentialsInfo
+ *   to: @see OAuthTokenCredential
+ * -
+ *   from:  @see PaymentInfo
+ *   to: @see PaymentExecution
+ * -
+ *   from:  @see PaymentInfo
+ *   to: @see Authorization
+ * -
+ *   from:  @see PaymentInfo
+ *   to: @see Capture
+ * -
+ *   from:  @see PayPalConnectionException
+ *   to: @see ErrorInfo
+ */
 interface PayPalSDKObjectTranslatorInterface
 {
     /**

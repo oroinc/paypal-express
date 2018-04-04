@@ -5,6 +5,9 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\View;
 use Oro\Bundle\PaymentBundle\Method\View\PaymentMethodViewInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Represents public interface of PayPalExpressViewFactory
+ */
 interface PayPalExpressViewFactoryInterface
 {
     /**

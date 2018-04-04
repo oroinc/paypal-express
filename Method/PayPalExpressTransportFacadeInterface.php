@@ -6,6 +6,9 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Represents PayPalExpressTransportFacade public interface
+ */
 interface PayPalExpressTransportFacadeInterface
 {
     /**

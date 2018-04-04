@@ -6,6 +6,9 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Responsible for execute purchase action for payment
+ */
 class PurchaseAction extends AbstractPaymentAction
 {
     const PAYMENT_TRANSACTION_ACTION_NAME = 'create_payment';

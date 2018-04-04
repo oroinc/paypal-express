@@ -4,6 +4,9 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
 
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction;
 
+/**
+ * Responsible for execute Authorize complete Payment Action
+ */
 class AuthorizeOnCompleteAction extends AuthorizeAction
 {
     const NAME = 'authorize';

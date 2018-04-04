@@ -6,6 +6,9 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Responsible for execute authorize action for payment
+ */
 class AuthorizeAction extends AbstractPaymentAction
 {
     /**

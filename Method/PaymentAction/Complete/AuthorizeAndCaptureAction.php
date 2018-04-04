@@ -7,6 +7,9 @@ use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AbstractPaymentAction;
 
+/**
+ * Responsible for execute Authorize And Capture complete Payment Action
+ */
 class AuthorizeAndCaptureAction extends AbstractPaymentAction
 {
     const NAME = 'authorize_and_capture';

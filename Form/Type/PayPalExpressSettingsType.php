@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Form\Type;
 
 use Oro\Bundle\LocaleBundle\Form\Type\LocalizedFallbackValueCollectionType;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\ActionsProviderInterface;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\ActionNamesProviderInterface;
 use Oro\Bundle\SecurityBundle\Form\DataTransformer\Factory\CryptedDataTransformerFactory;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -24,7 +24,7 @@ class PayPalExpressSettingsType extends AbstractType
     protected $cryptedDataTransformerFactory;
 
     /**
-     * @var ActionsProviderInterface
+     * @var ActionNamesProviderInterface
      */
     protected $actionsProvider;
 
@@ -35,12 +35,12 @@ class PayPalExpressSettingsType extends AbstractType
 
     /**
      * @param CryptedDataTransformerFactory $cryptedDataTransformerFactory
-     * @param ActionsProviderInterface      $actionsProvider
+     * @param ActionNamesProviderInterface  $actionsProvider
      * @param TranslatorInterface           $translator
      */
     public function __construct(
         CryptedDataTransformerFactory $cryptedDataTransformerFactory,
-        ActionsProviderInterface $actionsProvider,
+        ActionNamesProviderInterface $actionsProvider,
         TranslatorInterface $translator
     ) {
         $this->cryptedDataTransformerFactory = $cryptedDataTransformerFactory;
@@ -61,7 +61,7 @@ class PayPalExpressSettingsType extends AbstractType
                 'paymentAction',
                 ChoiceType::class,
                 [
-                    'choices'           => $this->actionsProvider->getRegisteredActions(),
+                    'choices'           => $this->actionsProvider->getActionNames(),
                     'choices_as_values' => true,
                     'choice_label'      => function ($action) {
                         return $this->translator->trans(

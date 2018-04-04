@@ -5,6 +5,9 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Represent payment action public interface
+ */
 interface PaymentActionInterface
 {
     /**
