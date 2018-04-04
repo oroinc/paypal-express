@@ -8,6 +8,9 @@ use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacadeInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Contains default implementation of error handling
+ */
 abstract class AbstractPaymentAction implements PaymentActionInterface
 {
     /**
@@ -39,14 +42,14 @@ abstract class AbstractPaymentAction implements PaymentActionInterface
         PaymentTransaction $paymentTransaction,
         \Throwable $exceptionOrError
     ) {
-        $this->updatedPaymentTransactionFailedState($paymentTransaction);
+        $this->setPaymentTransactionStateFailed($paymentTransaction);
         $this->handleError($paymentTransaction, $exceptionOrError);
     }
 
     /**
      * @param PaymentTransaction $paymentTransaction
      */
-    protected function updatedPaymentTransactionFailedState(PaymentTransaction $paymentTransaction)
+    protected function setPaymentTransactionStateFailed(PaymentTransaction $paymentTransaction)
     {
         $paymentTransaction
             ->setSuccessful(false)

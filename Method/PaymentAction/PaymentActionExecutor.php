@@ -5,6 +5,11 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
+/**
+ * Responsible for retrieve concrete payment action instance from registry and execute it
+ * Help us to avoid usage of the implicit method calls in PayPalExpressMethod, instead of it we delegate
+ * work to appropriate action with explicit interface
+ */
 class PaymentActionExecutor
 {
     /**

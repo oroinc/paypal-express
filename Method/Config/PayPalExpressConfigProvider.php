@@ -5,8 +5,12 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository;
+use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethodProvider;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Responsible for provide PayPal Express Payment Methods configurations to @see PayPalExpressMethodProvider
+ */
 class PayPalExpressConfigProvider implements PayPalExpressConfigProviderInterface
 {
     /**

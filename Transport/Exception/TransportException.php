@@ -5,6 +5,9 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport\Exception;
 use Oro\Bundle\PayPalExpressBundle\Exception\ErrorContextAwareExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 
+/**
+ * Represent specific Transport Exception, contains error context details
+ */
 class TransportException extends RuntimeException implements ErrorContextAwareExceptionInterface
 {
     /**

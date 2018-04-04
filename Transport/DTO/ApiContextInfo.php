@@ -2,6 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
+/**
+ * Represent information about PayPal Api Context
+ */
 class ApiContextInfo
 {
     /**

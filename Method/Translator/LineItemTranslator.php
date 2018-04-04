@@ -9,6 +9,9 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
+/**
+ * Responsible for translation LineItems into array of @see ItemInfo
+ */
 class LineItemTranslator
 {
     const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
