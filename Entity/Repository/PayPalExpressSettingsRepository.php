@@ -6,6 +6,10 @@ use Doctrine\ORM\EntityRepository;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
 
+/**
+ * Responsible for:
+ *   - retrieve enabled integrations settings
+ */
 class PayPalExpressSettingsRepository extends EntityRepository
 {
     /**

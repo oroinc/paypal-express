@@ -15,6 +15,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * Form type for Payment Method integration settings form
+ */
 class PayPalExpressSettingsType extends AbstractType
 {
     const BLOCK_PREFIX = 'oro_paypal_express_settings';

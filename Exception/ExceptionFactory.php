@@ -4,6 +4,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
+/**
+ * Factory for PayPalExpressBundle Exceptions, should help client to create those exception
+ * and also will help to customize exceptions in customizations
+ */
 class ExceptionFactory
 {
     /**

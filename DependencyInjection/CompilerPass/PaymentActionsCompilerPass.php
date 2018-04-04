@@ -7,6 +7,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Responsible for add Payment Actions and Complete payment actions to
+ * appropriate registry in symfony container
+ */
 class PaymentActionsCompilerPass implements CompilerPassInterface
 {
     const PAYMENT_ACTIONS_REGISTRY_SERVICE_ID = 'oro_paypal_express.method.payment_action.registry';
