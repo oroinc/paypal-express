@@ -8,6 +8,11 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
 
+/**
+ * Responsible for run appropriate payment action after PayPal will redirect user to one of our
+ * routes. If it will be success route, configured Complete Action will be executed, if it will be failed route
+ * transaction status will be updated to false
+ */
 class PayPalExpressRedirectListener
 {
     use LoggerAwareTrait;

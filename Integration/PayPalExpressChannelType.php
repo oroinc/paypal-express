@@ -5,6 +5,9 @@ namespace Oro\Bundle\PayPalExpressBundle\Integration;
 use Oro\Bundle\IntegrationBundle\Provider\ChannelInterface;
 use Oro\Bundle\IntegrationBundle\Provider\IconAwareIntegrationInterface;
 
+/**
+ * Represents paypal_express channel settings
+ */
 class PayPalExpressChannelType implements ChannelInterface, IconAwareIntegrationInterface
 {
     const TYPE = 'paypal_express';
