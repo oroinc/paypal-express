@@ -5,6 +5,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Provider;
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Responsible for provide tax amount for payment information
+ * @see \Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator::getPaymentInfo
+ */
 class TaxProvider
 {
     /**

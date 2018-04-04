@@ -2,6 +2,11 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
+/**
+ * - Contains Currencies supported by PayPal
+ * - Provide an access to restricted currencies
+ * - Provide helper methods to check is currency: supported, not supported, supported but restricted
+ */
 class SupportedCurrenciesHelper
 {
     /**

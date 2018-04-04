@@ -11,7 +11,6 @@ OroPayPalExpressBundle Documentation
 
 ### 
 
-
 ### Anti-corruption layer ###
 
 Responsible for communication with PayPal REST API through PayPalSDK and 
@@ -70,4 +69,3 @@ To register new complete payment action you will need to create new service with
 Complete payment action should implement PaymentActionInterface.
 After new service will be created new action will be available in PayPalExpress method integration settings.
 By default "Authorize" and "Authorize and capture" actions are implemented.
-

@@ -2,6 +2,9 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction;
 
+/**
+ * Represents @see PaymentTransaction::request data
+ */
 class PaymentTransactionRequestData
 {
     const PAYMENT_ID_FIELD_KEY = 'paymentId';

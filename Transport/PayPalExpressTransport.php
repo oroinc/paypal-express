@@ -15,6 +15,11 @@ use PayPal\Api\Payment;
 use PayPal\Api\RelatedResources;
 use PayPal\Rest\ApiContext;
 
+/**
+ * Responsible for interaction with "PayPalClient" and "PayPalSDKObjectTranslator", also responsible for
+ * hide PayPal SDK exceptions from client code.
+ * @see PayPalExpressBundle/Resources/doc/reference/extension-points.md
+ */
 class PayPalExpressTransport implements PayPalExpressTransportInterface
 {
     const PAYMENT_CREATED_STATUS = 'created';

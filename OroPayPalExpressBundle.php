@@ -6,6 +6,9 @@ use Oro\Bundle\PayPalExpressBundle\DependencyInjection\CompilerPass\PaymentActio
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * Represetns OroPayPalExpress bundle
+ */
 class OroPayPalExpressBundle extends Bundle
 {
     public function build(ContainerBuilder $container)

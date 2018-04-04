@@ -8,6 +8,9 @@ use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 use PayPal\Api\Payment;
 
+/**
+ * Represents Exception context
+ */
 class Context
 {
     /**

@@ -7,6 +7,9 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 
+/**
+ * Represent public interface for transport
+ */
 interface PayPalExpressTransportInterface
 {
     /**

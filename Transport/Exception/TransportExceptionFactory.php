@@ -6,6 +6,10 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ErrorInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
 use PayPal\Exception\PayPalConnectionException;
 
+/**
+ * Responsible for extract error information from PayPalSDK exception, format them
+ * and create @see TransportException using that information as part of exception message and context
+ */
 class TransportExceptionFactory implements TransportExceptionFactoryInterface
 {
     const MESSAGE_PARTS_DELIMITER = '. ';

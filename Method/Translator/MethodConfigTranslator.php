@@ -6,6 +6,12 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ApiContextInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\CredentialsInfo;
 
+/**
+ * Responsible for translation:
+ * -
+ *   from:  @see PayPalExpressConfigInterface
+ *   to: @see ApiContextInfo
+ */
 class MethodConfigTranslator
 {
     /**

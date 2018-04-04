@@ -6,6 +6,9 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
+/**
+ * {@inheritdoc}
+ */
 class PayPalExpressMethodFactory implements PayPalExpressMethodFactoryInterface
 {
     /**
