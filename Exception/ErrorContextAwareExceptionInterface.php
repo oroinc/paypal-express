@@ -3,8 +3,8 @@
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 /**
- * Represent public interface of exception, which contains an error context
- * Will help to receive error context in
+ * Represents an interface of exception with an error context. Data in the context has no predefined structure.
+ * This data is intended to be exposed as is when exception is logged.
  */
 interface ErrorContextAwareExceptionInterface extends ExceptionInterface
 {

@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 /**
- * Could be useful to catch only UnsupportedValueException
+ * Exception for using the method with currency which is not supporting decimal amount.
  */
 class UnsupportedValueException extends \LogicException
 {

@@ -9,7 +9,7 @@ use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * Represent PayPalExpress MEthod integration settings
+ * Represents entity for PayPal Express payment method integration settings.
  *
  * @ORM\Entity(repositoryClass="Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository")
  */

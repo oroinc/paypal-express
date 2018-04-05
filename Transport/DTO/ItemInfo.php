@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 /**
- * Represent information about PayPal order line item
+ * Represents information about PayPal REST API payment line item.
  */
 class ItemInfo
 {

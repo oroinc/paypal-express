@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 /**
- * Could be useful to catch only bundle RuntimeException
+ * Exception for requesting incorrect payment action.
  */
 class RuntimeException extends \RuntimeException implements ExceptionInterface
 {

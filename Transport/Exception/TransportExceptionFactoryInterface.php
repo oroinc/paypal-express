@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport\Exception;
 
 /**
- * Represent public interface for TransportExceptionFactory
+ * Represent public interface for {@see TransportExceptionFactory}.
  */
 interface TransportExceptionFactoryInterface
 {

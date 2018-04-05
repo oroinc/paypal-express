@@ -6,7 +6,7 @@ use Oro\Bundle\PaymentBundle\Method\Provider\AbstractPaymentMethodProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProviderInterface;
 
 /**
- * Provides PayPalExpress payment methods instances
+ * Provides instances of {@see PayPalExpressMethod}. Required by {@see \Oro\Bundle\PaymentBundle\OroPaymentBundle}
  */
 class PayPalExpressMethodProvider extends AbstractPaymentMethodProvider
 {

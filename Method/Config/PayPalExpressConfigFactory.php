@@ -10,8 +10,8 @@ use Oro\Bundle\SecurityBundle\Encoder\Mcrypt;
 use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 
 /**
- * Responsible for construct PayPalExpressConfig PayPalExpress payment method from Integration settings
- * @see PayPalExpressConfigProvider
+ * Implementation of interface for constructing {@see PayPalExpressConfig} class
+ * based on {@see PayPalExpressSettings} entity. It is used by {@see PayPalExpressConfigProvider}.
  */
 class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
 {

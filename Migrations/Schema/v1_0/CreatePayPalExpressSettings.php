@@ -7,7 +7,7 @@ use Oro\Bundle\MigrationBundle\Migration\Migration;
 use Oro\Bundle\MigrationBundle\Migration\QueryBag;
 
 /**
- * Migration, responsible for create PayPalExpressSettings tables
+ * Create {@see PayPalExpressSettings} tables.
  */
 class CreatePayPalExpressSettings implements Migration
 {

@@ -6,7 +6,7 @@ use Oro\Bundle\PaymentBundle\Method\View\PaymentMethodViewInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 /**
- * Represents public interface of PayPalExpressViewFactory
+ * Public interface of factory {@see PaymentMethodViewInterface}.
  */
 interface PayPalExpressViewFactoryInterface
 {

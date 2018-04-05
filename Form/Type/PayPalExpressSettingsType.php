@@ -16,7 +16,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Form type for Payment Method integration settings form
+ * Form type for {@see PayPalExpressSettings}
  */
 class PayPalExpressSettingsType extends AbstractType
 {

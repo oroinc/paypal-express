@@ -8,7 +8,8 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AbstractPaymentAction;
 
 /**
- * Responsible for execute Authorize And Capture complete Payment Action
+ * Implementation of "Authorize and Capture" action for {@see PaymentTransaction}.
+ * It can be be executed when user created a payment on PayPal side.
  */
 class AuthorizeAndCaptureAction extends AbstractPaymentAction
 {

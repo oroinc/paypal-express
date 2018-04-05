@@ -9,7 +9,7 @@ use PayPal\Api\Capture;
 use PayPal\Api\Payment;
 
 /**
- * Represents Exception context
+ * Represents {@see TransportException} context.
  */
 class Context
 {

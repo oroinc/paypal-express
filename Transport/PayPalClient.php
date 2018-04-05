@@ -11,7 +11,8 @@ use PayPal\Rest\ApiContext;
 
 /**
  * Responsible for interaction with PayPal REST API through PayPal SDK.
- * @see PayPalExpressBundle/Resources/doc/reference/extension-points.md
+ *
+ * @see Resources/doc/reference/extension-points.md
  */
 class PayPalClient
 {
