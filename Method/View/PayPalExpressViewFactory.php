@@ -6,7 +6,7 @@ use Oro\Bundle\PaymentBundle\Method\View\PaymentMethodViewInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 /**
- * Responsible for creation of @see PaymentMethodView instances
+ * Creates {@see PaymentMethodView} instance.
  */
 class PayPalExpressViewFactory implements PayPalExpressViewFactoryInterface
 {

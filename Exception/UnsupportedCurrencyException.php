@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 /**
- * Could be useful to catch only UnsupportedCurrencyException
+ * Exception for using the payment method with unsupported currency.
  */
 class UnsupportedCurrencyException extends UnsupportedValueException
 {

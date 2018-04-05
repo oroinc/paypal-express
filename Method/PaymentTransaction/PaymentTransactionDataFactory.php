@@ -7,9 +7,9 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
 /**
- * Responsible for construct:
- * - @see PaymentTransactionRequestData
- * - @see PaymentTransactionResponseData
+ * Constructs classes for PayPal request and response data:
+ * - {@see PaymentTransactionRequestData}
+ * - {@see PaymentTransactionResponseData}
  */
 class PaymentTransactionDataFactory
 {

@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction;
 
 /**
- * Represents @see PaymentTransaction::$response data
+ * PayPal respone data which will be saved in {@see PaymentTransaction::$respone}.
  */
 class PaymentTransactionResponseData
 {

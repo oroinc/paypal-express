@@ -7,8 +7,7 @@ use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
 
 /**
- * Responsible for:
- *   - retrieve enabled integrations settings
+ * Extends base repository and adds additional methods to get {@see PayPalExpressSettings} entity.
  */
 class PayPalExpressSettingsRepository extends EntityRepository
 {
