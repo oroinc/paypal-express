@@ -7,7 +7,7 @@ use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 /**
- * Responsible for execute capture action for payment
+ * Executes capture action for {@see PaymentTransaction}.
  */
 class CaptureAction extends AbstractPaymentAction
 {

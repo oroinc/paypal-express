@@ -9,8 +9,8 @@ use Oro\Bundle\PayPalExpressBundle\Form\Type\PayPalExpressSettingsType;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * Represents paypal_express integration transport
- * Responsible for provide information about PayPalExpress payment method integration settings (class, form type, label)
+ * Transport implementation of PayPal Express payment method.
+ * Required by {@see \Oro\Bundle\IntegrationBundle\OroIntegrationBundle}.
  */
 class PayPalExpressTransport implements TransportInterface
 {

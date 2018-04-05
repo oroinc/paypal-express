@@ -3,9 +3,9 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 /**
- * Representation of API error.
+ * Represents PayPal REST API error.
  *
- * @see https://developer.paypal.com/docs/api/payments/#definition-error
+ * @link https://developer.paypal.com/docs/api/payments/#definition-error
  */
 class ErrorInfo
 {

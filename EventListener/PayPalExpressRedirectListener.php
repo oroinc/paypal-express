@@ -9,9 +9,9 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionR
 use Psr\Log\LoggerAwareTrait;
 
 /**
- * Responsible for run appropriate payment action after PayPal will redirect user to one of our
- * routes. If it will be success route, configured Complete Action will be executed, if it will be failed route
- * transaction status will be updated to false
+ * Handles a payment callback event triggered when PayPal redirects a user after an attempt to make a payment.
+ * If payment was created successfully in PayPal, then a {@see CompleteVirtualAction} action will be executed.
+ * Otherwise, a payment transaction marked as failed.
  */
 class PayPalExpressRedirectListener
 {

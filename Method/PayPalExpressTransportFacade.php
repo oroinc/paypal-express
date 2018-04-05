@@ -14,11 +14,11 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransportInterface;
 
 /**
- * Provides clear api for clients, encapsulate:
- * - logic related to work with PayPalExpressTransport,
- * - logic related to @see PaymentTransaction::request update
- * - logic related to @see PaymentTransaction::response update
- * - logic related to interaction with translators
+ * Provides clear API for client and encapsulate next logic:
+ * - Using {@see PayPalExpressTransport}
+ * - Setting {@see PaymentTransaction::$request}
+ * - Setting {@see PaymentTransaction::$response}
+ * - Using {@see PaymentTransactionTranslator} and {@see MethodConfigTranslator}
  */
 class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterface
 {

@@ -6,7 +6,9 @@ use Oro\Bundle\PayPalExpressBundle\Exception\ErrorContextAwareExceptionInterface
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 
 /**
- * Represent specific Transport Exception, contains error context details
+ * Represents specific Transport Exception which contain error context.
+ * Data in the context has no predefined structure.
+ * This data is intended to be exposed as is when exception is logged.
  */
 class TransportException extends RuntimeException implements ErrorContextAwareExceptionInterface
 {

@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction;
 
 /**
- * Represents @see PaymentTransaction::request data
+ * PayPal request data which will be saved in {@see PaymentTransaction::$request}.
  */
 class PaymentTransactionRequestData
 {

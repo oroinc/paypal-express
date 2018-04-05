@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 /**
- * Represent information about PayPal payment redirection routes
+ * Represents information about PayPal REST API payment redirection routes.
  */
 class RedirectRoutesInfo
 {

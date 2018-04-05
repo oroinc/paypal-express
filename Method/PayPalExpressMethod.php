@@ -10,8 +10,8 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 /**
- * Represent entry point for PayPal Express Payment Method
- * Provides implicit interface for PayPal Express Payment Actions
+ * Entry point of PayPal Express Payment Method which provides implicit interface for PayPal Express Payment Actions.
+ * Required by {@see \Oro\Bundle\PaymentBundle\OroPaymentBundle}
  */
 class PayPalExpressMethod implements PaymentMethodInterface
 {

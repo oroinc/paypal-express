@@ -8,7 +8,7 @@ use Oro\Bundle\MigrationBundle\Migration\QueryBag;
 use Oro\Bundle\PayPalExpressBundle\Migrations\Schema\v1_0;
 
 /**
- * Installer for PayPalExpress entities
+ * Installer for {@see OroPayPalExpress} bundle.
  */
 class OroPayPalExpressBundleInstaller implements Installation
 {

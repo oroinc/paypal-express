@@ -7,7 +7,7 @@ use Oro\Bundle\PaymentBundle\Method\View\PaymentMethodViewInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 
 /**
- * PayPalExpress payment method view
+ * View for PayPal Express payment method. Required by {@see \Oro\Bundle\PaymentBundle\OroPaymentBundle}.
  */
 class PayPalExpressView implements PaymentMethodViewInterface
 {

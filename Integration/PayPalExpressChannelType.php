@@ -6,7 +6,7 @@ use Oro\Bundle\IntegrationBundle\Provider\ChannelInterface;
 use Oro\Bundle\IntegrationBundle\Provider\IconAwareIntegrationInterface;
 
 /**
- * Represents paypal_express channel settings
+ * Single channel for this payment integration. Required by {@see \Oro\Bundle\IntegrationBundle\OroIntegrationBundle}.
  */
 class PayPalExpressChannelType implements ChannelInterface, IconAwareIntegrationInterface
 {

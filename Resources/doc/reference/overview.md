@@ -9,17 +9,16 @@ OroPayPalExpressBundle Documentation
 - [Structure](./structure.md)
 - [Responsibilities and Extension points](./extension-points.md)
 
+The bundle provides integration between OroCommerce and PayPal through [PayPal REST API](https://developer.paypal.com/docs/api/overview/).
 
-Bundle provides an integration between OroCommerce and PayPal through PayPal REST Api
-New Payment method was defined to allow buyers in OroCommerce pay using PayPal.
+The main difference between PayPal payment methods defined in OroPayPalBundle and OroPayPalExpressBundle is the way how they are communicating with PayPal.
 
-The main difference from payment methods defined in OroPayPalBundle 
-is the way how it is communicated with PayPal
+While OroPayPalBundle is using [Payflow Gateway](https://developer.paypal.com/docs/classic/products/payflow-gateway/),
+OroPayPalExpressBundle is using [PayPal REST API](https://developer.paypal.com/docs/api/overview/).
 
-OroPayPalBundle uses Payflow Gateway, instead this bundle use PayPal Rest API to communicate with PayPal.
+Both ways have their restrictions. You can see more details [here](https://developer.paypal.com/docs/classic/howto_product_matrix)
 
-Both way has theirs restrictions. You can see more details [here](https://developer.paypal.com/docs/classic/howto_product_matrix)
-
-Under the hood this bundle use PayPal SDK to communicate with PayPal REST API, you can find its documentation [here](http://paypal.github.io/PayPal-PHP-SDK/sample/)
+Under the hood, this bundle is using [PayPal PHP SDK](https://github.com/paypal/PayPal-PHP-SDK) to communicate with [PayPal REST API](https://developer.paypal.com/docs/api/overview/). 
+You can find its documentation [here](http://paypal.github.io/PayPal-PHP-SDK/sample/).
 
 

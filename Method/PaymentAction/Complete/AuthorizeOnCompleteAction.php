@@ -5,7 +5,8 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction;
 
 /**
- * Responsible for execute Authorize complete Payment Action
+ * Implementation of "Authorize" action for {@see PaymentTransaction}.
+ * It can be be executed when user created a payment on PayPal side.
  */
 class AuthorizeOnCompleteAction extends AuthorizeAction
 {

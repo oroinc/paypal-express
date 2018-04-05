@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 
 /**
- * Responsible for provide PayPalExpressConfigProvider public interface
+ * Provides instances of {@see PayPalExpressConfigInterface} for {@see PayPalExpressMethodProvider}.
  */
 interface PayPalExpressConfigProviderInterface
 {

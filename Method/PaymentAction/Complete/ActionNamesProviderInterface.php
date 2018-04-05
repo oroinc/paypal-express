@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete;
 
 /**
- * Represents public interface of Payment Actions Provider
+ * Provide names of complete actions for {@see PayPalExpressSettingsType}.
  */
 interface ActionNamesProviderInterface
 {

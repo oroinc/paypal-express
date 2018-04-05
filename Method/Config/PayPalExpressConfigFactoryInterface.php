@@ -5,7 +5,8 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 
 /**
- * Responsible for provide PayPalExpressConfigFactory public interface
+ * Interface for constructing {@see PayPalExpressConfig} class based on {@see PayPalExpressSettings} entity.
+ * It is used by {@see PayPalExpressConfigProvider}.
  */
 interface PayPalExpressConfigFactoryInterface
 {

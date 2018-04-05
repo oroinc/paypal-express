@@ -7,10 +7,11 @@ use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 
 /**
- * Responsible for registration of payment actions instances and provide access
- * to those action instances.
+ * Registers instances of {@see PaymentActionInterface} and can return them by name.
  *
- * For more details @see PayPalExpressBundle/Resources/doc/reference/extension-points.md
+ * For more details check documentation.
+ *
+ * @see Resources/doc/reference/extension-points.md
  */
 class PaymentActionRegistry
 {
