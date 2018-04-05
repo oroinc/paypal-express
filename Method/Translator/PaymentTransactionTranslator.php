@@ -20,13 +20,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Responsible for translation:
- * -
- *   from:  @see PaymentTransaction
- *   to: @see PaymentInfo
- * -
- *   from:  @see PaymentTransaction
- *   to: @see RedirectRoutesInfo
+ * Translates {@see PaymentTransaction} to {@see PaymentInfo}, and {@see PaymentTransaction}
+ * to {@see RedirectRoutesInfo}.
  */
 class PaymentTransactionTranslator
 {

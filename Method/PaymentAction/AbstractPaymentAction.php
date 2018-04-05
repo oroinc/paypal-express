@@ -9,7 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacadeInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Contains default implementation of error handling
+ * Contains default implementation of error handling.
  */
 abstract class AbstractPaymentAction implements PaymentActionInterface
 {

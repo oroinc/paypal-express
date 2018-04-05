@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Exception;
 
 /**
- * Bundle root Exception interface. Could be useful to catch only bundle group of exceptions
+ * All exceptions specific to this bundle must implement this interface.
  */
 interface ExceptionInterface extends \Throwable
 {

@@ -8,8 +8,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Responsible for add Payment Actions and Complete payment actions to
- * appropriate registry in symfony container
+ * Registers payment action services ({@see PaymentActionInterface}) in registry services {@see PaymentActionRegistry}.
  */
 class PaymentActionsCompilerPass implements CompilerPassInterface
 {

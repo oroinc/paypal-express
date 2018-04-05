@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
 
 /**
- * Represent information about PayPal Credentials
+ * Represent information about credentials for PayPal REST API.
  */
 class CredentialsInfo
 {

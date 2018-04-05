@@ -3,14 +3,16 @@
 namespace Oro\Bundle\PayPalExpressBundle\Transport;
 
 /**
- * - Contains Currencies supported by PayPal
- * - Provide an access to restricted currencies
- * - Provide helper methods to check is currency: supported, not supported, supported but restricted
+ * Contains currencies supported by PayPal and has next responsibilities:
+ * - Provide an access to restricted currencies.
+ * - Provide helper methods to check is currency: supported, not supported, supported but restricted.
+ *
+ * @link https://developer.paypal.com/docs/classic/mass-pay/integration-guide/currency_codes/
  */
 class SupportedCurrenciesHelper
 {
     /**
-     * @var string[] ISO-4217
+     * @var string[] Currencies codes in ISO-4217
      */
     private $fullySupportedCurrencyCodes = [
         'AUD',
@@ -35,7 +37,7 @@ class SupportedCurrenciesHelper
     ];
 
     /**
-     * @var string[] ISO-4217
+     * @var string[] Currencies codes in ISO-4217
      */
     private $currencyCodesWhichIsNotSupportDecimal = [
         'HUF',
@@ -44,7 +46,7 @@ class SupportedCurrenciesHelper
     ];
 
     /**
-     * @var string[] ISO-4217
+     * @var string[] Currencies codes in ISO-4217
      */
     private $currencyCodesWhichIsSupportedOnlyForInCountryPayments = [
         'BRL',
@@ -52,7 +54,7 @@ class SupportedCurrenciesHelper
     ];
 
     /**
-     * @param string $currencyCode ISO-4217
+     * @param string $currencyCode Currency code in ISO-4217
      *
      * @return bool
      */
@@ -64,7 +66,7 @@ class SupportedCurrenciesHelper
     }
 
     /**
-     * @param string $currencyCode ISO-4217
+     * @param string $currencyCode Currency code in ISO-4217
      *
      * @return bool
      */
@@ -76,7 +78,7 @@ class SupportedCurrenciesHelper
     }
 
     /**
-     * @param string $currencyCode ISO-4217
+     * @param string $currencyCode Currency code in ISO-4217
      *
      * @return bool
      */
@@ -88,7 +90,7 @@ class SupportedCurrenciesHelper
     }
 
     /**
-     * @param string $currencyCode ISO-4217
+     * @param string $currencyCode Currency code in ISO-4217
      *
      * @return bool
      */

@@ -5,7 +5,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 use Oro\Bundle\PaymentBundle\Method\Config\PaymentConfigInterface;
 
 /**
- * Responsible for provide PayPalExpressConfig public interface
+ * Extends {@see PaymentConfigInterface} and adds additional settings specific to PayPal Express payment method.
  */
 interface PayPalExpressConfigInterface extends PaymentConfigInterface
 {

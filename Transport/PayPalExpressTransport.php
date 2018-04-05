@@ -16,9 +16,10 @@ use PayPal\Api\RelatedResources;
 use PayPal\Rest\ApiContext;
 
 /**
- * Responsible for interaction with "PayPalClient" and "PayPalSDKObjectTranslator", also responsible for
- * hide PayPal SDK exceptions from client code.
- * @see PayPalExpressBundle/Resources/doc/reference/extension-points.md
+ * Responsible for interaction with {@see PayPalClient} and {@see PayPalSDKObjectTranslatorInterface},
+ * also responsible for wrap PayPal SDK exceptions in client code.
+ *
+ * @see Resources/doc/reference/extension-points.md
  */
 class PayPalExpressTransport implements PayPalExpressTransportInterface
 {

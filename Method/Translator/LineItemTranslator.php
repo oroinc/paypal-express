@@ -10,7 +10,7 @@ use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Responsible for translation LineItems into array of @see ItemInfo
+ * Translates {@see LineItemOptionModel} to {@see ItemInfo}.
  */
 class LineItemTranslator
 {

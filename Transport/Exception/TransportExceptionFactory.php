@@ -7,8 +7,8 @@ use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslatorInterface;
 use PayPal\Exception\PayPalConnectionException;
 
 /**
- * Responsible for extract error information from PayPalSDK exception, format them
- * and create @see TransportException using that information as part of exception message and context
+ * Extracts error information from PayPal PHP SDK exception ({@see PayPalConnectionException}), formats it and creates
+ * {@see TransportException} using that information to generate exception's message and error context.
  */
 class TransportExceptionFactory implements TransportExceptionFactoryInterface
 {

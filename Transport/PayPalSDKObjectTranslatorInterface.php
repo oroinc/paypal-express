@@ -18,28 +18,26 @@ use PayPal\Rest\ApiContext;
 /**
  * Responsible for translation:
  * -
- *   from:
- *      - @see PaymentInfo
- *      - @see RedirectRoutesInfo
- *   to: @see Payment
+ *   from: {@see PaymentInfo} and {@see RedirectRoutesInfo}
+ *   to: {@see Payment}
  * -
- *   from:  @see ApiContextInfo
- *   to: @see ApiContext
+ *   from: {@see ApiContextInfo}
+ *   to: {@see ApiContext}
  * -
- *   from:  @see CredentialsInfo
- *   to: @see OAuthTokenCredential
+ *   from: {@see CredentialsInfo}
+ *   to: {@see OAuthTokenCredential}
  * -
- *   from:  @see PaymentInfo
- *   to: @see PaymentExecution
+ *   from: {@see PaymentInfo}
+ *   to: {@see PaymentExecution}
  * -
- *   from:  @see PaymentInfo
- *   to: @see Authorization
+ *   from: {@see PaymentInfo}
+ *   to: {@see Authorization}
  * -
- *   from:  @see PaymentInfo
- *   to: @see Capture
+ *   from: {@see PaymentInfo}
+ *   to: {@see Capture}
  * -
- *   from:  @see PayPalConnectionException
- *   to: @see ErrorInfo
+ *   from: {@see PayPalConnectionException}
+ *   to: {@see ErrorInfo}
  */
 interface PayPalSDKObjectTranslatorInterface
 {
