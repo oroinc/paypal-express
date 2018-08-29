@@ -51,11 +51,13 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
             $itemList->addItem($item);
         }
 
-
         $details = new Details();
         $details->setShipping($paymentInfo->getShipping())
-            ->setTax($paymentInfo->getTax())
             ->setSubtotal($paymentInfo->getSubtotal());
+
+        if (null !== $paymentInfo->getTax()) {
+            $details->setTax($paymentInfo->getTax());
+        }
 
         $amount = new Amount();
         $amount->setCurrency($paymentInfo->getCurrency())

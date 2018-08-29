@@ -3,6 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Provider;
 
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
+use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -16,6 +17,11 @@ class TaxProvider
      * @var TaxManager
      */
     protected $taxManager;
+
+    /**
+     * @var TaxationSettingsProvider
+     */
+    protected $taxationSettingsProvider;
 
     /**
      * @var LoggerInterface
@@ -33,15 +39,27 @@ class TaxProvider
     }
 
     /**
-     * Return tax if possible, return 0 if not
+     * @param TaxationSettingsProvider $taxationSettingsProvider
+     */
+    public function setTaxationSettingsProvider(TaxationSettingsProvider $taxationSettingsProvider)
+    {
+        $this->taxationSettingsProvider = $taxationSettingsProvider;
+    }
+
+    /**
+     * Return tax if possible, return null if not
      *
      * @param object $entity
      *
-     * @return int
+     * @return null|int
      */
     public function getTax($entity)
     {
         try {
+            if ($this->taxationSettingsProvider->isProductPricesIncludeTax()) {
+                return null;
+            }
+
             return $this->taxManager->loadTax($entity)->getTotal()->getTaxAmount();
         } catch (\Throwable $exception) {
             $this->logger->info(
@@ -49,7 +67,7 @@ class TaxProvider
                 ['exception' => $exception, 'entity_class' => get_class($entity), 'entity_id' => $entity->getId()]
             );
 
-            return 0;
+            return null;
         }
     }
 }

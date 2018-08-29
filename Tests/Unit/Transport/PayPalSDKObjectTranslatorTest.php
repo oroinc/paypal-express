@@ -78,11 +78,78 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
         $itemList = new ItemList();
         $itemList->addItem($this->getItem($fooItemName, $currency, $fooQuantity, $fooPrice));
         $itemList->addItem($this->getItem($barItemName, $currency, $barQuantity, $barPrice));
+
+        $details = new Details();
+        $details->setShipping($shipping)
+            ->setTax($tax)
+            ->setSubtotal($subtotal);
+
         $expectedPayment = $this->getPayment(
+            $details,
             $itemList,
+            $currency,
+            $totalAmount,
+            $invoiceNumber,
+            $successRoute,
+            $failedRoute
+        );
+
+        $this->assertEquals($expectedPayment, $actualPayment);
+    }
+
+    public function testGetPaymentWithEmptyTax()
+    {
+        $successRoute = 'http://text.example.com/paypal/success';
+        $failedRoute = 'http://text.example.com/paypal/failed';
+        $totalAmount = 22;
+        $shipping = 2;
+        $tax = null;
+        $subtotal = 19;
+        $currency = 'USD';
+        $invoiceNumber = 5;
+
+        $fooItemName = 'foo item';
+        $fooQuantity = 2;
+        $fooPrice = 13;
+        $barItemName = 'bar item';
+        $barQuantity = 1;
+        $barPrice = 6;
+
+
+        $fooItem = new ItemInfo($fooItemName, $currency, $fooQuantity, $fooPrice);
+        $barItem = new ItemInfo($barItemName, $currency, $barQuantity, $barPrice);
+
+        $items = [
+            $fooItem,
+            $barItem
+        ];
+
+        $paymentInfo = new PaymentInfo(
+            $totalAmount,
+            $currency,
             $shipping,
             $tax,
             $subtotal,
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
+            $items
+        );
+
+        $redirectRoutesInfo = new RedirectRoutesInfo($successRoute, $failedRoute);
+
+        $actualPayment = $this->payPalSDKObjectTranslator->getPayment($paymentInfo, $redirectRoutesInfo);
+
+        $itemList = new ItemList();
+        $itemList->addItem($this->getItem($fooItemName, $currency, $fooQuantity, $fooPrice));
+        $itemList->addItem($this->getItem($barItemName, $currency, $barQuantity, $barPrice));
+
+        $details = new Details();
+        $details->setShipping($shipping)
+            ->setSubtotal($subtotal);
+
+        $expectedPayment = $this->getPayment(
+            $details,
+            $itemList,
             $currency,
             $totalAmount,
             $invoiceNumber,
@@ -106,23 +173,21 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param Details $details
      * @param ItemList $itemList
-     * @param float    $shipping
-     * @param float    $tax
-     * @param float    $subtotal
-     * @param string   $currency
-     * @param float    $totalAmount
-     * @param string   $invoiceNumber
-     * @param string   $successRoute
-     * @param string   $failedRoute
-     *
+     * @param string $currency
+     * @param float $totalAmount
+     * @param string $invoiceNumber
+     * @param string $successRoute
+     * @param string $failedRoute
      * @return Payment
+     * @internal param float $shipping
+     * @internal param float $tax
+     * @internal param float $subtotal
      */
     protected function getPayment(
+        Details $details,
         ItemList $itemList,
-        $shipping,
-        $tax,
-        $subtotal,
         $currency,
         $totalAmount,
         $invoiceNumber,
@@ -131,11 +196,6 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit_Framework_TestCase
     ) {
         $payer = new Payer();
         $payer->setPaymentMethod(PaymentInfo::PAYMENT_METHOD_PAYPAL);
-
-        $details = new Details();
-        $details->setShipping($shipping)
-            ->setTax($tax)
-            ->setSubtotal($subtotal);
 
         $amount = $this->getAmount($totalAmount, $currency);
         $amount->setDetails($details);

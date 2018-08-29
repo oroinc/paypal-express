@@ -1,0 +1,4 @@
+services:
+    oro_paypal_express.pay_pal.client:
+        class: Oro\Bundle\PayPalExpressBundle\Tests\Behat\Mock\Transport\PayPalClient
+        public: false

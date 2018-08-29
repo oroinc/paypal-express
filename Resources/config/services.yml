@@ -12,6 +12,8 @@ services:
         arguments:
             - '@oro_tax.manager.tax_manager'
             - '@logger'
+        calls:
+            - ['setTaxationSettingsProvider', ['@oro_tax.provider.taxation_settings_provider']]
 
     oro_paypal_express.pay_pal.translator.sdk_object:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator

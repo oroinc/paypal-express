@@ -68,7 +68,7 @@ class PaymentInfo
      * @param float      $totalAmount
      * @param string     $currency
      * @param float      $shipping
-     * @param float      $tax
+     * @param null|float $tax
      * @param float      $subtotal
      * @param string     $method
      * @param string     $invoiceNumber
@@ -120,7 +120,7 @@ class PaymentInfo
     }
 
     /**
-     * @return float
+     * @return null|float
      */
     public function getTax()
     {

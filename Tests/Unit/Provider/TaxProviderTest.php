@@ -9,6 +9,7 @@ use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
 use Oro\Bundle\TaxBundle\Model\Result;
 use Oro\Bundle\TaxBundle\Model\ResultElement;
+use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
 use Psr\Log\LoggerInterface;
 
 class TaxProviderTest extends \PHPUnit_Framework_TestCase
@@ -28,13 +29,20 @@ class TaxProviderTest extends \PHPUnit_Framework_TestCase
      */
     protected $taxManager;
 
+    /**
+     * @var TaxationSettingsProvider|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $taxationSettingsProvider;
+
     protected function setUp()
     {
         $this->taxManager = $this->createMock(TaxManager::class);
+        $this->taxationSettingsProvider = $this->createMock(TaxationSettingsProvider::class);
 
         $this->logger = $this->createMock(LoggerInterface::class);
         
         $this->taxProvider = new TaxProvider($this->taxManager, $this->logger);
+        $this->taxProvider->setTaxationSettingsProvider($this->taxationSettingsProvider);
     }
 
     public function testGetTax()
@@ -47,13 +55,17 @@ class TaxProviderTest extends \PHPUnit_Framework_TestCase
 
         $taxResult = Result::jsonDeserialize([Result::TOTAL => $taxTotal]);
 
+        $this->taxationSettingsProvider->expects($this->once())
+            ->method('isProductPricesIncludeTax')
+            ->willReturn(false);
+
         $this->taxManager->expects($this->once())
             ->method('loadTax')
             ->with($entity)
             ->willReturn($taxResult);
 
         $actualTaxAmount = $this->taxProvider->getTax($entity);
-        $this->assertEquals($expectedTaxAmount, $actualTaxAmount);
+        $this->assertSame($expectedTaxAmount, $actualTaxAmount);
     }
 
     public function testGetTaxShouldRecoverFromAnyErrorLogItAndReturnZero()
@@ -62,6 +74,10 @@ class TaxProviderTest extends \PHPUnit_Framework_TestCase
 
         $id = 42;
         $entity->setId($id);
+
+        $this->taxationSettingsProvider->expects($this->once())
+            ->method('isProductPricesIncludeTax')
+            ->willReturn(false);
 
         $exception = new TaxationDisabledException();
         $this->taxManager->expects($this->once())
@@ -76,6 +92,21 @@ class TaxProviderTest extends \PHPUnit_Framework_TestCase
             );
 
         $actualTaxAmount = $this->taxProvider->getTax($entity);
-        $this->assertEquals(0, $actualTaxAmount);
+        $this->assertNull($actualTaxAmount);
+    }
+
+    public function testGetTaxWithProductPricesIncludeTax()
+    {
+        $entity = new Order();
+
+        $this->taxationSettingsProvider->expects($this->once())
+            ->method('isProductPricesIncludeTax')
+            ->willReturn(true);
+
+        $this->taxManager->expects($this->never())
+            ->method('loadTax');
+
+        $actualTaxAmount = $this->taxProvider->getTax($entity);
+        $this->assertNull($actualTaxAmount);
     }
 }
