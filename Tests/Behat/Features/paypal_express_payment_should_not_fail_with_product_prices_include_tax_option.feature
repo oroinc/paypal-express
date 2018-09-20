@@ -39,7 +39,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I fill in "Name" with "PayPalExpress"
     And I fill in "Sort Order" with "1"
     And I select "PayPalExpress" from "Method"
-    And I press "Add Method Button"
+    And I click "Add Method Button"
     And I save and close form
     Then I should see "Payment rule has been saved" flash message
 
@@ -47,7 +47,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     Given There are products in the system available for order
     And I operate as the Buyer
     When I open page with shopping list List 1
-    And I press "Create Order"
+    And I click "Create Order"
     And I select "Fifth avenue, 10115 Berlin, Germany" on the "Billing Information" checkout step and press Continue
     And I select "Fifth avenue, 10115 Berlin, Germany" on the "Shipping Information" checkout step and press Continue
     And I check "Flat Rate" on the "Shipping Method" checkout step and press Continue
@@ -56,6 +56,6 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I should see "Shipping $3.00"
     And I should see "Tax $0.82"
     And I should see "Total $13.00"
-    And I press "Submit Order"
+    And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     Then I should not see "We were unable to process your payment"
