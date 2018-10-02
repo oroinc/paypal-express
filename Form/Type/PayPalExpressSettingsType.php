@@ -77,21 +77,21 @@ class PayPalExpressSettingsType extends AbstractType
                 ]
             )->add(
                 'labels',
-                LocalizedFallbackValueCollectionType::NAME,
+                LocalizedFallbackValueCollectionType::class,
                 [
                     'label'    => 'oro.paypal_express.settings.labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.labels.tooltip',
                     'required' => true,
-                    'options'  => ['constraints' => [new NotBlank()]],
+                    'entry_options'  => ['constraints' => [new NotBlank()]],
                 ]
             )->add(
                 'shortLabels',
-                LocalizedFallbackValueCollectionType::NAME,
+                LocalizedFallbackValueCollectionType::class,
                 [
                     'label'    => 'oro.paypal_express.settings.short_labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.short_labels.tooltip',
                     'required' => true,
-                    'options'  => ['constraints' => [new NotBlank()]],
+                    'entry_options'  => ['constraints' => [new NotBlank()]],
                 ]
             );
 
