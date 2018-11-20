@@ -54,7 +54,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I check "PayPalExpress" on the "Payment" checkout step and press Continue
     And I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
-    And I should see "Tax $0.82"
+    And I should see "Tax $0.83"
     And I should see "Total $13.00"
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
