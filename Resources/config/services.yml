@@ -19,9 +19,9 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator
         public: false
 
-#    oro_paypal_express.pay_pal.client:
-#        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient
-#        public: false
+    oro_paypal_express.pay_pal.client:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient
+        public: false
 
     oro_paypal_express.transport:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport
@@ -45,7 +45,3 @@ services:
         tags:
             - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError }
             - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn }
-
-    oro_paypal_express.pay_pal.client:
-        class: Oro\Bundle\PayPalExpressBundle\Tests\Behat\Mock\Transport\PayPalClient
-        public: false
