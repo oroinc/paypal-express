@@ -1,3 +1,6 @@
+include:
+    - '@OroLocaleBundle:ZuluLocalization.yml'
+
 Oro\Bundle\RuleBundle\Entity\Rule:
     shippingRule:
         name: 'Default'
@@ -60,12 +63,15 @@ Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
 Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
     locValue:
         string: 'product1'
+    zuluLocValue:
+        string: 'ZU product1'
+        localization: '@localization_zulu'
 
 Oro\Bundle\ProductBundle\Entity\Product:
     product:
         sku: 'SKU123'
         primaryUnitPrecision: '@precision'
-        addName: ['@locValue']
+        setNames: [['@locValue', '@zuluLocValue']]
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         owner: '@business_unit'
