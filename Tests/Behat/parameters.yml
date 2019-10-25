@@ -1,0 +1,18 @@
+services:
+    oro_paypal_express.pay_pal.client:
+        class: Oro\Bundle\PayPalExpressBundle\Tests\Behat\Mock\Transport\PayPalClient
+        public: false
+
+    oro_paypal_express.pay_pal.translator.sdk_object:
+        class: Oro\Bundle\PayPalExpressBundle\Tests\Behat\Mock\Transport\PayPalSDKObjectTranslator
+        arguments:
+            - '@oro_paypal.test.express_payment.cache'
+        public: false
+
+    oro_paypal.test.express_payment.cache:
+        parent: oro.cache.abstract
+        public: true
+        arguments:
+            - '%kernel.cache_dir%/oro_data'
+        calls:
+            - [ setNamespace, [ 'oro_paypal_express' ] ]

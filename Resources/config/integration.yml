@@ -1,0 +1,19 @@
+services:
+    oro_paypal_express.integration.channel_type:
+        class: Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType
+        tags:
+            - { name: oro_integration.channel, type: paypal_express }
+
+    oro_paypal_express.integration.transport:
+        class: Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressTransport
+        tags:
+            - { name: oro_integration.transport, type: paypal_express, channel_type: paypal_express }
+
+    oro_paypal_express.integration.settings.form.type:
+        class: Oro\Bundle\PayPalExpressBundle\Form\Type\PayPalExpressSettingsType
+        arguments:
+            - '@oro_security.form.data_transformer.factory.crypted_data'
+            - '@oro_paypal_express.method.payment_action.complete.registry'
+            - '@translator'
+        tags:
+            - { name: form.type }

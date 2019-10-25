@@ -1,0 +1,148 @@
+services:
+    oro_paypal_express.method.generator.identifier:
+        parent: oro_integration.generator.prefixed_identifier_generator
+        public: true
+        arguments:
+            - 'oro_paypal_express'
+
+    oro_paypal_express.method.config.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigFactory
+        public: false
+        arguments:
+            - '@oro_paypal_express.method.generator.identifier'
+            - '@oro_locale.helper.localization'
+            - '@oro_security.encoder.default'
+
+    oro_paypal_express.method.config.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider
+        arguments:
+            - '@doctrine'
+            - '@logger'
+            - '@oro_paypal_express.method.config.factory'
+
+    oro_paypal_express.method.view.factory:
+        public: false
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalExpressViewFactory
+
+    oro_paypal_express.method.view.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\View\PayPalExpressViewProvider
+        arguments:
+            - '@oro_paypal_express.method.view.factory'
+            - '@oro_paypal_express.method.config.provider'
+        tags:
+            - { name: oro_payment.payment_method_view_provider }
+
+    oro_paypal_express.method.translator.line_item:
+        public: false
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
+        arguments:
+            - '@oro_payment.provider.extract_options'
+            - '@translator'
+
+    oro_paypal_express.method.translator.method_config:
+        public: false
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\MethodConfigTranslator
+
+    oro_paypal_express.method.translator.payment_transaction:
+        public: false
+        class: Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator
+        arguments:
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
+            - '@oro_paypal_express.method.translator.line_item'
+            - '@oro_entity.doctrine_helper'
+            - '@oro_paypal_express.pay_pal.provider.tax'
+            - '@oro_payment.provider.surcharge'
+            - '@router'
+            - '@oro_paypal_express.exception.factory'
+
+    oro_paypal_express.method.payment_transaction_data_factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionDataFactory
+
+    oro_paypal_express.method.paypal_express_transport_facade:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacade
+        arguments:
+            - '@oro_paypal_express.transport'
+            - '@oro_paypal_express.method.translator.payment_transaction'
+            - '@oro_paypal_express.method.translator.method_config'
+            - '@oro_paypal_express.method.payment_transaction_data_factory'
+
+    oro_paypal_express.method.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethodFactory
+        arguments:
+            - '@oro_paypal_express.method.payment_action.executor'
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
+
+    oro_paypal_express.method.provider:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethodProvider
+        public: false
+        arguments:
+            - '@oro_paypal_express.method.factory'
+            - '@oro_paypal_express.method.config.provider'
+        tags:
+            - { name: oro_payment.payment_method_provider }
+
+    oro_paypal_express.method.payment_action.abstract:
+        abstract: true
+        arguments:
+            - '@oro_paypal_express.method.paypal_express_transport_facade'
+            - '@logger'
+
+    oro_paypal_express.method.payment_action.complete.authorize:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeOnCompleteAction
+        parent: oro_paypal_express.method.payment_action.abstract
+        public: false
+        tags:
+            - { name: oro_paypal_express.complete_payment_action }
+
+    oro_paypal_express.method.payment_action.complete.authorize_and_capture:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeAndCaptureAction
+        parent: oro_paypal_express.method.payment_action.abstract
+        public: false
+        tags:
+            - { name: oro_paypal_express.complete_payment_action }
+
+    oro_paypal_express.method.payment_action.complete.registry:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry
+        arguments:
+            - '@oro_paypal_express.exception.factory'
+            - !tagged oro_paypal_express.complete_payment_action
+
+    oro_paypal_express.method.payment_action.complete.virtual:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction
+        public: false
+        arguments:
+            - '@oro_paypal_express.method.payment_action.complete.registry'
+        tags:
+            - { name: oro_paypal_express.payment_action }
+
+    oro_paypal_express.method.payment_action.registry:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry
+        arguments:
+            - '@oro_paypal_express.exception.factory'
+            - !tagged oro_paypal_express.payment_action
+
+    oro_paypal_express.method.payment_action.executor:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor
+        arguments:
+            - '@oro_paypal_express.method.payment_action.registry'
+
+    oro_paypal_express.method.payment_action.authorize:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction
+        parent: oro_paypal_express.method.payment_action.abstract
+        public: false
+        tags:
+            - { name: oro_paypal_express.payment_action }
+
+    oro_paypal_express.method.payment_action.capture:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CaptureAction
+        parent: oro_paypal_express.method.payment_action.abstract
+        public: false
+        tags:
+            - { name: oro_paypal_express.payment_action }
+
+    oro_paypal_express.method.payment_action.purchase:
+        class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction
+        parent: oro_paypal_express.method.payment_action.abstract
+        public: false
+        tags:
+            - { name: oro_paypal_express.payment_action }

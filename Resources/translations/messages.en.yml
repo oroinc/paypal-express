@@ -1,0 +1,39 @@
+oro:
+    payment:
+        paymenttransaction:
+            types:
+                create_payment.label: Pending payment
+    paypal_express:
+        channel_type.label: PayPal Express
+        settings:
+            label.tooltip: 'This label is used on the checkout screens'
+            label: PayPal Express Transport Settings
+            sandbox_mode:
+                label: Sandbox Mode
+                tooltip: Sandbox accounts can be created on PayPal Developer website at developer.paypal.com
+            client_id:
+                label: Client ID
+                tooltip: When the Sandbox Mode is enabled please make sure to use the Client ID from a Sandbox account
+            client_secret:
+                label: Client Secret
+                tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
+            labels:
+                label: Label
+                tooltip: This label is used on the checkout screens on the store frontend
+            short_labels:
+                label: Short Label
+                tooltip: This label is used in customer order history
+            payment_action:
+                label: Payment Action
+                tooltip: |
+                    The authorization places the buyer's balance on hold to ensure that you can capture the funds for
+                    the duration of the authorization period (please check with PayPal for details).
+                authorize: Authorize
+                authorize_and_capture: Authorize and Capture
+        checkout:
+            redirect_to_paypal: 'You will be redirected to PayPal website to complete your purchase after the order review step.'
+        discount:
+            pay_pal_item.label: Discount
+        error_message:
+            capture_action:
+                source_payment_transaction_not_found: Could not capture payment, transaction with approved payment not found.

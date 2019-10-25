@@ -1,0 +1,57 @@
+services:
+    oro_paypal_express.pay_pal.helper.supported_currencies:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper
+
+    oro_paypal_express.exception.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory
+        arguments:
+            - '@oro_paypal_express.pay_pal.helper.supported_currencies'
+
+    oro_paypal_express.pay_pal.provider.tax:
+        class: Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider
+        arguments:
+            - '@oro_tax.manager.tax_manager'
+            - '@logger'
+            - '@oro_tax.provider.taxation_settings_provider'
+
+    oro_paypal_express.pay_pal.translator.sdk_object:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator
+        public: false
+
+    oro_paypal_express.pay_pal.client:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalClient
+        public: false
+
+    oro_paypal_express.transport:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport
+        arguments:
+            - '@oro_paypal_express.pay_pal.translator.sdk_object'
+            - '@oro_paypal_express.pay_pal.client'
+            - '@oro_paypal_express.transport.exception.factory'
+
+    oro_paypal_express.transport.exception.factory:
+        class: Oro\Bundle\PayPalExpressBundle\Transport\Exception\TransportExceptionFactory
+        arguments:
+            - '@oro_paypal_express.pay_pal.translator.sdk_object'
+
+    oro_paypal_express.event_listener.pay_pal_express_redirect:
+        class: Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener
+        lazy: true
+        arguments:
+            - '@oro_paypal_express.method.provider'
+        calls:
+            - ['setLogger', ['@logger']]
+        tags:
+            - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError }
+            - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn }
+
+    oro_paypal_express.event_listener.callback.check_callback_relevance:
+        class: 'Oro\Bundle\PaymentBundle\EventListener\Callback\CheckCallbackRelevanceListener'
+        lazy: true
+        arguments:
+            - '@oro_paypal_express.method.provider'
+            - '@oro_payment.provider.payment_status'
+            - '@oro_entity.doctrine_helper'
+        tags:
+            - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn, priority: 20 }
+            - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError, priority: 20 }

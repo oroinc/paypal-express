@@ -1,0 +1,31 @@
+oro_behat_extension:
+  elements:
+    PayPal Express Integration Form:
+      selector: 'form[name="oro_integration_channel_form"]'
+      class: Oro\Bundle\TestFrameworkBundle\Behat\Element\Form
+      options:
+        mapping:
+          Name: 'oro_integration_channel_form[name]'
+          Payment Action: 'oro_integration_channel_form[transport][paymentAction]'
+          Label: 'oro_integration_channel_form[transport][labels][values][default]'
+          Short Label: 'oro_integration_channel_form[transport][shortLabels][values][default]'
+          Client ID: 'oro_integration_channel_form[transport][clientId]'
+          Client Secret: 'oro_integration_channel_form[transport][clientSecret]'
+          Status: 'oro_integration_channel_form[enabled]'
+  suites:
+    OroPayPalExpressBundle:
+      contexts:
+        - Oro\Bundle\TestFrameworkBundle\Tests\Behat\Context\OroMainContext
+        - OroProductBundle::FeatureContext
+        - OroDataGridBundle::GridContext
+        - OroConfigBundle::FeatureContext
+        - OroFormBundle::FormContext
+        - OroApplicationBundle::CommerceMainContext
+        - OroShoppingListBundle::ShoppingListContext
+        - OroCheckoutBundle::FeatureContext
+        - OroPayPalBundle::FeatureContext
+        - OroLocaleBundle::LocalizationContext
+        - OroFrontendLocalizationBundle::LocalizationSwitcherContext
+        - OroWorkflowBundle::FeatureContext
+      paths:
+        - '@OroPayPalExpressBundle/Tests/Behat/Features'
