@@ -38,6 +38,9 @@ services:
         arguments:
             - '@oro_payment.provider.extract_options'
             - '@translator'
+        calls:
+            - ['setCurrencyFormatter', ['@oro_locale.formatter.number']]
+            - ['setRounder', ['@oro_pricing.rounding.price_rounding_service']]
 
     oro_paypal_express.method.translator.method_config:
         public: false

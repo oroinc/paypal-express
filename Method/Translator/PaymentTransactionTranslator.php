@@ -11,6 +11,7 @@ use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionFactory;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedCurrencyException;
 use Oro\Bundle\PayPalExpressBundle\Exception\UnsupportedValueException;
 use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
+use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
@@ -110,11 +111,11 @@ class PaymentTransactionTranslator
         $paymentItems = $this->getPaymentItems($paymentEntity, $surcharge, $currency);
 
         $paymentInfo = new PaymentInfo(
-            $amount,
+            $this->lineItemTranslator->roundForPayPal($amount),
             $currency,
-            $shipping,
-            $tax,
-            $subtotal,
+            $this->lineItemTranslator->roundForPayPal($shipping),
+            $this->lineItemTranslator->roundForPayPal($tax),
+            $this->lineItemTranslator->roundForPayPal($subtotal),
             $method,
             $invoiceNumber,
             $paymentItems
@@ -167,6 +168,21 @@ class PaymentTransactionTranslator
         $paymentItems = [];
         if ($paymentEntity instanceof LineItemsAwareInterface) {
             $paymentItems = $this->lineItemTranslator->getPaymentItems($paymentEntity, $surcharge, $currency);
+        }
+
+        // Replace all line items with totals item, if line items SUM != Subtotal
+        // Without Line Items totals are not shown at PayPal which decreases UX and may lead to incomplete purchases.
+        $paymentItemsSum = (float)array_sum(
+            array_map(
+                function (ItemInfo $info) {
+                    return $info->getPrice() * $info->getQuantity();
+                },
+                $paymentItems
+            )
+        );
+        $subtotal = $this->getSubtotal($paymentEntity, $surcharge);
+        if ($this->lineItemTranslator->roundForPayPal($subtotal) !== $paymentItemsSum) {
+            $paymentItems = [$this->lineItemTranslator->createTotalLineItem($currency, $subtotal)];
         }
 
         return $paymentItems;

@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
+use Oro\Bundle\CurrencyBundle\Rounding\RoundingServiceInterface;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
@@ -80,6 +81,12 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
 
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
 
+        $this->lineItemTranslator->expects($this->any())
+            ->method('roundForPayPal')
+            ->willReturnCallback(function ($amount) {
+                return round($amount, 2);
+            });
+
         $this->translator = new PaymentTransactionTranslator(
             $this->supportedCurrenciesHelper,
             $this->lineItemTranslator,
@@ -133,6 +140,95 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
     }
 
+    public function testGetPaymentInfoWithRoundingIssues()
+    {
+        $totalAmount = 84.358;
+
+        $shipping = 10.025;
+        $tax = 1.013;
+        $subtotal = 73.32;
+        $invoiceNumber = 568;
+
+        $currency = 'USD';
+
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
+        $paymentEntityId = 42;
+
+        $this->setupDoctrineHelperMock(Order::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, 0.0, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
+
+        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
+
+        $paymentItemsInfo = [
+            $this->getPaymentItemInfo('foo item', $currency, 13, 1.13),
+            $this->getPaymentItemInfo('foo item', $currency, 3, 19.54),
+        ];
+        $this->setupLineItemTranslatorMock($paymentEntity, $paymentItemsInfo);
+        $totalInfo = $this->getPaymentItemInfo('total', $currency, 1, $subtotal);
+        $this->lineItemTranslator->expects($this->once())
+            ->method('createTotalLineItem')
+            ->with($currency, $subtotal)
+            ->willReturn($totalInfo);
+
+        $expectedPaymentInfo = new PaymentInfo(
+            round($totalAmount, 2),
+            $currency,
+            round($shipping, 2),
+            round($tax, 2),
+            round($subtotal, 2),
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
+            [$totalInfo]
+        );
+
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
+        $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
+    }
+
+    public function testGetPaymentInfoForThreeDigitsAccuracy()
+    {
+        $totalAmount = 84.348;
+
+        $shipping = 10.025;
+        $tax = 1.013;
+        $subtotal = 73.31;
+        $invoiceNumber = 568;
+
+        $currency = 'USD';
+
+        $paymentEntity = $this->getOrder($currency, $shipping, $subtotal, $invoiceNumber);
+        $paymentEntityId = 42;
+
+        $this->setupDoctrineHelperMock(Order::class, $paymentEntityId, $paymentEntity);
+        $this->setupSurchargeMock($paymentEntity, 0.0, $shipping);
+        $this->setupTaxMock($paymentEntity, $tax);
+
+        $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
+
+        $expectedPaymentItemsInfo = [
+            $this->getPaymentItemInfo('foo item', $currency, 13, 1.13),
+            $this->getPaymentItemInfo('foo item', $currency, 3, 19.54),
+        ];
+        $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
+
+        $expectedPaymentInfo = new PaymentInfo(
+            round($totalAmount, 2),
+            $currency,
+            round($shipping, 2),
+            round($tax, 2),
+            round($subtotal, 2),
+            PaymentInfo::PAYMENT_METHOD_PAYPAL,
+            $invoiceNumber,
+            $expectedPaymentItemsInfo
+        );
+
+        $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
+
+        $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);
+    }
+
     public function testGetPaymentInfoWithDiscountAmount()
     {
         $totalAmount = 30.39;
@@ -157,6 +253,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $expectedPaymentItemsInfo = [
             $this->getPaymentItemInfo('foo item', $currency, 2, 6),
             $this->getPaymentItemInfo('foo item', $currency, 1, 6),
+            $this->getPaymentItemInfo('discount', $currency, 1, -1),
         ];
         $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
 
@@ -201,7 +298,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $currency = 'USD';
         $shipping = 12.35;
         $tax = 1.04;
-        $subtotal = 12;
+        $subtotal = 12.0;
 
         $paymentEntity = new QuxPaymentEntityStub();
         $paymentEntity->testSubtotal = $subtotal;
@@ -215,8 +312,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
-        $this->lineItemTranslator->expects($this->never())
-            ->method('getPaymentItems');
+        $totalInfo = $this->getPaymentItemInfo('total', $currency, 1, $subtotal);
+        $this->lineItemTranslator->expects($this->once())
+            ->method('createTotalLineItem')
+            ->with($currency, $subtotal)
+            ->willReturn($totalInfo);
 
         $actualPaymentInfo = $this->translator->getPaymentInfo($paymentTransaction);
 
@@ -228,7 +328,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
             $subtotal,
             PaymentInfo::PAYMENT_METHOD_PAYPAL,
             $actualPaymentInfo->getInvoiceNumber(),
-            []
+            [$totalInfo]
         );
 
         $this->assertEquals($expectedPaymentInfo, $actualPaymentInfo);

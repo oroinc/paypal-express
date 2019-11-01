@@ -34,6 +34,8 @@ oro:
             redirect_to_paypal: 'You will be redirected to PayPal website to complete your purchase after the order review step.'
         discount:
             pay_pal_item.label: Discount
+        total:
+            pay_pal_item.label: Order Items
         error_message:
             capture_action:
                 source_payment_transaction_not_found: Could not capture payment, transaction with approved payment not found.

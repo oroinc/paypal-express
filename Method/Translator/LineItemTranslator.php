@@ -2,6 +2,8 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
+use Oro\Bundle\CurrencyBundle\Rounding\RoundingServiceInterface;
+use Oro\Bundle\LocaleBundle\Formatter\NumberFormatter;
 use Oro\Bundle\PaymentBundle\Model\LineItemOptionModel;
 use Oro\Bundle\PaymentBundle\Model\Surcharge;
 use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
@@ -15,6 +17,8 @@ use Symfony\Component\Translation\TranslatorInterface;
 class LineItemTranslator
 {
     const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
+    const TOTAL_ITEM_LABEL = 'oro.paypal_express.total.pay_pal_item.label';
+    const PAYPAL_NAME_LIMIT = 36;
 
     /**
      * @var ExtractOptionsProvider
@@ -27,6 +31,16 @@ class LineItemTranslator
     protected $translator;
 
     /**
+     * @var NumberFormatter
+     */
+    protected $currencyFormatter;
+
+    /**
+     * @var RoundingServiceInterface
+     */
+    protected $rounder;
+
+    /**
      * @param ExtractOptionsProvider $optionsProvider
      * @param TranslatorInterface    $translator
      */
@@ -34,6 +48,22 @@ class LineItemTranslator
     {
         $this->optionsProvider = $optionsProvider;
         $this->translator = $translator;
+    }
+
+    /**
+     * @param NumberFormatter $currencyFormatter
+     */
+    public function setCurrencyFormatter(NumberFormatter $currencyFormatter)
+    {
+        $this->currencyFormatter = $currencyFormatter;
+    }
+
+    /**
+     * @param RoundingServiceInterface $roundingService
+     */
+    public function setRounder(RoundingServiceInterface $roundingService)
+    {
+        $this->rounder = $roundingService;
     }
 
     /**
@@ -98,7 +128,7 @@ class LineItemTranslator
         return $this->createItemInfo(
             $lineItem->getName(),
             $lineItem->getCurrency(),
-            (int)$lineItem->getQty(),
+            $lineItem->getQty(),
             $lineItem->getCost()
         );
     }
@@ -112,11 +142,33 @@ class LineItemTranslator
      */
     protected function createItemInfo($name, $currency, $quantity, $price)
     {
+        // PayPal doesn't support float quantities and prices with precision more than 2.
+        // Multiply qty by cost and add information about actual qty and price to line item name
+        if ($quantity != 1 && ($this->isPrecisionMoreThan($quantity, 0) || $this->isPrecisionMoreThan($price, 2))) {
+            $additionalNameInfo = sprintf(
+                ' - %sx%s',
+                $this->currencyFormatter->formatCurrency($price, $currency),
+                $quantity
+            );
+
+            $name = sprintf(
+                '%s%s',
+                // we can't use multibyte string functions here
+                // because PayPal doesn't use multibyte when calculating string length
+                substr($name, 0, self::PAYPAL_NAME_LIMIT - strlen($additionalNameInfo)),
+                $additionalNameInfo
+            );
+
+            // Update cost and qty to have 1 item with cost = price * qty
+            $price *= $quantity;
+            $quantity = 1.0;
+        }
+
         return new ItemInfo(
             $name,
             $currency,
             (int)$quantity,
-            $price
+            $this->roundForPayPal($price)
         );
     }
 
@@ -167,5 +219,46 @@ class LineItemTranslator
             1,
             $discountAmount
         );
+    }
+
+    /**
+     * @param string $currency
+     * @param float $subtotal
+     *
+     * @return ItemInfo
+     */
+    public function createTotalLineItem($currency, $subtotal)
+    {
+        return $this->createItemInfo(
+            $this->translator->trans(static::TOTAL_ITEM_LABEL),
+            $currency,
+            1,
+            $subtotal
+        );
+    }
+
+    /**
+     * @param float $number
+     * @param int $precision
+     * @return bool
+     */
+    protected function isPrecisionMoreThan($number, $precision): bool
+    {
+        return (bool) ($number - round($number, $precision));
+    }
+
+    /**
+     * @param float $number
+     * @return float|int
+     */
+    public function roundForPayPal($number)
+    {
+        $precision = $this->rounder->getPrecision();
+
+        if ($precision > 2) {
+            $precision = 2;
+        }
+
+        return $this->rounder->round($number, $precision);
     }
 }
