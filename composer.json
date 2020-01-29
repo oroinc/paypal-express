@@ -14,7 +14,6 @@
         "exclude-from-classmap": ["/Tests/"]
     },
     "require": {
-        "php": ">=7.0",
         "oro/commerce": "1.6.*",
         "psr/log": "1.0.*",
         "paypal/rest-api-sdk-php": "1.13.*"
