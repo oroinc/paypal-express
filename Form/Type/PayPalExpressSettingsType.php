@@ -65,8 +65,7 @@ class PayPalExpressSettingsType extends AbstractType
                 ChoiceType::class,
                 [
                     'choices'           => $this->actionsProvider->getActionNames(),
-                    'choices_as_values' => true,
-                    'choice_label'      => function ($action) {
+                    'choice_label'      => function ($action, $key) {
                         return $this->translator->trans(
                             sprintf('oro.paypal_express.settings.payment_action.%s', $action)
                         );
@@ -77,21 +76,21 @@ class PayPalExpressSettingsType extends AbstractType
                 ]
             )->add(
                 'labels',
-                LocalizedFallbackValueCollectionType::NAME,
+                LocalizedFallbackValueCollectionType::class,
                 [
                     'label'    => 'oro.paypal_express.settings.labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.labels.tooltip',
                     'required' => true,
-                    'options'  => ['constraints' => [new NotBlank()]],
+                    'constraints' => [new NotBlank()],
                 ]
             )->add(
                 'shortLabels',
-                LocalizedFallbackValueCollectionType::NAME,
+                LocalizedFallbackValueCollectionType::class,
                 [
                     'label'    => 'oro.paypal_express.settings.short_labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.short_labels.tooltip',
                     'required' => true,
-                    'options'  => ['constraints' => [new NotBlank()]],
+                    'constraints' => [new NotBlank()],
                 ]
             );
 

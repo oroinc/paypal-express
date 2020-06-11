@@ -11,7 +11,7 @@ services:
         arguments:
             - '@oro_paypal_express.method.generator.identifier'
             - '@oro_locale.helper.localization'
-            - '@oro_security.encoder.mcrypt'
+            - '@oro_security.encoder.default'
 
     oro_paypal_express.method.config.provider:
         class: Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider
@@ -36,7 +36,7 @@ services:
         public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
         arguments:
-            - '@oro_payment.provider.extract_options'
+            - '@oro_paypal.options_provider.options'
             - '@translator'
 
     oro_paypal_express.method.translator.method_config:

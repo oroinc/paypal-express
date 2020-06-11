@@ -14,10 +14,10 @@
         "exclude-from-classmap": ["/Tests/"]
     },
     "require": {
-        "php": ">=7.0",
-        "oro/commerce": "1.6.*",
-        "psr/log": "1.0.0",
-        "paypal/rest-api-sdk-php": "1.7.1"
+        "php": ">=7.3",
+        "oro/commerce": "4.1.*",
+        "psr/log": "1.1.*",
+        "paypal/rest-api-sdk-php": "1.14.*"
     },
     "repositories": {
         "oro": {
@@ -33,7 +33,7 @@
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "1.6.x-dev"
+            "dev-master": "4.1.x-dev"
         }
     }
 }

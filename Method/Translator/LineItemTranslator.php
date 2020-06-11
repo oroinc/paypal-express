@@ -4,7 +4,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\Translator;
 
 use Oro\Bundle\PaymentBundle\Model\LineItemOptionModel;
 use Oro\Bundle\PaymentBundle\Model\Surcharge;
-use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
+use Oro\Bundle\PayPalBundle\OptionsProvider\OptionsProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -17,7 +17,7 @@ class LineItemTranslator
     const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
 
     /**
-     * @var ExtractOptionsProvider
+     * @var OptionsProviderInterface
      */
     protected $optionsProvider;
 
@@ -27,10 +27,10 @@ class LineItemTranslator
     protected $translator;
 
     /**
-     * @param ExtractOptionsProvider $optionsProvider
+     * @param OptionsProviderInterface $optionsProvider
      * @param TranslatorInterface    $translator
      */
-    public function __construct(ExtractOptionsProvider $optionsProvider, TranslatorInterface $translator)
+    public function __construct(OptionsProviderInterface $optionsProvider, TranslatorInterface $translator)
     {
         $this->optionsProvider = $optionsProvider;
         $this->translator = $translator;
@@ -45,7 +45,8 @@ class LineItemTranslator
      */
     public function getPaymentItems(LineItemsAwareInterface $paymentItem, Surcharge $surcharge, $currency)
     {
-        $lineItems = $this->optionsProvider->getLineItemPaymentOptions($paymentItem);
+        $lineItems = $this->optionsProvider->getLineItemOptions($paymentItem);
+
         if (!$lineItems) {
             return [];
         }
