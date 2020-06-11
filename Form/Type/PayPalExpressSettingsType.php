@@ -81,7 +81,7 @@ class PayPalExpressSettingsType extends AbstractType
                     'label'    => 'oro.paypal_express.settings.labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.labels.tooltip',
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'entry_options' => ['constraints' => [new NotBlank()]],
                 ]
             )->add(
                 'shortLabels',
@@ -90,7 +90,7 @@ class PayPalExpressSettingsType extends AbstractType
                     'label'    => 'oro.paypal_express.settings.short_labels.label',
                     'tooltip'  => 'oro.paypal_express.settings.short_labels.tooltip',
                     'required' => true,
-                    'constraints' => [new NotBlank()],
+                    'entry_options' => ['constraints' => [new NotBlank()]],
                 ]
             );
 
@@ -100,7 +100,8 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.client_id.label',
                 'tooltip'  => 'oro.paypal_express.settings.client_id.tooltip',
-                'required' => true
+                'required' => true,
+                'constraints' => [new NotBlank()]
             ]
         );
         $builder->add($this->addCryptedTransformer($clientIdFieldBuilder));
@@ -111,7 +112,8 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.client_secret.label',
                 'tooltip'  => 'oro.paypal_express.settings.client_secret.tooltip',
-                'required' => true
+                'required' => true,
+                'constraints' => [new NotBlank()]
             ]
         );
         $builder->add($this->addCryptedTransformer($clientSecretFieldBuilder));
@@ -122,7 +124,7 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.sandbox_mode.label',
                 'tooltip'  => 'oro.paypal_express.settings.sandbox_mode.tooltip',
-                'required' => false,
+                'required' => false
             ]
         );
     }
