@@ -1,0 +1,3 @@
+dynamic-imports:
+    oropaypalexpress:
+        - oropaypalexpress/js/app/components/express-checkout-component

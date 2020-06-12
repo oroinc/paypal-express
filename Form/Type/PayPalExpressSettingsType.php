@@ -67,8 +67,7 @@ class PayPalExpressSettingsType extends AbstractType
                 ChoiceType::class,
                 [
                     'choices'           => $this->actionsProvider->getActionNames(),
-                    'choices_as_values' => true,
-                    'choice_label'      => function ($action) {
+                    'choice_label'      => function ($action, $key) {
                         return $this->translator->trans(
                             sprintf('oro.paypal_express.settings.payment_action.%s', $action)
                         );
@@ -103,7 +102,8 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.client_id.label',
                 'tooltip'  => 'oro.paypal_express.settings.client_id.tooltip',
-                'required' => true
+                'required' => true,
+                'constraints' => [new NotBlank()]
             ]
         );
         $builder->add($this->addCryptedTransformer($clientIdFieldBuilder));
@@ -114,7 +114,8 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.client_secret.label',
                 'tooltip'  => 'oro.paypal_express.settings.client_secret.tooltip',
-                'required' => true
+                'required' => true,
+                'constraints' => [new NotBlank()]
             ]
         );
         $builder->add($this->addCryptedTransformer($clientSecretFieldBuilder));
@@ -125,7 +126,7 @@ class PayPalExpressSettingsType extends AbstractType
             [
                 'label'    => 'oro.paypal_express.settings.sandbox_mode.label',
                 'tooltip'  => 'oro.paypal_express.settings.sandbox_mode.tooltip',
-                'required' => false,
+                'required' => false
             ]
         );
     }

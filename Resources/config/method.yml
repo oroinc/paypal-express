@@ -36,7 +36,7 @@ services:
         public: false
         class: Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator
         arguments:
-            - '@oro_payment.provider.extract_options'
+            - '@oro_paypal.options_provider.options'
             - '@translator'
         calls:
             - ['setCurrencyFormatter', ['@oro_locale.formatter.number']]

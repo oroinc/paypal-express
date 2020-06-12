@@ -6,7 +6,7 @@ use Oro\Bundle\CurrencyBundle\Rounding\RoundingServiceInterface;
 use Oro\Bundle\LocaleBundle\Formatter\NumberFormatter;
 use Oro\Bundle\PaymentBundle\Model\LineItemOptionModel;
 use Oro\Bundle\PaymentBundle\Model\Surcharge;
-use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
+use Oro\Bundle\PayPalBundle\OptionsProvider\OptionsProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\LineItemsAwareInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -21,7 +21,7 @@ class LineItemTranslator
     const PAYPAL_NAME_LIMIT = 36;
 
     /**
-     * @var ExtractOptionsProvider
+     * @var OptionsProviderInterface
      */
     protected $optionsProvider;
 
@@ -41,10 +41,10 @@ class LineItemTranslator
     protected $rounder;
 
     /**
-     * @param ExtractOptionsProvider $optionsProvider
+     * @param OptionsProviderInterface $optionsProvider
      * @param TranslatorInterface    $translator
      */
-    public function __construct(ExtractOptionsProvider $optionsProvider, TranslatorInterface $translator)
+    public function __construct(OptionsProviderInterface $optionsProvider, TranslatorInterface $translator)
     {
         $this->optionsProvider = $optionsProvider;
         $this->translator = $translator;
@@ -75,7 +75,8 @@ class LineItemTranslator
      */
     public function getPaymentItems(LineItemsAwareInterface $paymentItem, Surcharge $surcharge, $currency)
     {
-        $lineItems = $this->optionsProvider->getLineItemPaymentOptions($paymentItem);
+        $lineItems = $this->optionsProvider->getLineItemOptions($paymentItem);
+
         if (!$lineItems) {
             return [];
         }
