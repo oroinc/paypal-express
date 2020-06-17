@@ -7,7 +7,7 @@ use Oro\Bundle\LocaleBundle\Formatter\NumberFormatter;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Model\LineItemOptionModel;
 use Oro\Bundle\PaymentBundle\Model\Surcharge;
-use Oro\Bundle\PaymentBundle\Provider\ExtractOptionsProvider;
+use Oro\Bundle\PayPalBundle\OptionsProvider\OptionsProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -15,9 +15,9 @@ use Symfony\Component\Translation\TranslatorInterface;
 class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ExtractOptionsProvider
+     * @var \PHPUnit\Framework\MockObject\MockObject|OptionsProvider
      */
-    protected $extractOptionsProvider;
+    protected $optionsProvider;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|TranslatorInterface
@@ -41,7 +41,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->extractOptionsProvider = $this->createMock(ExtractOptionsProvider::class);
+        $this->optionsProvider = $this->createMock(OptionsProvider::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->rounder = $this->createMock(RoundingServiceInterface::class);
         $this->rounder->expects($this->any())
@@ -51,7 +51,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
             });
         $this->currencyFormatter = $this->createMock(NumberFormatter::class);
 
-        $this->lineItemTranslator = new LineItemTranslator($this->extractOptionsProvider, $this->translator);
+        $this->lineItemTranslator = new LineItemTranslator($this->optionsProvider, $this->translator);
         $this->lineItemTranslator->setRounder($this->rounder);
         $this->lineItemTranslator->setCurrencyFormatter($this->currencyFormatter);
     }
@@ -339,8 +339,8 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
     {
         $order = new Order();
 
-        $this->extractOptionsProvider->expects($this->once())
-            ->method('getLineItemPaymentOptions')
+        $this->optionsProvider->expects($this->once())
+            ->method('getLineItemOptions')
             ->with($order)
             ->willReturn($lineItemOptionsModels);
 

@@ -2,7 +2,6 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Translator;
 
-use Oro\Bundle\CurrencyBundle\Rounding\RoundingServiceInterface;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;

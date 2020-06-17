@@ -67,16 +67,6 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function testIsApplicableReturnTrueWithSupportedCurrency()
-    {
-        $supportedCurrency = 'USD';
-
-        $context = $this->createPaymentContext($supportedCurrency);
-        $this->expectCurrencyIsSupported($supportedCurrency, true);
-
-        $this->assertTrue($this->payPalExpressMethod->isApplicable($context));
-    }
-
     public function testIsApplicableReturnFalseWithNotSupportedCurrency()
     {
         $supportedCurrency = 'UAH';
