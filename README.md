@@ -9,7 +9,7 @@ This extension can be added to an existing installation of OroCommerce:
 Use composer to add the package code:
 
 ```
-composer require oro/paypal-express
+composer require oro/commerce-paypal-express
 ```
 
 Perform the installation:
