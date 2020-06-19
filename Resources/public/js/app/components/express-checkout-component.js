@@ -16,8 +16,8 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function ExpressCheckoutComponent() {
-            ExpressCheckoutComponent.__super__.constructor.apply(this, arguments);
+        constructor: function ExpressCheckoutComponent(...args) {
+            ExpressCheckoutComponent.__super__.constructor.apply(this, args);
         },
 
         /**
