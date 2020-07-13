@@ -37,7 +37,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
      */
     protected $config;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->facade = $this->createMock(PayPalExpressTransportFacadeInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -196,7 +196,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         }
         return $this->callback(
             function ($array) use ($expectedKey, $constraint) {
-                $this->assertInternalType('array', $array, 'Failed asserting value is array.');
+                $this->assertIsArray($array, 'Failed asserting value is array.');
                 $this->assertArrayHasKey(
                     $expectedKey,
                     $array

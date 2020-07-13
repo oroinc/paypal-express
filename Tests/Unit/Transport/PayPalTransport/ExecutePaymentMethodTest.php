@@ -19,7 +19,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
      */
     protected $redirectRoutesInfo;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->paymentInfo = $this->createPaymentInfo($this->expectedPaymentId);

@@ -19,7 +19,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
      */
     protected $expectedOrderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->paymentInfo = $this->createPaymentInfo($this->expectedPaymentId, $this->expectedOrderId);

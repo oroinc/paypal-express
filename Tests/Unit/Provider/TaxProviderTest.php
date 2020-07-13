@@ -34,13 +34,13 @@ class TaxProviderTest extends \PHPUnit\Framework\TestCase
      */
     protected $taxationSettingsProvider;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->taxManager = $this->createMock(TaxManager::class);
         $this->taxationSettingsProvider = $this->createMock(TaxationSettingsProvider::class);
 
         $this->logger = $this->createMock(LoggerInterface::class);
-        
+
         $this->taxProvider = new TaxProvider($this->taxManager, $this->logger, $this->taxationSettingsProvider);
     }
 

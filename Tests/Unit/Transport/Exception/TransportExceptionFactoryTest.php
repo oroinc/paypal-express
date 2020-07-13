@@ -21,7 +21,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
      */
     protected $translator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->translator = $this->createMock(PayPalSDKObjectTranslatorInterface::class);
         $this->factory = new TransportExceptionFactory($this->translator);

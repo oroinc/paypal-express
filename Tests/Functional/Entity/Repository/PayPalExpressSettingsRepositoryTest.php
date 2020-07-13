@@ -15,7 +15,7 @@ class PayPalExpressSettingsRepositoryTest extends WebTestCase
     /** @var PayPalExpressSettingsRepository */
     protected $repository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->initClient();
 

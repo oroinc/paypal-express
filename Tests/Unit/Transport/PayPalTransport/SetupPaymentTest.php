@@ -12,7 +12,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
      */
     protected $redirectRoutesInfo;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->redirectRoutesInfo = $this->createRedirectionRoutesInfo(

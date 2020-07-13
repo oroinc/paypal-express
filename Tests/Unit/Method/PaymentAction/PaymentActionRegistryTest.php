@@ -31,7 +31,7 @@ class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
      */
     protected $exceptionFactory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
         $this->logger = $this->createMock(LoggerInterface::class);

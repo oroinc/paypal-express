@@ -17,7 +17,7 @@ class PayPalClientTest extends \PHPUnit\Framework\TestCase
      */
     protected $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->client = new PayPalClient();
     }

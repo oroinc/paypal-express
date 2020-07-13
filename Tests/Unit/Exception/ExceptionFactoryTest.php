@@ -21,7 +21,7 @@ class ExceptionFactoryTest extends \PHPUnit\Framework\TestCase
      */
     protected $supportedCurrenciesHelper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->supportedCurrenciesHelper = $this->createMock(SupportedCurrenciesHelper::class);
 

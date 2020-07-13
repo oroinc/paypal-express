@@ -39,7 +39,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
      */
     protected $lineItemTranslator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->optionsProvider = $this->createMock(OptionsProvider::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
@@ -134,7 +134,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $this->createSurcharge(), $currency);
 
         $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
-        $this->assertInternalType('integer', $actualPaymentItems[0]->getQuantity());
+        $this->assertIsInt($actualPaymentItems[0]->getQuantity());
     }
 
     public function testCanConvertPaymentItemsPricePrecisionMoreThanTwo()
@@ -184,7 +184,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $actualPaymentItems = $this->lineItemTranslator->getPaymentItems($order, $this->createSurcharge(), $currency);
 
         $this->assertEquals($expectedPaymentItemsInfo, $actualPaymentItems);
-        $this->assertInternalType('integer', $actualPaymentItems[0]->getQuantity());
+        $this->assertIsInt($actualPaymentItems[0]->getQuantity());
     }
 
 

@@ -46,7 +46,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit\Framework\TestCase
      */
     protected $paymentTransactionDataFactory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->payPalExpressTransport        = $this->createMock(PayPalExpressTransportInterface::class);
         $this->paymentTransactionTranslator  = $this->createMock(PaymentTransactionTranslator::class);

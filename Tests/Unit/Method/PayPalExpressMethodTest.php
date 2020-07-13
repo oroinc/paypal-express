@@ -38,7 +38,7 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
      */
     protected $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->config                    = $this->createMock(PayPalExpressConfigInterface::class);
         $this->actionExecutor            = $this->createMock(PaymentActionExecutor::class);

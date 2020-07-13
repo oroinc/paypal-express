@@ -20,7 +20,7 @@ class CompleteVirtualActionTest extends \PHPUnit\Framework\TestCase
      */
     protected $completePaymentActionRegistry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->completePaymentActionRegistry = $this->createMock(CompletePaymentActionRegistry::class);
 
