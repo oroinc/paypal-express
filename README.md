@@ -20,5 +20,5 @@ php bin/console oro:platform:update --env=prod
 
 ## Documentation
 
-Detailed instructions on how to enable and configure PayPal Express integration are available in the [OroCommerce documentation](https://oroinc.com/orocommerce/doc/current/configuration-guide/payment/payment-methods/paypal-express).
+Detailed instructions on how to enable and configure PayPal Express integration are available in the [OroCommerce documentation](https://doc.oroinc.com/user/back-office/system/integrations/payment-integration/paypal-services/express/).
 Documentation for developers is located in [this bundle's resources folder](./Resources/doc/index.md).
