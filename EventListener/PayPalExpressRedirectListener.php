@@ -41,6 +41,10 @@ class PayPalExpressRedirectListener
             return;
         }
 
+        if (!$paymentTransaction->isActive()) {
+            return;
+        }
+
         if (false === $this->paymentMethodProvider->hasPaymentMethod($paymentTransaction->getPaymentMethod())) {
             return;
         }
@@ -58,6 +62,10 @@ class PayPalExpressRedirectListener
         $paymentTransaction = $event->getPaymentTransaction();
 
         if (!$paymentTransaction) {
+            return;
+        }
+
+        if (!$paymentTransaction->isActive()) {
             return;
         }
 
