@@ -3,7 +3,7 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\Config;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;

@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Method\Config;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository;
 use Psr\Log\LoggerInterface;
