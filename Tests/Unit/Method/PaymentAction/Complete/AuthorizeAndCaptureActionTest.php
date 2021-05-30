@@ -37,11 +37,11 @@ class AuthorizeAndCaptureActionTest extends AbstractPaymentActionTestCase
 
     public function testExecuteAction()
     {
-        $this->facade->expects($this->at(0))
+        $this->facade->expects($this->once())
             ->method('executePayPalPayment')
             ->with($this->paymentTransaction, $this->config);
 
-        $this->facade->expects($this->at(1))
+        $this->facade->expects($this->once())
             ->method('capturePayment')
             ->with($this->paymentTransaction, $this->paymentTransaction, $this->config);
 
