@@ -7,7 +7,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProviderInterface;
 
 /**
- * Provides {@see PayPalExpressView} for {@see Oro\Bundle\PaymentBundle\OroPaymentBundle}.
+ * Provides {@see PayPalExpressView} for {@see \Oro\Bundle\PaymentBundle\OroPaymentBundle}.
  * Required by {@see \Oro\Bundle\PaymentBundle\OroPaymentBundle}
  */
 class PayPalExpressViewProvider extends AbstractPaymentMethodViewProvider
