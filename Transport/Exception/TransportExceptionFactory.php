@@ -19,9 +19,6 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
      */
     protected $translator;
 
-    /**
-     * @param PayPalSDKObjectTranslatorInterface $translator
-     */
     public function __construct(PayPalSDKObjectTranslatorInterface $translator)
     {
         $this->translator = $translator;

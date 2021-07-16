@@ -20,10 +20,6 @@ class PayPalExpressMethodProvider extends AbstractPaymentMethodProvider
      */
     protected $payPalExpressConfigProvider;
 
-    /**
-     * @param PayPalExpressMethodFactoryInterface  $payPalMethodFactory
-     * @param PayPalExpressConfigProviderInterface $payPalExpressConfigProvider
-     */
     public function __construct(
         PayPalExpressMethodFactoryInterface $payPalMethodFactory,
         PayPalExpressConfigProviderInterface $payPalExpressConfigProvider

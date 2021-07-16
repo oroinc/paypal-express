@@ -40,27 +40,17 @@ class LineItemTranslator
      */
     protected $rounder;
 
-    /**
-     * @param OptionsProviderInterface $optionsProvider
-     * @param TranslatorInterface    $translator
-     */
     public function __construct(OptionsProviderInterface $optionsProvider, TranslatorInterface $translator)
     {
         $this->optionsProvider = $optionsProvider;
         $this->translator = $translator;
     }
 
-    /**
-     * @param NumberFormatter $currencyFormatter
-     */
     public function setCurrencyFormatter(NumberFormatter $currencyFormatter)
     {
         $this->currencyFormatter = $currencyFormatter;
     }
 
-    /**
-     * @param RoundingServiceInterface $roundingService
-     */
     public function setRounder(RoundingServiceInterface $roundingService)
     {
         $this->rounder = $roundingService;
@@ -111,7 +101,6 @@ class LineItemTranslator
     }
 
     /**
-     *
      * @param LineItemOptionModel $lineItem
      * @return bool
      */

@@ -16,9 +16,6 @@ class PayPalExpressView implements PaymentMethodViewInterface
      */
     protected $config;
 
-    /**
-     * @param PayPalExpressConfigInterface $config
-     */
     public function __construct(PayPalExpressConfigInterface $config)
     {
         $this->config = $config;

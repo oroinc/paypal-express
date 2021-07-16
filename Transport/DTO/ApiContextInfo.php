@@ -19,8 +19,6 @@ class ApiContextInfo
 
     /**
      * ApiContextInfo constructor.
-     * @param CredentialsInfo $credentialsInfo
-     * @param bool            $isSandbox
      */
     public function __construct(CredentialsInfo $credentialsInfo, bool $isSandbox)
     {

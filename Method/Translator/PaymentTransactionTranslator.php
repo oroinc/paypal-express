@@ -61,15 +61,6 @@ class PaymentTransactionTranslator
      */
     protected $exceptionFactory;
 
-    /**
-     * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
-     * @param LineItemTranslator        $lineItemTranslator
-     * @param DoctrineHelper            $doctrineHelper
-     * @param TaxProvider               $taxProvider
-     * @param SurchargeProvider         $surchargeProvider
-     * @param RouterInterface           $router
-     * @param ExceptionFactory          $exceptionFactory
-     */
     public function __construct(
         SupportedCurrenciesHelper $supportedCurrenciesHelper,
         LineItemTranslator $lineItemTranslator,
@@ -125,8 +116,6 @@ class PaymentTransactionTranslator
     }
 
     /**
-     * @param PaymentTransaction $paymentTransaction
-     *
      * @throws UnsupportedCurrencyException
      * @throws UnsupportedValueException
      */

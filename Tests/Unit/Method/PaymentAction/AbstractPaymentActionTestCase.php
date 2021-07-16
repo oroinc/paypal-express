@@ -106,9 +106,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
     {
         return new Exception\RuntimeException($message);
     }
-    /**
-     * @param \Throwable $throwable
-     */
+
     abstract protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable);
 
     public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
@@ -155,11 +153,6 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         return new \Error($message);
     }
 
-    /**
-     * @param PaymentActionInterface $paymentAction
-     * @param PaymentTransaction     $paymentTransaction
-     * @param \Throwable             $expectedException
-     */
     protected function expectPaymentActionErrorLogged(
         PaymentActionInterface $paymentAction,
         PaymentTransaction $paymentTransaction,
