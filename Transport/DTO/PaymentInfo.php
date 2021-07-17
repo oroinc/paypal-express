@@ -102,7 +102,6 @@ class PaymentInfo
         return $this->totalAmount;
     }
 
-
     /**
      * @return string
      */

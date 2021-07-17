@@ -52,9 +52,6 @@ class AuthorizeActionTest extends AbstractPaymentActionTestCase
         return ['successful' => false, 'message' => $exception->getMessage()];
     }
 
-    /**
-     * @param \Throwable $throwable
-     */
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
     {
         $this->facade->expects($this->any())

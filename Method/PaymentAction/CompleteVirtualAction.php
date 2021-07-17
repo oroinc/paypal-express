@@ -23,9 +23,6 @@ class CompleteVirtualAction implements PaymentActionInterface
      */
     protected $completePaymentActionRegistry;
 
-    /**
-     * @param CompletePaymentActionRegistry $completePaymentActionRegistry
-     */
     public function __construct(CompletePaymentActionRegistry $completePaymentActionRegistry)
     {
         $this->completePaymentActionRegistry = $completePaymentActionRegistry;

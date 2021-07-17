@@ -34,9 +34,6 @@ class PurchaseActionTest extends AbstractPaymentActionTestCase
         $this->assertEquals(['purchaseRedirectUrl' => $expectedUrl], $result);
     }
 
-    /**
-     * @param \Throwable $throwable
-     */
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
     {
         $this->facade->expects($this->once())

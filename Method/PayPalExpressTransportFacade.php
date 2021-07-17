@@ -42,12 +42,6 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
      */
     protected $paymentTransactionDataFactory;
 
-    /**
-     * @param PayPalExpressTransportInterface $payPalTransport
-     * @param PaymentTransactionTranslator    $paymentTransactionTranslator
-     * @param MethodConfigTranslator          $methodConfigTranslator
-     * @param PaymentTransactionDataFactory   $paymentTransactionDataFactory
-     */
     public function __construct(
         PayPalExpressTransportInterface $payPalTransport,
         PaymentTransactionTranslator $paymentTransactionTranslator,
@@ -226,10 +220,6 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         return $paymentInfo;
     }
 
-    /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     */
     protected function updateRequest(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         $requestData = $this->paymentTransactionDataFactory
@@ -238,11 +228,6 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         $paymentTransaction->setRequest($requestData->toArray());
     }
 
-    /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     * @param PaymentInfo|null             $paymentInfo
-     */
     protected function updateResponse(
         PaymentTransaction $paymentTransaction,
         PayPalExpressConfigInterface $config,

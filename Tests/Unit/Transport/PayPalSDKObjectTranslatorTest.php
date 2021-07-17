@@ -51,7 +51,6 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit\Framework\TestCase
         $barQuantity = 1;
         $barPrice = 6;
 
-
         $fooItem = new ItemInfo($fooItemName, $currency, $fooQuantity, $fooPrice);
         $barItem = new ItemInfo($barItemName, $currency, $barQuantity, $barPrice);
 
@@ -114,7 +113,6 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit\Framework\TestCase
         $barItemName = 'bar item';
         $barQuantity = 1;
         $barPrice = 6;
-
 
         $fooItem = new ItemInfo($fooItemName, $currency, $fooQuantity, $fooPrice);
         $barItem = new ItemInfo($barItemName, $currency, $barQuantity, $barPrice);
@@ -312,9 +310,6 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getErrorInfoDataProvider
-     *
-     * @param array     $data
-     * @param ErrorInfo $errorInfo
      */
     public function testGetErrorInfo(array $data, ErrorInfo $errorInfo)
     {

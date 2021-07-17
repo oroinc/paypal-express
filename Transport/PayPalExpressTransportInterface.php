@@ -27,22 +27,16 @@ interface PayPalExpressTransportInterface
     );
 
     /**
-     * @param PaymentInfo     $paymentInfo
-     * @param ApiContextInfo  $apiContextInfo
      * @throws ExceptionInterface
      */
     public function executePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);
 
     /**
-     * @param PaymentInfo    $paymentInfo
-     * @param ApiContextInfo $apiContextInfo
      * @throws ExceptionInterface
      */
     public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);
 
     /**
-     * @param PaymentInfo    $paymentInfo
-     * @param ApiContextInfo $apiContextInfo
      * @throws ExceptionInterface
      */
     public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo);

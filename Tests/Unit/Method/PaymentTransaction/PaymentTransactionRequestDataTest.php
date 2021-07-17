@@ -36,9 +36,6 @@ class PaymentTransactionRequestDataTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider setFromArrayDataProvider
-     *
-     * @param array $data
-     * @param array $expected
      */
     public function testSetFromArray(array $data, array $expected)
     {

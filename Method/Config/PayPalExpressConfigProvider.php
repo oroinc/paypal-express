@@ -32,11 +32,6 @@ class PayPalExpressConfigProvider implements PayPalExpressConfigProviderInterfac
      */
     protected $configs = null;
 
-    /**
-     * @param ManagerRegistry $doctrine
-     * @param LoggerInterface $logger
-     * @param PayPalExpressConfigFactoryInterface $factory
-     */
     public function __construct(
         ManagerRegistry $doctrine,
         LoggerInterface $logger,

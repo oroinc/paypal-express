@@ -21,10 +21,6 @@ class PayPalExpressMethodFactory implements PayPalExpressMethodFactoryInterface
      */
     protected $supportedCurrenciesHelper;
 
-    /**
-     * @param PaymentActionExecutor $payPalActionExecutor
-     * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
-     */
     public function __construct(
         PaymentActionExecutor $payPalActionExecutor,
         SupportedCurrenciesHelper $supportedCurrenciesHelper

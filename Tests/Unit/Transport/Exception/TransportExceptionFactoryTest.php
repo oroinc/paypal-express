@@ -191,7 +191,6 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-
     /**
      * @dataProvider otherPreviousErrorDataProvider
      * @param string $mainMessage

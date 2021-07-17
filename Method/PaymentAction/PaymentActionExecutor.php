@@ -15,9 +15,6 @@ class PaymentActionExecutor
      */
     protected $registry;
 
-    /**
-     * @param PaymentActionRegistry $registry
-     */
     public function __construct(PaymentActionRegistry $registry)
     {
         $this->registry = $registry;

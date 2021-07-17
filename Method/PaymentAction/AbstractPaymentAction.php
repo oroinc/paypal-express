@@ -34,8 +34,6 @@ abstract class AbstractPaymentAction implements PaymentActionInterface
     /**
      * Updates transaction with failed state and handles error.
      *
-     * @param PaymentTransaction $paymentTransaction
-     * @param \Throwable         $exceptionOrError
      * @throws \Throwable
      */
     protected function handlePaymentTransactionError(
@@ -46,9 +44,6 @@ abstract class AbstractPaymentAction implements PaymentActionInterface
         $this->handleError($paymentTransaction, $exceptionOrError);
     }
 
-    /**
-     * @param PaymentTransaction $paymentTransaction
-     */
     protected function setPaymentTransactionStateFailed(PaymentTransaction $paymentTransaction)
     {
         $paymentTransaction
@@ -59,8 +54,6 @@ abstract class AbstractPaymentAction implements PaymentActionInterface
     /**
      * Logs error. Re-throw exception/error again in case if it is not an expected payment exception.
      *
-     * @param PaymentTransaction $paymentTransaction
-     * @param \Throwable         $exceptionOrError
      * @throws \Throwable
      */
     protected function handleError(PaymentTransaction $paymentTransaction, \Throwable $exceptionOrError)

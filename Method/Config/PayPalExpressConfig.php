@@ -81,7 +81,6 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
         $this->isSandbox               = $isSandbox;
     }
 
-
     /**
      * @return string
      */

@@ -62,7 +62,6 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
             ->with($action, $paymentTransaction, $this->config)
             ->willReturn($expectedResult);
 
-
         $actualResult = $this->payPalExpressMethod->execute($action, $paymentTransaction);
         $this->assertEquals($expectedResult, $actualResult);
     }
@@ -78,8 +77,6 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param float $amount
-     * @param bool $expectedIsApplicable
      * @dataProvider isApplicableByAmountDataProvider
      */
     public function testIsApplicableByAmount(float $amount, bool $expectedIsApplicable): void
@@ -99,9 +96,6 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedIsApplicable, $this->payPalExpressMethod->isApplicable($context));
     }
 
-    /**
-     * @return array
-     */
     public function isApplicableByAmountDataProvider(): array
     {
         return [
