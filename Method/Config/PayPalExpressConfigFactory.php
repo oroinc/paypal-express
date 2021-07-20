@@ -29,11 +29,6 @@ class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
      */
     protected $encoder;
 
-    /**
-     * @param IntegrationIdentifierGeneratorInterface $identifierGenerator
-     * @param LocalizationHelper                      $localizationHelper
-     * @param SymmetricCrypterInterface               $encoder
-     */
     public function __construct(
         IntegrationIdentifierGeneratorInterface $identifierGenerator,
         LocalizationHelper $localizationHelper,

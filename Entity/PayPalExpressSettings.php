@@ -48,7 +48,6 @@ class PayPalExpressSettings extends Transport
      */
     protected $sandboxMode = false;
 
-
     /**
      * @var Collection|LocalizedFallbackValue[]
      *

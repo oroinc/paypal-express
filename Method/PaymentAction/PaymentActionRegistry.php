@@ -53,8 +53,6 @@ class PaymentActionRegistry
     }
 
     /**
-     * @param PaymentActionInterface $paymentAction
-     *
      * @throws LogicException
      */
     public function registerAction(PaymentActionInterface $paymentAction)

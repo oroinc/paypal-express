@@ -16,13 +16,11 @@ class ErrorInfo
 
     /**
      * @var string Error status code
-     *
      */
     protected $name;
 
     /**
      * @var string Error details usually user friendly description
-     *
      */
     protected $details;
 

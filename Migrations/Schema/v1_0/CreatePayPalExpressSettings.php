@@ -24,7 +24,6 @@ class CreatePayPalExpressSettings implements Migration
     }
 
     /**
-     * @param Schema $schema
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function updateOroIntegrationTransportTable(Schema $schema)
@@ -39,8 +38,6 @@ class CreatePayPalExpressSettings implements Migration
 
     /**
      * Create oro_pp_express_label table
-     *
-     * @param Schema $schema
      */
     protected function createPpExpressLabelTable(Schema $schema)
     {
@@ -54,8 +51,6 @@ class CreatePayPalExpressSettings implements Migration
 
     /**
      * Create oro_pp_express_short_label table
-     *
-     * @param Schema $schema
      */
     protected function createPpExpressShortLabelTable(Schema $schema)
     {
@@ -70,7 +65,6 @@ class CreatePayPalExpressSettings implements Migration
     /**
      * Add oro_pp_express_label foreign keys.
      *
-     * @param Schema $schema
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function addPpExpressLabelForeignKeys(Schema $schema)
@@ -93,7 +87,6 @@ class CreatePayPalExpressSettings implements Migration
     /**
      * Add oro_pp_express_short_label foreign keys.
      *
-     * @param Schema $schema
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function addPpExpressShortLabelForeignKeys(Schema $schema)

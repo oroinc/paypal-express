@@ -28,11 +28,6 @@ class TaxProvider
      */
     protected $logger;
 
-    /**
-     * @param TaxManager $taxManager
-     * @param LoggerInterface $logger
-     * @param TaxationSettingsProvider $taxationSettingsProvider
-     */
     public function __construct(
         TaxManager $taxManager,
         LoggerInterface $logger,

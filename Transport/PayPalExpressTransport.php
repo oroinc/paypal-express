@@ -43,11 +43,6 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
      */
     protected $exceptionFactory;
 
-    /**
-     * @param PayPalSDKObjectTranslatorInterface $translator
-     * @param PayPalClient                       $payPalClient
-     * @param TransportExceptionFactoryInterface $exceptionFactory
-     */
     public function __construct(
         PayPalSDKObjectTranslatorInterface $translator,
         PayPalClient $payPalClient,
@@ -88,7 +83,6 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
 
         return $payment->getApprovalLink();
     }
-
 
     /**
      * @param string     $message
@@ -220,10 +214,6 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
         return $this->client->authorizeOrder($order, $authorization, $apiContext);
     }
 
-    /**
-     * @param PaymentInfo    $paymentInfo
-     * @param ApiContextInfo $apiContextInfo
-     */
     public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {

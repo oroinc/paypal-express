@@ -187,7 +187,6 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $this->assertIsInt($actualPaymentItems[0]->getQuantity());
     }
 
-
     public function testCanConvertDiscountAmountToPaymentItem()
     {
         $this->currencyFormatter->expects($this->atLeastOnce())

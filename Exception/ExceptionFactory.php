@@ -15,9 +15,6 @@ class ExceptionFactory
      */
     protected $supportedCurrenciesHelper;
 
-    /**
-     * @param SupportedCurrenciesHelper $supportedCurrenciesHelper
-     */
     public function __construct(SupportedCurrenciesHelper $supportedCurrenciesHelper)
     {
         $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
