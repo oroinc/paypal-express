@@ -38,11 +38,6 @@ class PayPalExpressSettingsType extends AbstractType
      */
     protected $translator;
 
-    /**
-     * @param CryptedDataTransformerFactory $cryptedDataTransformerFactory
-     * @param ActionNamesProviderInterface  $actionsProvider
-     * @param TranslatorInterface           $translator
-     */
     public function __construct(
         CryptedDataTransformerFactory $cryptedDataTransformerFactory,
         ActionNamesProviderInterface $actionsProvider,
@@ -54,9 +49,6 @@ class PayPalExpressSettingsType extends AbstractType
     }
 
     /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     *
      * @throws \InvalidArgumentException
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -143,9 +135,6 @@ class PayPalExpressSettingsType extends AbstractType
         return $builder;
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

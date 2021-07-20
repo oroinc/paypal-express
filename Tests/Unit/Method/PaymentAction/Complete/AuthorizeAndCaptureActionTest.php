@@ -25,9 +25,6 @@ class AuthorizeAndCaptureActionTest extends AbstractPaymentActionTestCase
         return PaymentMethodInterface::CAPTURE;
     }
 
-    /**
-     * @param \Throwable $throwable
-     */
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
     {
         $this->facade->expects($this->any())

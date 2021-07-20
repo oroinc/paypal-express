@@ -38,7 +38,6 @@ class PurchaseAction extends AbstractPaymentAction
         }
     }
 
-
     /**
      * {@inheritdoc}
      */

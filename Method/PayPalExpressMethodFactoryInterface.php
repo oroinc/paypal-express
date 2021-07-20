@@ -10,7 +10,6 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
  */
 interface PayPalExpressMethodFactoryInterface
 {
-
     /**
      * @param PayPalExpressConfigInterface $config
      *

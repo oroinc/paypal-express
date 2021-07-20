@@ -181,11 +181,6 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         return $payment;
     }
 
-    /**
-     * @param                 $expectedMessage
-     * @param Context         $expectedContext
-     * @param \Throwable|null $expectedPrevious
-     */
     protected function expectTransportException(
         $expectedMessage,
         Context $expectedContext,

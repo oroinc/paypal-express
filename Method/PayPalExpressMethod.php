@@ -32,11 +32,6 @@ class PayPalExpressMethod implements PaymentMethodInterface
      */
     protected $supportedCurrenciesHelper;
 
-    /**
-     * @param PayPalExpressConfigInterface $config
-     * @param PaymentActionExecutor        $paymentActionExecutor
-     * @param SupportedCurrenciesHelper    $supportedCurrenciesHelper
-     */
     public function __construct(
         PayPalExpressConfigInterface $config,
         PaymentActionExecutor $paymentActionExecutor,

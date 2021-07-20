@@ -18,9 +18,6 @@ class PayPalSDKObjectTranslator extends _PayPalSDKObjectTranslator
      */
     private $cache;
 
-    /**
-     * @param $cache
-     */
     public function __construct($cache)
     {
         $this->cache = $cache;

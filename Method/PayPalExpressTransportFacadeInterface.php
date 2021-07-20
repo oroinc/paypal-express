@@ -21,8 +21,6 @@ interface PayPalExpressTransportFacadeInterface
     public function getPayPalPaymentRoute(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config);
 
     /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $payPalExpressConfig
      * @throws ExceptionInterface
      */
     public function executePayPalPayment(
@@ -31,10 +29,6 @@ interface PayPalExpressTransportFacadeInterface
     );
 
     /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PaymentTransaction           $authorizedTransaction
-     * @param PayPalExpressConfigInterface $config
-     *
      * @throws ExceptionInterface
      */
     public function capturePayment(
@@ -44,9 +38,6 @@ interface PayPalExpressTransportFacadeInterface
     );
 
     /**
-     * @param PaymentTransaction           $paymentTransaction
-     * @param PayPalExpressConfigInterface $config
-     *
      * @throws ExceptionInterface
      */
     public function authorizePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config);
