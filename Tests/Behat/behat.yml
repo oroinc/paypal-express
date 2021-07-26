@@ -16,16 +16,16 @@ oro_behat_extension:
     OroPayPalExpressBundle:
       contexts:
         - Oro\Bundle\TestFrameworkBundle\Tests\Behat\Context\OroMainContext
-        - OroProductBundle::FeatureContext
-        - OroDataGridBundle::GridContext
-        - OroConfigBundle::FeatureContext
-        - OroFormBundle::FormContext
-        - OroApplicationBundle::CommerceMainContext
-        - OroShoppingListBundle::ShoppingListContext
-        - OroCheckoutBundle::FeatureContext
-        - OroPayPalBundle::FeatureContext
-        - OroLocaleBundle::LocalizationContext
-        - OroFrontendLocalizationBundle::LocalizationSwitcherContext
-        - OroWorkflowBundle::FeatureContext
+        - Oro\Bundle\ProductBundle\Tests\Behat\Context\FeatureContext
+        - Oro\Bundle\DataGridBundle\Tests\Behat\Context\GridContext
+        - Oro\Bundle\ConfigBundle\Tests\Behat\Context\FeatureContext
+        - Oro\Bundle\FormBundle\Tests\Behat\Context\FormContext
+        - Oro\Bundle\ApplicationBundle\Tests\Behat\Context\CommerceMainContext
+        - Oro\Bundle\ShoppingListBundle\Tests\Behat\Context\ShoppingListContext
+        - Oro\Bundle\CheckoutBundle\Tests\Behat\Context\FeatureContext
+        - Oro\Bundle\PayPalBundle\Tests\Behat\Context\FeatureContext
+        - Oro\Bundle\LocaleBundle\Tests\Behat\Context\LocalizationContext
+        - Oro\Bundle\FrontendLocalizationBundle\Tests\Behat\Context\LocalizationSwitcherContext
+        - Oro\Bundle\WorkflowBundle\Tests\Behat\Context\FeatureContext
       paths:
         - '@OroPayPalExpressBundle/Tests/Behat/Features'
