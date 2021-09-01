@@ -108,7 +108,7 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePaymentActionRegistry
         arguments:
             - '@oro_paypal_express.exception.factory'
-            - !tagged oro_paypal_express.complete_payment_action
+            - !tagged_iterator oro_paypal_express.complete_payment_action
 
     oro_paypal_express.method.payment_action.complete.virtual:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction
@@ -122,7 +122,7 @@ services:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry
         arguments:
             - '@oro_paypal_express.exception.factory'
-            - !tagged oro_paypal_express.payment_action
+            - !tagged_iterator oro_paypal_express.payment_action
 
     oro_paypal_express.method.payment_action.executor:
         class: Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor
