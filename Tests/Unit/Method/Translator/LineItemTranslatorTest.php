@@ -10,7 +10,7 @@ use Oro\Bundle\PaymentBundle\Model\Surcharge;
 use Oro\Bundle\PayPalBundle\OptionsProvider\OptionsProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\Translator\LineItemTranslator;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
 {
