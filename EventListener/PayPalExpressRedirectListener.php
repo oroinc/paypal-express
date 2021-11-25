@@ -2,11 +2,15 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\EventListener;
 
+use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Event\AbstractCallbackEvent;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
+use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Handles a payment callback event triggered when PayPal redirects a user after an attempt to make a payment.
@@ -17,29 +21,24 @@ class PayPalExpressRedirectListener
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var PaymentMethodProviderInterface
-     */
-    protected $paymentMethodProvider;
+    protected PaymentMethodProviderInterface $paymentMethodProvider;
+    protected PaymentResultMessageProviderInterface $messageProvider;
+    protected Session $session;
 
-    public function __construct(PaymentMethodProviderInterface $paymentMethodProvider)
-    {
+    public function __construct(
+        PaymentMethodProviderInterface $paymentMethodProvider,
+        PaymentResultMessageProviderInterface $messageProvider,
+        Session $session
+    ) {
         $this->paymentMethodProvider = $paymentMethodProvider;
+        $this->messageProvider = $messageProvider;
+        $this->session = $session;
     }
 
     public function onError(AbstractCallbackEvent $event)
     {
         $paymentTransaction = $event->getPaymentTransaction();
-
-        if (!$paymentTransaction) {
-            return;
-        }
-
-        if (!$paymentTransaction->isActive()) {
-            return;
-        }
-
-        if (false === $this->paymentMethodProvider->hasPaymentMethod($paymentTransaction->getPaymentMethod())) {
+        if (!$this->isPaymentTransactionSupport($paymentTransaction)) {
             return;
         }
 
@@ -51,22 +50,12 @@ class PayPalExpressRedirectListener
     public function onReturn(AbstractCallbackEvent $event)
     {
         $paymentTransaction = $event->getPaymentTransaction();
-
-        if (!$paymentTransaction) {
-            return;
-        }
-
-        if (!$paymentTransaction->isActive()) {
-            return;
-        }
-
-        $paymentMethodId = $paymentTransaction->getPaymentMethod();
-
-        if (false === $this->paymentMethodProvider->hasPaymentMethod($paymentMethodId)) {
+        if (!$this->isPaymentTransactionSupport($paymentTransaction)) {
             return;
         }
 
         $eventData = $event->getData();
+        $paymentMethodId = $paymentTransaction->getPaymentMethod();
 
         if (!$paymentTransaction || !isset($eventData['paymentId'], $eventData['PayerID'], $eventData['token']) ||
             $eventData['paymentId'] !== $paymentTransaction->getReference()
@@ -82,14 +71,67 @@ class PayPalExpressRedirectListener
 
         try {
             $paymentMethod = $this->paymentMethodProvider->getPaymentMethod($paymentMethodId);
-            $paymentMethod->execute(CompleteVirtualAction::NAME, $paymentTransaction);
+            $paymentData = $paymentMethod->execute(CompleteVirtualAction::NAME, $paymentTransaction);
+            if ($this->isPaymentComplete($paymentData)) {
+                $event->markSuccessful();
 
-            $event->markSuccessful();
+                return;
+            }
+
+            $this->redirectToFailureUrl($paymentTransaction, $event);
         } catch (\InvalidArgumentException $e) {
             if ($this->logger) {
                 // do not expose sensitive data in context
                 $this->logger->error($e->getMessage(), []);
             }
+        }
+    }
+
+    /**
+     * @param mixed $paymentData
+     *
+     * @return bool
+     */
+    private function isPaymentComplete($paymentData): bool
+    {
+        return is_array($paymentData) && array_key_exists('successful', $paymentData) && $paymentData['successful'];
+    }
+
+    private function isPaymentTransactionSupport(?PaymentTransaction $paymentTransaction): bool
+    {
+        if (!$paymentTransaction) {
+            return false;
+        }
+
+        if (!$paymentTransaction->isActive()) {
+            return false;
+        }
+
+        if (false === $this->paymentMethodProvider->hasPaymentMethod($paymentTransaction->getPaymentMethod())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function redirectToFailureUrl(PaymentTransaction $paymentTransaction, AbstractCallbackEvent $event): void
+    {
+        $event->stopPropagation();
+        $this->setErrorMessage($this->messageProvider->getErrorMessage($paymentTransaction));
+        $transactionOptions = $paymentTransaction->getTransactionOptions();
+        if (!empty($transactionOptions['failureUrl'])) {
+            $event->setResponse(new RedirectResponse($transactionOptions['failureUrl']));
+        } else {
+            $event->markFailed();
+        }
+    }
+
+    protected function setErrorMessage(string $message): void
+    {
+        $flashBag = $this->session->getFlashBag();
+
+        if (!$flashBag->has('error')) {
+            $flashBag->add('error', $message);
         }
     }
 }

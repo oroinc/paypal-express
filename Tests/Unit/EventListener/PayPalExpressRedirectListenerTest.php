@@ -7,18 +7,28 @@ use Oro\Bundle\PaymentBundle\Event\CallbackErrorEvent;
 use Oro\Bundle\PaymentBundle\Event\CallbackReturnEvent;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
+use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
 class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PaymentMethodProviderInterface|MockObject
-     */
+    /** @var PaymentMethodProviderInterface|MockObject  */
     private $paymentMethodProvider;
+
+    /** @var PaymentResultMessageProviderInterface|MockObject */
+    private $messageProvider;
+
+    /** @var Session|MockObject */
+    private $session;
 
     /**
      * @var LoggerInterface
@@ -33,8 +43,14 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->paymentMethodProvider = $this->createMock(PaymentMethodProviderInterface::class);
+        $this->messageProvider = $this->createMock(PaymentResultMessageProviderInterface::class);
+        $this->session = $this->createMock(Session::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->listener = new PayPalExpressRedirectListener($this->paymentMethodProvider);
+        $this->listener = new PayPalExpressRedirectListener(
+            $this->paymentMethodProvider,
+            $this->messageProvider,
+            $this->session
+        );
         $this->listener->setLogger($this->logger);
     }
 
@@ -245,7 +261,8 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
         $paymentMethod = $this->createMock(PaymentMethodInterface::class);
         $paymentMethod->expects($this->once())
             ->method('execute')
-            ->with(CompleteVirtualAction::NAME, $paymentTransaction);
+            ->with(CompleteVirtualAction::NAME, $paymentTransaction)
+            ->willReturn(['successful' => true]);
         $this->paymentMethodProvider->expects($this->once())
             ->method('getPaymentMethod')
             ->with('test')
@@ -259,5 +276,64 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($event->getPaymentTransaction()->isActive());
         $this->assertTrue($event->getPaymentTransaction()->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $event->getResponse()->getStatusCode());
+    }
+
+    public function testOnReturnWithRedirect(): void
+    {
+        $reference = 1;
+        $paymentTransaction = new PaymentTransaction();
+        $paymentTransaction->setActive(true);
+        $paymentTransaction->setSuccessful(true);
+        $paymentTransaction->setPaymentMethod('test');
+        $paymentTransaction->setReference($reference);
+
+        $eventData = [
+            'paymentId' => $reference,
+            'PayerID' => 2,
+            'token' => 3
+        ];
+        $event = new CallbackReturnEvent($eventData);
+        $event->setPaymentTransaction($paymentTransaction);
+
+        $this->paymentMethodProvider->expects($this->once())
+            ->method('hasPaymentMethod')
+            ->with('test')
+            ->willReturn(true);
+
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $paymentMethod->expects($this->once())
+            ->method('execute')
+            ->with(CompleteVirtualAction::NAME, $paymentTransaction)
+            ->willReturn(['successful' => false]);
+        $this->paymentMethodProvider->expects($this->once())
+            ->method('getPaymentMethod')
+            ->with('test')
+            ->willReturn($paymentMethod);
+
+        $this->messageProvider
+            ->expects($this->once())
+            ->method('getErrorMessage')
+            ->willReturn('Test message');
+
+        $flashBag = $this->createMock(FlashBag::class);
+        $flashBag
+            ->expects($this->once())
+            ->method('has')
+            ->willReturn(false);
+        $flashBag
+            ->expects($this->once())
+            ->method('add')
+            ->with('error', 'Test message');
+
+        $this->session
+            ->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBag);
+
+        $this->logger->expects($this->never())
+            ->method($this->anything());
+
+        $this->listener->onReturn($event);
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $event->getResponse()->getStatusCode());
     }
 }

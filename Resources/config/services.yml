@@ -39,11 +39,13 @@ services:
         lazy: true
         arguments:
             - '@oro_paypal_express.method.provider'
+            - '@oro_payment.provider.result_messages'
+            - '@session'
         calls:
             - ['setLogger', ['@logger']]
         tags:
-            - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError }
-            - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn }
+            - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError, priority: 15 }
+            - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn, priority: 15 }
 
     oro_paypal_express.event_listener.callback.check_callback_relevance:
         class: 'Oro\Bundle\PaymentBundle\EventListener\Callback\CheckCallbackRelevanceListener'
