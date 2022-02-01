@@ -2,23 +2,20 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Behat\Mock\Transport;
 
-use Doctrine\Common\Cache\Cache;
 use Oro\Bundle\PayPalBundle\Tests\Behat\Mock\PayPal\Payflow\Client\NVPClientMock;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\ItemInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator as _PayPalSDKObjectTranslator;
+use Psr\Cache\CacheItemPoolInterface;
 
 class PayPalSDKObjectTranslator extends _PayPalSDKObjectTranslator
 {
     private const LINE_ITEM_CACHE_KEY = NVPClientMock::LINE_ITEM_CACHE_KEY;
 
-    /**
-     * @var Cache
-     */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
-    public function __construct($cache)
+    public function __construct(CacheItemPoolInterface $cache)
     {
         $this->cache = $cache;
     }
@@ -35,10 +32,12 @@ class PayPalSDKObjectTranslator extends _PayPalSDKObjectTranslator
             return $value->getName();
         }, $paymentInfo->getItems());
 
-        if ($this->cache->contains(self::LINE_ITEM_CACHE_KEY)) {
-            $filteredLineItems = array_merge($filteredLineItems, $this->cache->fetch(self::LINE_ITEM_CACHE_KEY));
+        $cacheItem = $this->cache->getItem(self::LINE_ITEM_CACHE_KEY);
+        if ($cacheItem->isHit()) {
+            $filteredLineItems = array_merge($filteredLineItems, $cacheItem->get());
         }
-        $this->cache->save(self::LINE_ITEM_CACHE_KEY, $filteredLineItems);
+        $cacheItem->set($filteredLineItems);
+        $this->cache->save($cacheItem);
 
         return parent::getPayment($paymentInfo, $redirectRoutesInfo);
     }
