@@ -1,24 +1,8 @@
 # PayPal Express OroCommerce Integration
 
-This extensions provides an implementation of PayPal Express payment integration that can be used in European countries (please check PayPal website in your country to confirm availability of PayPal Express in your country).
+This extension provides an implementation of PayPal Express payment integration used in European countries (please check PayPal website in your country to confirm availability of PayPal Express in your country).
 
-## Installation
+For more information, please see [online PaypalExpressBundle documentation](https://doc.oroinc.com/bundles/extensions/PaypalExpressBundle/).
 
-This extension can be added to an existing installation of OroCommerce:
+Detailed instructions on how to enable and configure PayPal Express integration in the back-office UI are available in the [OroCommerce documentation](https://doc.oroinc.com/user/back-office/system/integrations/payment-integration/paypal-services/express/).
 
-Use composer to add the package code:
-
-```
-composer require oro/commerce-paypal-express
-```
-
-Perform the installation:
-
-```
-php bin/console oro:platform:update --env=prod
-```
-
-## Documentation
-
-Detailed instructions on how to enable and configure PayPal Express integration are available in the [OroCommerce documentation](https://doc.oroinc.com/user/back-office/system/integrations/payment-integration/paypal-services/express/).
-Documentation for developers is located in [this bundle's resources folder](./Resources/doc/index.md).
