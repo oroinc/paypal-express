@@ -1,3 +1,4 @@
+@container-incompatible
 @ticket-BB-14983
 @fixture-OroFlatRateShippingBundle:FlatRateIntegration.yml
 @fixture-OroPayPalExpressBundle:ProductsAndShoppingListsFixture.yml
