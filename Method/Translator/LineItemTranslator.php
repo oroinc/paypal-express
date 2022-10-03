@@ -89,7 +89,6 @@ class LineItemTranslator
      * Workaround to skip line items which is not actually line items. For example tax line item should be skipped
      * since it is added to PayPal's payment info directly.
      *
-     * @see \Oro\Bundle\TaxBundle\EventListener\ExtractLineItemPaymentOptionsListener::onExtractLineItemPaymentOptions
      * @see \Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator::getPaymentInfo
      *
      * @param LineItemOptionModel $lineItem
