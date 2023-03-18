@@ -11,10 +11,7 @@ use Oro\Bundle\TestFrameworkBundle\Test\WebTestCase;
  */
 class PayPalExpressConfigProviderTest extends WebTestCase
 {
-    /**
-     * @var PayPalExpressConfigProvider
-     */
-    protected $payPalExpressConfigProvider;
+    private PayPalExpressConfigProvider $payPalExpressConfigProvider;
 
     protected function setUp(): void
     {

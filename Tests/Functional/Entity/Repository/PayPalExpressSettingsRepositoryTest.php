@@ -12,8 +12,7 @@ use Oro\Bundle\TestFrameworkBundle\Test\WebTestCase;
  */
 class PayPalExpressSettingsRepositoryTest extends WebTestCase
 {
-    /** @var PayPalExpressSettingsRepository */
-    protected $repository;
+    private PayPalExpressSettingsRepository $repository;
 
     protected function setUp(): void
     {

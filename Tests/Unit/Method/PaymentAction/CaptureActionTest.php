@@ -11,18 +11,21 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 class CaptureActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @return PaymentActionInterface
+     * {@inheritDoc}
      */
-    protected function createPaymentAction()
+    protected function createPaymentAction(): PaymentActionInterface
     {
         return new CaptureAction($this->facade, $this->logger);
     }
 
-    protected function createPaymentTransaction()
+    /**
+     * {@inheritDoc}
+     */
+    protected function createPaymentTransaction(): PaymentTransaction
     {
         $transaction = new PaymentTransaction();
-        $sourceTransaction = new PaymentTransaction();
-        $transaction->setSourcePaymentTransaction($sourceTransaction);
+        $transaction->setSourcePaymentTransaction(new PaymentTransaction());
+
         return $transaction;
     }
 
@@ -63,25 +66,28 @@ class CaptureActionTest extends AbstractPaymentActionTestCase
         );
     }
 
-    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
+    /**
+     * {@inheritDoc}
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->any())
             ->method('capturePayment')
-            ->will($this->throwException($throwable));
+            ->willThrowException($throwable);
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    protected function getExpectedPaymentTransactionAction()
+    protected function getExpectedPaymentTransactionAction(): string
     {
         return PaymentMethodInterface::CAPTURE;
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception)
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return ['successful' => false, 'message' => $exception->getMessage()];
     }

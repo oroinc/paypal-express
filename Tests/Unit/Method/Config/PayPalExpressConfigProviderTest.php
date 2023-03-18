@@ -16,32 +16,22 @@ use Psr\Log\LoggerInterface;
 
 class PayPalExpressConfigProviderTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PayPalExpressConfigProvider
-     */
-    protected $configProvider;
+    /** @var PayPalExpressConfigProvider */
+    private $configProvider;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ManagerRegistry
-     */
-    protected $doctrine;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|ManagerRegistry */
+    private $doctrine;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
-    protected $logger;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface */
+    private $logger;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigFactoryInterface
-     */
-    protected $factory;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigFactoryInterface */
+    private $factory;
 
     protected function setUp(): void
     {
         $this->doctrine = $this->createMock(ManagerRegistry::class);
-
         $this->logger = $this->createMock(LoggerInterface::class);
-
         $this->factory = $this->createMock(PayPalExpressConfigFactoryInterface::class);
 
         $this->configProvider = new PayPalExpressConfigProvider($this->doctrine, $this->logger, $this->factory);
@@ -155,18 +145,14 @@ class PayPalExpressConfigProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals([], $actualConfigs);
     }
 
-    /**
-     * @param string  $name
-     * @param string  $clientId
-     * @param string  $clientSecret
-     * @param string  $labels
-     * @param string  $shortLabels
-     * @param bool    $isSandbox
-     *
-     * @return PayPalExpressSettings
-     */
-    protected function getSetting($name, $clientId, $clientSecret, $labels, $shortLabels, $isSandbox)
-    {
+    private function getSetting(
+        string $name,
+        string $clientId,
+        string $clientSecret,
+        string $labels,
+        string $shortLabels,
+        bool $isSandbox
+    ): PayPalExpressSettings {
         $setting = new PayPalExpressSettings();
         $setting->setClientId($clientId);
         $setting->setClientSecret($clientSecret);

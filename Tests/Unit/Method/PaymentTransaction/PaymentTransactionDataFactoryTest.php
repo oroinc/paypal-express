@@ -13,10 +13,7 @@ use Oro\Bundle\PayPalExpressBundle\Transport\DTO\PaymentInfo;
 
 class PaymentTransactionDataFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PaymentTransactionDataFactory
-     */
-    protected $factory;
+    private PaymentTransactionDataFactory $factory;
 
     protected function setUp(): void
     {

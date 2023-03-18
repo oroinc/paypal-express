@@ -15,32 +15,22 @@ use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 
 class PayPalExpressConfigFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PayPalExpressConfigFactory
-     */
-    protected $factory;
+    /** @var PayPalExpressConfigFactory */
+    private $factory;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|IntegrationIdentifierGeneratorInterface
-     */
-    protected $identifierGenerator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|IntegrationIdentifierGeneratorInterface */
+    private $identifierGenerator;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LocalizationHelper
-     */
-    protected $localizationHelper;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|LocalizationHelper */
+    private $localizationHelper;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SymmetricCrypterInterface
-     */
-    protected $encoder;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|SymmetricCrypterInterface */
+    private $encoder;
 
     protected function setUp(): void
     {
         $this->identifierGenerator = $this->createMock(IntegrationIdentifierGeneratorInterface::class);
-
         $this->localizationHelper = $this->createMock(LocalizationHelper::class);
-
         $this->encoder = $this->createMock(SymmetricCrypterInterface::class);
 
         $this->factory = new PayPalExpressConfigFactory(
@@ -103,26 +93,15 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedConfig, $actualConfig);
     }
 
-    /**
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param string $label
-     * @param string $shortLabel
-     * @param string $paymentAction
-     * @param bool $isSandbox
-     * @param Channel $channel
-     *
-     * @return PayPalExpressSettings
-     */
-    protected function getSetting(
-        $clientId,
-        $clientSecret,
-        $label,
-        $shortLabel,
-        $paymentAction,
-        $isSandbox,
+    private function getSetting(
+        string $clientId,
+        string $clientSecret,
+        string $label,
+        string $shortLabel,
+        string $paymentAction,
+        bool $isSandbox,
         Channel $channel
-    ) {
+    ): PayPalExpressSettings {
         $setting = new PayPalExpressSettings();
         $setting->setClientId($clientId);
         $setting->setClientSecret($clientSecret);

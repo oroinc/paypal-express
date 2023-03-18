@@ -4,20 +4,12 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
-use PayPal\Api\Authorization;
 use PayPal\Api\Capture;
 
 class CapturePaymentMethodTest extends AbstractTransportTestCase
 {
-    /**
-     * @var string
-     */
-    protected $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-
-    /**
-     * @var string
-     */
-    protected $expectedOrderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+    private string $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+    private string $expectedOrderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
     protected function setUp(): void
     {
@@ -60,8 +52,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Cannot capture payment. Order Id is required.',
-            (new Context())->setPaymentInfo($this->paymentInfo),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)
         );
 
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
@@ -154,41 +145,18 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Unexpected payment state after capture.',
-            (new Context())->setPaymentInfo($this->paymentInfo)->setCapture($responseCapture),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)->setCapture($responseCapture)
         );
 
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    /**
-     * @param string|null $state
-     * @param string|null $parentPayment
-     * @return Capture
-     */
-    protected function createCapture($state = null, $parentPayment = null)
+    private function createCapture(string $state = null, string $parentPayment = null): Capture
     {
         $capture = new Capture();
         $capture->setState($state);
         $capture->setParentPayment($parentPayment);
 
         return $capture;
-    }
-
-    /**
-     * @param string|null $state
-     * @param string|null $reason
-     * @param string|null $validUntil
-     *
-     * @return Authorization
-     */
-    protected function createAuthorization($state = null, $reason = null, $validUntil = null)
-    {
-        $authorization = new Authorization();
-        $authorization->setState($state);
-        $authorization->setReasonCode($reason);
-        $authorization->setValidUntil($validUntil);
-
-        return $authorization;
     }
 }

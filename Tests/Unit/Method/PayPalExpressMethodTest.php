@@ -9,42 +9,28 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionExecutor;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressMethod;
 use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
-use Psr\Log\LoggerInterface;
 
 class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PayPalExpressMethod
-     */
-    protected $payPalExpressMethod;
+    /** @var PayPalExpressMethod */
+    private $payPalExpressMethod;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigInterface
-     */
-    protected $config;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigInterface */
+    private $config;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PaymentActionExecutor
-     */
-    protected $actionExecutor;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PaymentActionExecutor */
+    private $actionExecutor;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SupportedCurrenciesHelper
-     */
-    protected $supportedCurrenciesHelper;
-
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
-    protected $logger;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|SupportedCurrenciesHelper */
+    private $supportedCurrenciesHelper;
 
     protected function setUp(): void
     {
-        $this->config                    = $this->createMock(PayPalExpressConfigInterface::class);
-        $this->actionExecutor            = $this->createMock(PaymentActionExecutor::class);
+        $this->config = $this->createMock(PayPalExpressConfigInterface::class);
+        $this->actionExecutor = $this->createMock(PaymentActionExecutor::class);
         $this->supportedCurrenciesHelper = $this->createMock(SupportedCurrenciesHelper::class);
-        $this->logger                    = $this->createMock(LoggerInterface::class);
-        $this->payPalExpressMethod       = new PayPalExpressMethod(
+
+        $this->payPalExpressMethod = new PayPalExpressMethod(
             $this->config,
             $this->actionExecutor,
             $this->supportedCurrenciesHelper
@@ -70,8 +56,15 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
     {
         $supportedCurrency = 'UAH';
 
-        $context = $this->createPaymentContext($supportedCurrency);
-        $this->expectCurrencyIsSupported($supportedCurrency, false);
+        $context = $this->createMock(PaymentContextInterface::class);
+        $context->expects($this->once())
+            ->method('getCurrency')
+            ->willReturn($supportedCurrency);
+
+        $this->supportedCurrenciesHelper->expects($this->once())
+            ->method('isSupportedCurrency')
+            ->with($supportedCurrency)
+            ->willReturn(false);
 
         $this->assertFalse($this->payPalExpressMethod->isApplicable($context));
     }
@@ -83,15 +76,18 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
     {
         $supportedCurrency = 'USD';
 
-        /** @var PaymentContext|\PHPUnit\Framework\MockObject\MockObject $context */
         $context = $this->createMock(PaymentContext::class);
         $context->expects($this->once())
             ->method('getCurrency')
             ->willReturn($supportedCurrency);
-        $this->expectCurrencyIsSupported($supportedCurrency, true);
         $context->expects($this->once())
             ->method('getTotal')
             ->willReturn($amount);
+
+        $this->supportedCurrenciesHelper->expects($this->once())
+            ->method('isSupportedCurrency')
+            ->with($supportedCurrency)
+            ->willReturn(true);
 
         $this->assertEquals($expectedIsApplicable, $this->payPalExpressMethod->isApplicable($context));
     }
@@ -108,30 +104,5 @@ class PayPalExpressMethodTest extends \PHPUnit\Framework\TestCase
                 'expectedIsApplicable' => true
             ]
         ];
-    }
-
-    /**
-     * @param string $currency
-     * @return \PHPUnit\Framework\MockObject\MockObject|PaymentContextInterface
-     */
-    protected function createPaymentContext($currency)
-    {
-        $context = $this->createMock(PaymentContextInterface::class);
-        $context->expects($this->once())
-            ->method('getCurrency')
-            ->willReturn($currency);
-        return $context;
-    }
-
-    /**
-     * @param string $currency
-     * @param bool $isSupported
-     */
-    protected function expectCurrencyIsSupported($currency, $isSupported)
-    {
-        $this->supportedCurrenciesHelper->expects($this->once())
-            ->method('isSupportedCurrency')
-            ->with($currency)
-            ->willReturn($isSupported);
     }
 }

@@ -21,36 +21,26 @@ use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransportInterface;
 
 class PayPalExpressTransportFacadeTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PayPalExpressTransportFacade
-     */
-    protected $facade;
+    /** @var PayPalExpressTransportFacade */
+    private $facade;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressTransportInterface
-     */
-    protected $payPalExpressTransport;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressTransportInterface */
+    private $payPalExpressTransport;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PaymentTransactionTranslator
-     */
-    protected $paymentTransactionTranslator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PaymentTransactionTranslator */
+    private $paymentTransactionTranslator;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|MethodConfigTranslator
-     */
-    protected $methodConfigTranslator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|MethodConfigTranslator */
+    private $methodConfigTranslator;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PaymentTransactionDataFactory
-     */
-    protected $paymentTransactionDataFactory;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PaymentTransactionDataFactory */
+    private $paymentTransactionDataFactory;
 
     protected function setUp(): void
     {
-        $this->payPalExpressTransport        = $this->createMock(PayPalExpressTransportInterface::class);
-        $this->paymentTransactionTranslator  = $this->createMock(PaymentTransactionTranslator::class);
-        $this->methodConfigTranslator        = $this->createMock(MethodConfigTranslator::class);
+        $this->payPalExpressTransport = $this->createMock(PayPalExpressTransportInterface::class);
+        $this->paymentTransactionTranslator = $this->createMock(PaymentTransactionTranslator::class);
+        $this->methodConfigTranslator = $this->createMock(MethodConfigTranslator::class);
         $this->paymentTransactionDataFactory = $this->createMock(PaymentTransactionDataFactory::class);
 
         $this->facade = new PayPalExpressTransportFacade(
@@ -441,29 +431,17 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedResponseData, $paymentTransaction->getResponse());
     }
 
-    /**
-     * @param array $data
-     *
-     * @return PaymentTransactionRequestData
-     */
-    protected function createPaymentTransactionRequestFromData(array $data)
+    private function createPaymentTransactionRequestFromData(array $data): PaymentTransactionRequestData
     {
         $response = new PaymentTransactionRequestData();
-
         $response->setFromArray($data);
 
         return $response;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return PaymentTransactionResponseData
-     */
-    protected function createPaymentTransactionResponseFromData(array $data)
+    private function createPaymentTransactionResponseFromData(array $data): PaymentTransactionResponseData
     {
         $response = new PaymentTransactionResponseData();
-
         $response->setFromArray($data);
 
         return $response;

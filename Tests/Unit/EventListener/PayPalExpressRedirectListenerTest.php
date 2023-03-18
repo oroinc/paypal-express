@@ -10,7 +10,6 @@ use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
 use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
-use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
@@ -21,23 +20,19 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var PaymentMethodProviderInterface|MockObject  */
+    /** @var PaymentMethodProviderInterface|\PHPUnit\Framework\MockObject\MockObject  */
     private $paymentMethodProvider;
 
-    /** @var PaymentResultMessageProviderInterface|MockObject */
+    /** @var PaymentResultMessageProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $messageProvider;
 
-    /** @var Session|MockObject */
+    /** @var Session|\PHPUnit\Framework\MockObject\MockObject */
     private $session;
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $logger;
 
-    /**
-     * @var PayPalExpressRedirectListener
-     */
+    /** @var PayPalExpressRedirectListener */
     private $listener;
 
     protected function setUp(): void
@@ -46,6 +41,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
         $this->messageProvider = $this->createMock(PaymentResultMessageProviderInterface::class);
         $this->session = $this->createMock(Session::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+
         $this->listener = new PayPalExpressRedirectListener(
             $this->paymentMethodProvider,
             $this->messageProvider,

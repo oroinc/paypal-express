@@ -24,60 +24,38 @@ use Symfony\Component\Routing\RouterInterface;
 
 class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PaymentTransactionTranslator
-     */
-    protected $translator;
+    /** @var PaymentTransactionTranslator */
+    private $translator;
 
-    /**
-     * @var SupportedCurrenciesHelper
-     */
-    protected $supportedCurrenciesHelper;
+    /** @var SupportedCurrenciesHelper */
+    private $supportedCurrenciesHelper;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LineItemTranslator
-     */
-    protected $lineItemTranslator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|LineItemTranslator */
+    private $lineItemTranslator;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|DoctrineHelper
-     */
-    protected $doctrineHelper;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|DoctrineHelper */
+    private $doctrineHelper;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|TaxProvider
-     */
-    protected $taxProvider;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|TaxProvider */
+    private $taxProvider;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SurchargeProvider
-     */
-    protected $surchargeProvider;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|SurchargeProvider */
+    private $surchargeProvider;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|RouterInterface
-     */
-    protected $router;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|RouterInterface */
+    private $router;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory
-     */
-    protected $exceptionFactory;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
+    private $exceptionFactory;
 
     protected function setUp(): void
     {
         $this->supportedCurrenciesHelper = new SupportedCurrenciesHelper();
-
         $this->lineItemTranslator = $this->createMock(LineItemTranslator::class);
-
         $this->doctrineHelper = $this->createMock(DoctrineHelper::class);
-
         $this->taxProvider = $this->createMock(TaxProvider::class);
-
         $this->surchargeProvider = $this->createMock(SurchargeProvider::class);
-
         $this->router = $this->createMock(RouterInterface::class);
-
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
 
         $this->lineItemTranslator->expects($this->any())
@@ -118,8 +96,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $expectedPaymentItemsInfo = [
-            $this->getPaymentItemInfo('foo item', $currency, 2, 6),
-            $this->getPaymentItemInfo('foo item', $currency, 1, 6),
+            new ItemInfo('foo item', $currency, 2, 6),
+            new ItemInfo('foo item', $currency, 1, 6),
         ];
         $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
 
@@ -160,11 +138,11 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $paymentItemsInfo = [
-            $this->getPaymentItemInfo('foo item', $currency, 13, 1.13),
-            $this->getPaymentItemInfo('foo item', $currency, 3, 19.54),
+            new ItemInfo('foo item', $currency, 13, 1.13),
+            new ItemInfo('foo item', $currency, 3, 19.54),
         ];
         $this->setupLineItemTranslatorMock($paymentEntity, $paymentItemsInfo);
-        $totalInfo = $this->getPaymentItemInfo('total', $currency, 1, $subtotal);
+        $totalInfo = new ItemInfo('total', $currency, 1, $subtotal);
         $this->lineItemTranslator->expects($this->once())
             ->method('createTotalLineItem')
             ->with($currency, $subtotal)
@@ -207,8 +185,8 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $expectedPaymentItemsInfo = [
-            $this->getPaymentItemInfo('foo item', $currency, 13, 1.13),
-            $this->getPaymentItemInfo('foo item', $currency, 3, 19.54),
+            new ItemInfo('foo item', $currency, 13, 1.13),
+            new ItemInfo('foo item', $currency, 3, 19.54),
         ];
         $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
 
@@ -250,9 +228,9 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
         $expectedPaymentItemsInfo = [
-            $this->getPaymentItemInfo('foo item', $currency, 2, 6),
-            $this->getPaymentItemInfo('foo item', $currency, 1, 6),
-            $this->getPaymentItemInfo('discount', $currency, 1, -1),
+            new ItemInfo('foo item', $currency, 2, 6),
+            new ItemInfo('foo item', $currency, 1, 6),
+            new ItemInfo('discount', $currency, 1, -1),
         ];
         $this->setupLineItemTranslatorMock($paymentEntity, $expectedPaymentItemsInfo);
 
@@ -311,7 +289,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
 
         $paymentTransaction = $this->getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId);
 
-        $totalInfo = $this->getPaymentItemInfo('total', $currency, 1, $subtotal);
+        $totalInfo = new ItemInfo('total', $currency, 1, $subtotal);
         $this->lineItemTranslator->expects($this->once())
             ->method('createTotalLineItem')
             ->with($currency, $subtotal)
@@ -441,21 +419,18 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $this->translator->getPaymentInfo($paymentTransaction);
     }
 
-    /**
-     * @param object $paymentEntity
-     * @param float  $surchargeDiscount
-     * @param float  $surchargeShipping
-     */
-    protected function setupSurchargeMock($paymentEntity, $surchargeDiscount = 0.0, $surchargeShipping = 0.0)
-    {
-        $surcharges = $this->getSurcharge($surchargeDiscount, $surchargeShipping);
+    private function setupSurchargeMock(
+        object $paymentEntity,
+        float $surchargeDiscount = 0.0,
+        float $surchargeShipping = 0.0
+    ): void {
         $this->surchargeProvider->expects($this->any())
             ->method('getSurcharges')
             ->with($paymentEntity)
-            ->willReturn($surcharges);
+            ->willReturn($this->getSurcharge($surchargeDiscount, $surchargeShipping));
     }
 
-    protected function setupTaxMock($paymentEntity, $tax)
+    private function setupTaxMock(object $paymentEntity, float $tax): void
     {
         $this->taxProvider->expects($this->any())
             ->method('getTax')
@@ -463,7 +438,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
             ->willReturn($tax);
     }
 
-    protected function setupDoctrineHelperMock($class, $id, $entity)
+    private function setupDoctrineHelperMock(string $class, int $id, object $entity): void
     {
         $this->doctrineHelper->expects($this->any())
             ->method('getEntity')
@@ -471,11 +446,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
             ->willReturn($entity);
     }
 
-    /**
-     * @param object $paymentEntity
-     * @param array  $paymentItems
-     */
-    protected function setupLineItemTranslatorMock($paymentEntity, array $paymentItems)
+    private function setupLineItemTranslatorMock(object $paymentEntity, array $paymentItems): void
     {
         $this->lineItemTranslator->expects($this->once())
             ->method('getPaymentItems')
@@ -491,26 +462,24 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
 
         $this->router->expects($this->exactly(2))
             ->method('generate')
-            ->willReturnMap(
+            ->willReturnMap([
                 [
+                    'oro_payment_callback_return',
                     [
-                        'oro_payment_callback_return',
-                        [
-                            'accessIdentifier' => $accessIdentifier,
-                        ],
-                        UrlGeneratorInterface::ABSOLUTE_URL,
-                        $expectedSuccessRoute
+                        'accessIdentifier' => $accessIdentifier,
                     ],
+                    UrlGeneratorInterface::ABSOLUTE_URL,
+                    $expectedSuccessRoute
+                ],
+                [
+                    'oro_payment_callback_error',
                     [
-                        'oro_payment_callback_error',
-                        [
-                            'accessIdentifier' => $accessIdentifier,
-                        ],
-                        UrlGeneratorInterface::ABSOLUTE_URL,
-                        $expectedFailedRoute
-                    ]
+                        'accessIdentifier' => $accessIdentifier,
+                    ],
+                    UrlGeneratorInterface::ABSOLUTE_URL,
+                    $expectedFailedRoute
                 ]
-            );
+            ]);
 
         $paymentTransaction = new PaymentTransaction();
         $paymentTransaction->setAccessIdentifier($accessIdentifier);
@@ -522,31 +491,16 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($actualRoutes->getFailedRoute(), $expectedFailedRoute);
     }
 
-    /**
-     * @param float $discount
-     * @param float $shipping
-     *
-     * @return Surcharge
-     */
-    protected function getSurcharge($discount, $shipping)
+    private function getSurcharge(float $discount, float $shipping): Surcharge
     {
         $surcharge = new Surcharge();
-
         $surcharge->setDiscountAmount($discount);
         $surcharge->setShippingAmount($shipping);
 
         return $surcharge;
     }
 
-    /**
-     * @param string $currency
-     * @param float  $shipping
-     * @param float  $subtotal
-     * @param string $identifier
-     *
-     * @return Order
-     */
-    protected function getOrder($currency, $shipping, $subtotal, $identifier)
+    private function getOrder(string $currency, float $shipping, float $subtotal, string $identifier): Order
     {
         $order = new Order();
         $order->setEstimatedShippingCostAmount($shipping);
@@ -557,16 +511,12 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         return $order;
     }
 
-    /**
-     * @param string $currency
-     * @param float  $totalAmount
-     * @param object $paymentEntity
-     * @param int    $paymentEntityId
-     *
-     * @return PaymentTransaction
-     */
-    protected function getPaymentTransaction($currency, $totalAmount, $paymentEntity, $paymentEntityId)
-    {
+    private function getPaymentTransaction(
+        string $currency,
+        float $totalAmount,
+        object $paymentEntity,
+        int $paymentEntityId
+    ): PaymentTransaction {
         $paymentTransaction = new PaymentTransaction();
         $paymentTransaction->setCurrency($currency);
         $paymentTransaction->setAmount($totalAmount);
@@ -574,24 +524,5 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
         $paymentTransaction->setEntityIdentifier($paymentEntityId);
 
         return $paymentTransaction;
-    }
-
-    /**
-     * @param string $name
-     * @param string $currency
-     * @param int    $quantity
-     * @param float  $amount
-     * @return ItemInfo
-     */
-    protected function getPaymentItemInfo($name, $currency, $quantity, $amount)
-    {
-        $itemInfo = new ItemInfo(
-            $name,
-            $currency,
-            $quantity,
-            $amount
-        );
-
-        return $itemInfo;
     }
 }

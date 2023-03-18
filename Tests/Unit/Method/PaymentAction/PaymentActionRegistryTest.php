@@ -7,63 +7,44 @@ use Oro\Bundle\PayPalExpressBundle\Exception\LogicException;
 use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
-use Psr\Log\LoggerInterface;
 
 class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PaymentActionRegistry
-     */
-    protected $registry;
+    /** @var PaymentActionRegistry */
+    private $registry;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PaymentActionInterface
-     */
-    protected $paymentAction;
-
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory
-     */
-    protected $exceptionFactory;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
+    private $exceptionFactory;
 
     protected function setUp(): void
     {
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->registry = new PaymentActionRegistry($this->exceptionFactory, []);
     }
 
-    public function testRegisterAction()
-    {
-        $this->paymentAction = $this->createMockAction();
-        $this->registry->registerAction($this->paymentAction);
-
-        $actualPaymentAction = $this->registry->getPaymentAction($this->paymentAction->getName());
-        $this->assertSame($this->paymentAction, $actualPaymentAction);
-    }
-
-    /**
-     * @param string $actionName
-     * @return \PHPUnit\Framework\MockObject\MockObject
-     */
-    protected function createMockAction($actionName = 'test')
+    private function createPaymentAction(string $actionName = 'test'): PaymentActionInterface
     {
         $result = $this->createMock(PaymentActionInterface::class);
         $result->expects($this->any())
             ->method('getName')
             ->willReturn($actionName);
+
         return $result;
+    }
+
+    public function testRegisterAction()
+    {
+        $paymentAction = $this->createPaymentAction();
+        $this->registry->registerAction($paymentAction);
+
+        $actualPaymentAction = $this->registry->getPaymentAction($paymentAction->getName());
+        $this->assertSame($paymentAction, $actualPaymentAction);
     }
 
     public function testRegisterActionShouldNotAllowRegisterTwoActionsWithTheSameName()
     {
-        $this->paymentAction = $this->createMockAction();
+        $paymentAction = $this->createPaymentAction();
 
         $exceptionMessage = 'Payment Action with the same name is already registered';
         $this->exceptionFactory->expects($this->once())
@@ -74,16 +55,16 @@ class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->registry->registerAction($this->paymentAction);
-        $this->registry->registerAction($this->paymentAction);
+        $this->registry->registerAction($paymentAction);
+        $this->registry->registerAction($paymentAction);
     }
 
     public function testIsActionSupported()
     {
-        $this->paymentAction = $this->createMockAction();
-        $this->registry->registerAction($this->paymentAction);
+        $paymentAction = $this->createPaymentAction();
+        $this->registry->registerAction($paymentAction);
 
-        $this->assertTrue($this->registry->isActionSupported($this->paymentAction->getName()));
+        $this->assertTrue($this->registry->isActionSupported($paymentAction->getName()));
         $this->assertFalse($this->registry->isActionSupported('unsupported action'));
     }
 
@@ -100,22 +81,22 @@ class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
 
     public function testRegisterActions()
     {
-        $this->paymentAction = $this->createMockAction();
-        $secondPaymentAction = $this->createMockAction('test2');
+        $paymentAction = $this->createPaymentAction();
+        $secondPaymentAction = $this->createPaymentAction('test2');
         $registry = new PaymentActionRegistry(
             $this->exceptionFactory,
-            [$this->paymentAction, $secondPaymentAction]
+            [$paymentAction, $secondPaymentAction]
         );
 
-        $actualPaymentAction = $registry->getPaymentAction($this->paymentAction->getName());
-        $this->assertSame($this->paymentAction, $actualPaymentAction);
+        $actualPaymentAction = $registry->getPaymentAction($paymentAction->getName());
+        $this->assertSame($paymentAction, $actualPaymentAction);
         $secondActualPaymentAction = $registry->getPaymentAction($secondPaymentAction->getName());
         $this->assertSame($secondPaymentAction, $secondActualPaymentAction);
     }
 
     public function testRegisterActionsShouldNotAllowRegisterTwoActionsWithTheSameName()
     {
-        $this->paymentAction = $this->createMockAction();
+        $paymentAction = $this->createPaymentAction();
 
         $exceptionMessage = 'Payment Action with the same name is already registered';
         $this->exceptionFactory->expects($this->once())
@@ -126,7 +107,7 @@ class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->registry->registerActions([$this->paymentAction]);
-        $this->registry->registerActions([$this->paymentAction]);
+        $this->registry->registerActions([$paymentAction]);
+        $this->registry->registerActions([$paymentAction]);
     }
 }

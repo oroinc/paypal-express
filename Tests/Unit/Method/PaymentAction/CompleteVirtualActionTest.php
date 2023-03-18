@@ -10,15 +10,11 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 
 class CompleteVirtualActionTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var CompleteVirtualAction
-     */
-    protected $action;
+    /** @var CompleteVirtualAction */
+    private $action;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|CompletePaymentActionRegistry
-     */
-    protected $completePaymentActionRegistry;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|CompletePaymentActionRegistry */
+    private $completePaymentActionRegistry;
 
     protected function setUp(): void
     {

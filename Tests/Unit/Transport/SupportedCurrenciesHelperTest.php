@@ -6,10 +6,7 @@ use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class SupportedCurrenciesHelperTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var SupportedCurrenciesHelper
-     */
-    protected $helper;
+    private SupportedCurrenciesHelper $helper;
 
     protected function setUp(): void
     {

@@ -10,11 +10,11 @@ class PaymentTransactionRequestDataTest extends \PHPUnit\Framework\TestCase
 {
     public function testToArray()
     {
-        $expectedPaymentId    = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedCurrency     = 'USD';
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedCurrency = 'USD';
         $expectedActionConfig = AuthorizeAndCaptureAction::NAME;
-        $expectedAction       = PaymentMethodInterface::CAPTURE;
-        $expectedTotalAmount  = 22.34;
+        $expectedAction = PaymentMethodInterface::CAPTURE;
+        $expectedTotalAmount = 22.34;
         $expectedArray = [
             PaymentTransactionRequestData::PAYMENT_ID_FIELD_KEY            => $expectedPaymentId,
             PaymentTransactionRequestData::CURRENCY_FIELD_KEY              => $expectedCurrency,
@@ -49,16 +49,14 @@ class PaymentTransactionRequestDataTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     *
-     * @return array
      */
-    public function setFromArrayDataProvider()
+    public function setFromArrayDataProvider(): array
     {
-        $expectedPaymentId    = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedCurrency     = 'USD';
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedCurrency = 'USD';
         $expectedActionConfig = AuthorizeAndCaptureAction::NAME;
-        $expectedAction       = PaymentMethodInterface::CAPTURE;
-        $expectedTotalAmount  = 22.34;
+        $expectedAction = PaymentMethodInterface::CAPTURE;
+        $expectedTotalAmount = 22.34;
 
         return [
             'set from array should set all fields to object' => [

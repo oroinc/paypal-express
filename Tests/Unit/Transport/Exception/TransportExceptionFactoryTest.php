@@ -11,15 +11,11 @@ use PayPal\Exception\PayPalConnectionException;
 
 class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var TransportExceptionFactory
-     */
-    protected $factory;
+    /** @var TransportExceptionFactory */
+    private $factory;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalSDKObjectTranslatorInterface
-     */
-    protected $translator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalSDKObjectTranslatorInterface */
+    private $translator;
 
     protected function setUp(): void
     {
@@ -29,17 +25,13 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider connectionExceptionDataProvider
-     * @param string $errorInfoMessage
-     * @param string $errorInfoErrorCode
-     * @param string $errorInfoLink
-     * @param string $expectedMessage
      */
     public function testCanCreateTransportExceptionFromConnectionPreviousException(
-        $mainMessage,
-        $errorInfoMessage,
-        $errorInfoErrorCode,
-        $errorInfoLink,
-        $expectedMessage
+        ?string $mainMessage,
+        ?string $errorInfoMessage,
+        ?string $errorInfoErrorCode,
+        ?string $errorInfoLink,
+        string $expectedMessage
     ) {
         $payPalConnectionException = new PayPalConnectionException('', '');
         $errorInfo = $this->createErrorInfo(
@@ -64,10 +56,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($payPalConnectionException, $actualException->getPrevious());
     }
 
-    /**
-     * @return array
-     */
-    public function connectionExceptionDataProvider()
+    public function connectionExceptionDataProvider(): array
     {
         $mainMessage = 'Cannot process payment.';
         $reason = 'Order is already voided, expired, or completed.';
@@ -128,13 +117,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @param string $message
-     * @param string $statusCode
-     * @param string $infoLink
-     * @return ErrorInfo
-     */
-    protected function createErrorInfo($message, $statusCode, $infoLink)
+    private function createErrorInfo(?string $message, ?string $statusCode, ?string $infoLink): ErrorInfo
     {
         return new ErrorInfo(
             $message,
@@ -147,14 +130,11 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider otherPreviousExceptionDataProvider
-     * @param string $mainMessage
-     * @param string $exceptionMessage
-     * @param        $expectedMessage
      */
     public function testCanCreateTransportExceptionFromPreviousException(
-        $mainMessage,
-        $exceptionMessage,
-        $expectedMessage
+        string $mainMessage,
+        ?string $exceptionMessage,
+        ?string $expectedMessage
     ) {
         $previousException = new \Exception($exceptionMessage);
 
@@ -169,10 +149,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($previousException, $actualException->getPrevious());
     }
 
-    /**
-     * @return array
-     */
-    public function otherPreviousExceptionDataProvider()
+    public function otherPreviousExceptionDataProvider(): array
     {
         $mainMessage = 'Cannot process payment.';
         $previousExceptionMessage = 'Internal error.';
@@ -193,14 +170,11 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider otherPreviousErrorDataProvider
-     * @param string $mainMessage
-     * @param string $errorMessage
-     * @param        $expectedMessage
      */
     public function testCanCreateTransportExceptionFromPreviousError(
-        $mainMessage,
-        $errorMessage,
-        $expectedMessage
+        string $mainMessage,
+        ?string $errorMessage,
+        ?string $expectedMessage
     ) {
         $previousError = new \Error($errorMessage);
 
@@ -215,10 +189,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($previousError, $actualException->getPrevious());
     }
 
-    /**
-     * @return array
-     */
-    public function otherPreviousErrorDataProvider()
+    public function otherPreviousErrorDataProvider(): array
     {
         $mainMessage = 'Cannot process payment.';
         $previousExceptionMessage = 'Internal error.';
@@ -232,7 +203,7 @@ class TransportExceptionFactoryTest extends \PHPUnit\Framework\TestCase
             'previous exception has no message' => [
                 'message'                 => $mainMessage,
                 'previous_error_messsage' => null,
-                'expectedMessage'         => "{$mainMessage}"
+                'expectedMessage'         => $mainMessage
             ],
         ];
     }

@@ -8,15 +8,8 @@ use PayPal\Api\Authorization;
 
 class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 {
-    /**
-     * @var string
-     */
-    protected $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-
-    /**
-     * @var string
-     */
-    protected $expectedOrderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+    private string $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+    private string $expectedOrderId = '3xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
     protected function setUp(): void
     {
@@ -59,8 +52,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Cannot authorize payment. Order Id is required.',
-            (new Context())->setPaymentInfo($this->paymentInfo),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)
         );
 
         $this->transport->authorizePayment($this->paymentInfo, $this->apiContextInfo);
@@ -137,22 +129,17 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Unexpected state of payment authorization.',
-            (new Context())->setPaymentInfo($this->paymentInfo)->setAuthorization($responseAuthorization),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)->setAuthorization($responseAuthorization)
         );
 
         $this->transport->authorizePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    /**
-     * @param string|null $state
-     * @param string|null $reason
-     * @param string|null $validUntil
-     *
-     * @return Authorization
-     */
-    protected function createAuthorization($state = null, $reason = null, $validUntil = null)
-    {
+    private function createAuthorization(
+        string $state,
+        string $reason = null,
+        string $validUntil = null
+    ): Authorization {
         $authorization = new Authorization();
         $authorization->setState($state);
         $authorization->setReasonCode($reason);

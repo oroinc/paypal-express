@@ -10,11 +10,11 @@ class PaymentTransactionResponseDataTest extends \PHPUnit\Framework\TestCase
 {
     public function testToArray()
     {
-        $expectedPaymentId    = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedOrderId      = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedPayerId      = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedOrderId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPayerId = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $expectedActionConfig = AuthorizeAndCaptureAction::NAME;
-        $expectedAction       = PaymentMethodInterface::CAPTURE;
+        $expectedAction = PaymentMethodInterface::CAPTURE;
 
         $expectedArray = [
             PaymentTransactionResponseData::PAYMENT_ID_FIELD_KEY            => $expectedPaymentId,
@@ -50,16 +50,14 @@ class PaymentTransactionResponseDataTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     *
-     * @return array
      */
-    public function setFromArrayDataProvider()
+    public function setFromArrayDataProvider(): array
     {
-        $expectedPaymentId    = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedOrderId      = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-        $expectedPayerId      = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPaymentId = 'BxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedOrderId = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
+        $expectedPayerId = 'CxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $expectedActionConfig = AuthorizeAndCaptureAction::NAME;
-        $expectedAction       = PaymentMethodInterface::CAPTURE;
+        $expectedAction = PaymentMethodInterface::CAPTURE;
 
         return [
             'set from array should set all fields to object' => [

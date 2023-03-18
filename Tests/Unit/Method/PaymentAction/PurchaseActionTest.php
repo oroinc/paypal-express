@@ -9,9 +9,9 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction;
 class PurchaseActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @return PaymentActionInterface
+     * {@inheritDoc}
      */
-    protected function createPaymentAction()
+    protected function createPaymentAction(): PaymentActionInterface
     {
         return new PurchaseAction($this->facade, $this->logger);
     }
@@ -34,25 +34,28 @@ class PurchaseActionTest extends AbstractPaymentActionTestCase
         $this->assertEquals(['purchaseRedirectUrl' => $expectedUrl], $result);
     }
 
-    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
+    /**
+     * {@inheritDoc}
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->once())
             ->method('getPayPalPaymentRoute')
-            ->will($this->throwException($throwable));
+            ->willThrowException($throwable);
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    protected function getExpectedPaymentTransactionAction()
+    protected function getExpectedPaymentTransactionAction(): string
     {
         return PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME;
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception)
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return [];
     }

@@ -23,49 +23,31 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalSDKObjectTranslatorInterface
-     */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalSDKObjectTranslatorInterface */
     protected $translator;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalClient
-     */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalClient */
     protected $client;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface */
     protected $logger;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory
-     */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
     protected $exceptionFactory;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|TransportExceptionFactoryInterface
-     */
+    /** @var \PHPUnit\Framework\MockObject\MockObject|TransportExceptionFactoryInterface */
     protected $paymentExceptionFactory;
 
-    /**
-     * @var PaymentInfo
-     */
+    /** @var PaymentInfo */
     protected $paymentInfo;
 
-    /**
-     * @var ApiContextInfo
-     */
+    /** @var ApiContextInfo */
     protected $apiContextInfo;
 
-    /**
-     * @var ApiContext|null
-     */
+    /** @var ApiContext|null */
     protected $apiContext;
 
-    /**
-     * @var PayPalExpressTransport
-     */
+    /** @var PayPalExpressTransport */
     protected $transport;
 
     protected function setUp(): void
@@ -90,12 +72,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @param string $paymentId
-     *
-     * @return PaymentInfo
-     */
-    protected function createPaymentInfo($paymentId = null, $orderId = null)
+    protected function createPaymentInfo(string $paymentId = null, string $orderId = null): PaymentInfo
     {
         $this->paymentInfo = new PaymentInfo(
             1.22,
@@ -114,41 +91,28 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         return $this->paymentInfo;
     }
 
-    /**
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param bool   $isSandbox
-     *
-     * @return ApiContextInfo
-     */
-    protected function createApiContextInfo($clientId, $clientSecret, $isSandbox = true)
-    {
+    protected function createApiContextInfo(
+        string $clientId,
+        string $clientSecret,
+        bool $isSandbox = true
+    ): ApiContextInfo {
         return new ApiContextInfo(new CredentialsInfo($clientId, $clientSecret), $isSandbox);
     }
 
-    /**
-     * @param string|null $id
-     * @param string|null $state
-     * @param string|null $failureReason
-     *
-     * @return Payment
-     */
-    protected function createPayment($id = null, $state = null, $failureReason = null)
-    {
+    protected function createPayment(
+        string $id = null,
+        string $state = null,
+        string $failureReason = null
+    ): Payment {
         $payment = new Payment();
         $payment->setId($id);
         $payment->setState($state);
         $payment->setFailureReason($failureReason);
+
         return $payment;
     }
 
-    /**
-     * @param string $id
-     * @param string $approvalLink
-     *
-     * @return Payment
-     */
-    protected function createPaymentWithApprovedLink($id, $approvalLink)
+    protected function createPaymentWithApprovedLink(string $id, string $approvalLink): Payment
     {
         $payment = $this->createPayment($id, PayPalExpressTransport::PAYMENT_CREATED_STATUS);
 
@@ -160,16 +124,12 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         return $payment;
     }
 
-    /**
-     * @param Order  $order
-     * @param null   $id
-     * @param string $state
-     * @param string $failureReason
-     *
-     * @return Payment
-     */
-    protected function createPaymentWithOrder(Order $order = null, $id = null, $state = null, $failureReason = null)
-    {
+    protected function createPaymentWithOrder(
+        Order $order = null,
+        string $id = null,
+        string $state = null,
+        string $failureReason = null
+    ): Payment {
         $payment = $this->createPayment($id, $state, $failureReason);
 
         $transaction = new Transaction();
@@ -185,7 +145,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         $expectedMessage,
         Context $expectedContext,
         \Throwable $expectedPrevious = null
-    ) {
+    ): void {
         $expectedExceptionMessage = 'Test payment exception message';
         $expectedException = new TransportException($expectedExceptionMessage, $expectedContext->getContext());
 
@@ -234,12 +194,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage($expectedExceptionMessage);
     }
 
-    /**
-     * @param ApiContextInfo $apiContextInfo
-     *
-     * @return ApiContext
-     */
-    protected function expectTranslatorGetApiContext(ApiContextInfo $apiContextInfo = null)
+    protected function expectTranslatorGetApiContext(ApiContextInfo $apiContextInfo = null): ApiContext
     {
         $apiContextInfo = $apiContextInfo ?? $this->apiContextInfo;
         $this->apiContext = new ApiContext();
@@ -252,13 +207,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         return $this->apiContext;
     }
 
-    /**
-     * @param string|null $id
-     * @param string|null $state
-     *
-     * @return Order
-     */
-    protected function createOrder($id = null, $state = null)
+    protected function createOrder(string $id = null, string $state = null): Order
     {
         $order = new Order();
         $order->setId($id);

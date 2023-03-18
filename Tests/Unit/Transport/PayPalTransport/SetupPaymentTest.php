@@ -7,29 +7,15 @@ use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 
 class SetupPaymentTest extends AbstractTransportTestCase
 {
-    /**
-     * @var RedirectRoutesInfo
-     */
-    protected $redirectRoutesInfo;
+    private RedirectRoutesInfo $redirectRoutesInfo;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->redirectRoutesInfo = $this->createRedirectionRoutesInfo(
+        $this->redirectRoutesInfo = new RedirectRoutesInfo(
             'text.example.com/paypal/success',
             'text.example.com/paypal/failed'
         );
-    }
-
-    /**
-     * @param string $successRoute
-     * @param string $failedRoute
-     *
-     * @return RedirectRoutesInfo
-     */
-    protected function createRedirectionRoutesInfo($successRoute, $failedRoute)
-    {
-        return new RedirectRoutesInfo($successRoute, $failedRoute);
     }
 
     public function testCanCreatePaymentAndUpdatePaymentInfo()
@@ -109,8 +95,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Unexpected state of payment after create.',
-            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($failedPayment),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($failedPayment)
         );
 
         $this->transport->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);

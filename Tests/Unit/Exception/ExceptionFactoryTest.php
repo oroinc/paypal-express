@@ -11,15 +11,11 @@ use Oro\Bundle\PayPalExpressBundle\Transport\SupportedCurrenciesHelper;
 
 class ExceptionFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var ExceptionFactory
-     */
-    protected $factory;
+    /** @var ExceptionFactory */
+    private $factory;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SupportedCurrenciesHelper
-     */
-    protected $supportedCurrenciesHelper;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|SupportedCurrenciesHelper */
+    private $supportedCurrenciesHelper;
 
     protected function setUp(): void
     {

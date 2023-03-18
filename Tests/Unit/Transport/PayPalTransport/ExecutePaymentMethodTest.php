@@ -2,22 +2,13 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Transport\PayPalTransport;
 
-use Oro\Bundle\PayPalExpressBundle\Transport\DTO\RedirectRoutesInfo;
 use Oro\Bundle\PayPalExpressBundle\Transport\Exception\Context;
 use Oro\Bundle\PayPalExpressBundle\Transport\PayPalExpressTransport;
 use PayPal\Api\PaymentExecution;
 
 class ExecutePaymentMethodTest extends AbstractTransportTestCase
 {
-    /**
-     * @var string
-     */
-    protected $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
-
-    /**
-     * @var RedirectRoutesInfo
-     */
-    protected $redirectRoutesInfo;
+    private string $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
     protected function setUp(): void
     {
@@ -97,8 +88,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
 
         $this->expectTransportException(
             'Order was not created for payment after execute.',
-            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($executedPayment),
-            null
+            (new Context())->setPaymentInfo($this->paymentInfo)->setPayment($executedPayment)
         );
 
         $this->transport->executePayment($this->paymentInfo, $this->apiContextInfo);

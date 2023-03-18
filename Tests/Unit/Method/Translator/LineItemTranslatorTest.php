@@ -14,42 +14,33 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|OptionsProvider
-     */
-    protected $optionsProvider;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|OptionsProvider */
+    private $optionsProvider;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|TranslatorInterface
-     */
-    protected $translator;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|TranslatorInterface */
+    private $translator;
 
-    /**
-     * @var RoundingServiceInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $rounder;
+    /** @var RoundingServiceInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $rounder;
 
-    /**
-     * @var NumberFormatter|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $currencyFormatter;
+    /** @var NumberFormatter|\PHPUnit\Framework\MockObject\MockObject */
+    private $currencyFormatter;
 
-    /**
-     * @var LineItemTranslator
-     */
-    protected $lineItemTranslator;
+    /** @var LineItemTranslator */
+    private $lineItemTranslator;
 
     protected function setUp(): void
     {
         $this->optionsProvider = $this->createMock(OptionsProvider::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->rounder = $this->createMock(RoundingServiceInterface::class);
+        $this->currencyFormatter = $this->createMock(NumberFormatter::class);
+
         $this->rounder->expects($this->any())
             ->method('round')
             ->willReturnCallback(function ($amount) {
                 return round($amount, 2);
             });
-        $this->currencyFormatter = $this->createMock(NumberFormatter::class);
 
         $this->lineItemTranslator = new LineItemTranslator($this->optionsProvider, $this->translator);
         $this->lineItemTranslator->setRounder($this->rounder);
@@ -66,33 +57,13 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $currency = 'USD';
 
         $orderLineItems = [
-            $this->createLineItemOptionModel(
-                'Foo Test Item',
-                $currency,
-                1.00,
-                1.23
-            ),
-            $this->createLineItemOptionModel(
-                'Bar Test Item',
-                $currency,
-                2.00,
-                4.25
-            )
+            $this->createLineItemOptionModel('Foo Test Item', $currency, 1.00, 1.23),
+            $this->createLineItemOptionModel('Bar Test Item', $currency, 2.00, 4.25)
         ];
 
         $expectedPaymentItemsInfo = [
-            $this->createPaymentItemInfo(
-                'Foo Test Item',
-                $currency,
-                1,
-                1.23
-            ),
-            $this->createPaymentItemInfo(
-                'Bar Test Item',
-                $currency,
-                2,
-                4.25
-            )
+            new ItemInfo('Foo Test Item', $currency, 1, 1.23),
+            new ItemInfo('Bar Test Item', $currency, 2, 4.25)
         ];
 
         $order = $this->createOrderWithExpectedLineItems($orderLineItems);
@@ -112,21 +83,11 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
             });
 
         $orderLineItems = [
-            $this->createLineItemOptionModel(
-                'Foo Test Item',
-                $currency,
-                2.75,
-                1.23
-            )
+            $this->createLineItemOptionModel('Foo Test Item', $currency, 2.75, 1.23)
         ];
 
         $expectedPaymentItemsInfo = [
-            $this->createPaymentItemInfo(
-                'Foo Test Item - 1.23 USDx2.75',
-                $currency,
-                1,
-                3.38
-            )
+            new ItemInfo('Foo Test Item - 1.23 USDx2.75', $currency, 1, 3.38)
         ];
 
         $order = $this->createOrderWithExpectedLineItems($orderLineItems);
@@ -150,33 +111,13 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
             ->willReturn(4);
 
         $orderLineItems = [
-            $this->createLineItemOptionModel(
-                'Foo Test Item',
-                $currency,
-                2,
-                1.2363
-            ),
-            $this->createLineItemOptionModel(
-                'Foo Test Item 2',
-                $currency,
-                1,
-                1.2363
-            )
+            $this->createLineItemOptionModel('Foo Test Item', $currency, 2, 1.2363),
+            $this->createLineItemOptionModel('Foo Test Item 2', $currency, 1, 1.2363)
         ];
 
         $expectedPaymentItemsInfo = [
-            $this->createPaymentItemInfo(
-                'Foo Test Item - 1.24 USDx2',
-                $currency,
-                1,
-                2.47
-            ),
-            $this->createPaymentItemInfo(
-                'Foo Test Item 2',
-                $currency,
-                1,
-                1.24
-            )
+            new ItemInfo('Foo Test Item - 1.24 USDx2', $currency, 1, 2.47),
+            new ItemInfo('Foo Test Item 2', $currency, 1, 1.24)
         ];
 
         $order = $this->createOrderWithExpectedLineItems($orderLineItems);
@@ -204,27 +145,12 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $surcharge = $this->createSurchargeWithDiscountAmount($discountAmount, $discountItemName);
 
         $orderLineItems = [
-            $this->createLineItemOptionModel(
-                'Foo Test Item',
-                $currency,
-                2.75,
-                1.23
-            )
+            $this->createLineItemOptionModel('Foo Test Item', $currency, 2.75, 1.23)
         ];
 
         $expectedPaymentItemsInfo = [
-            $this->createPaymentItemInfo(
-                'Foo Test Item - 1.23 USDx2.75',
-                $currency,
-                1,
-                3.38
-            ),
-            $this->createPaymentItemInfo(
-                $discountItemName,
-                $currency,
-                1,
-                $discountAmount
-            ),
+            new ItemInfo('Foo Test Item - 1.23 USDx2.75', $currency, 1, 3.38),
+            new ItemInfo($discountItemName, $currency, 1, $discountAmount),
         ];
 
         $order = $this->createOrderWithExpectedLineItems($orderLineItems);
@@ -247,27 +173,12 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $currency = 'USD';
 
         $orderLineItems = [
-            $this->createLineItemOptionModel(
-                'Foo Test Item',
-                $currency,
-                2.75,
-                1.23
-            ),
-            $this->createLineItemOptionModel(
-                'Tax Item',
-                null,
-                1.00,
-                4.25
-            )
+            $this->createLineItemOptionModel('Foo Test Item', $currency, 2.75, 1.23),
+            $this->createLineItemOptionModel('Tax Item', null, 1.00, 4.25)
         ];
 
         $expectedPaymentItemsInfo = [
-            $this->createPaymentItemInfo(
-                'Foo Test Item - 1.23 USDx2.75',
-                $currency,
-                1,
-                3.38
-            )
+            new ItemInfo('Foo Test Item - 1.23 USDx2.75', $currency, 1, 3.38)
         ];
 
         $order = $this->createOrderWithExpectedLineItems($orderLineItems);
@@ -291,18 +202,13 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(1, $item->getQuantity());
     }
 
-    /**
-     * @param string $name
-     * @param string $currency
-     * @param float  $quantity
-     * @param float  $amount
-     *
-     * @return LineItemOptionModel
-     */
-    protected function createLineItemOptionModel($name, $currency, $quantity, $amount)
-    {
+    private function createLineItemOptionModel(
+        string $name,
+        ?string $currency,
+        float $quantity,
+        float $amount
+    ): LineItemOptionModel {
         $model = new LineItemOptionModel();
-
         $model->setName($name);
         $model->setCurrency($currency);
         $model->setQty($quantity);
@@ -311,30 +217,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         return $model;
     }
 
-    /**
-     * @param string $name
-     * @param string $currency
-     * @param int    $quantity
-     * @param float  $amount
-     * @return ItemInfo
-     */
-    protected function createPaymentItemInfo($name, $currency, $quantity, $amount)
-    {
-        $itemInfo = new ItemInfo(
-            $name,
-            $currency,
-            $quantity,
-            $amount
-        );
-
-        return $itemInfo;
-    }
-
-    /**
-     * @param array $lineItemOptionsModels
-     * @return Order
-     */
-    protected function createOrderWithExpectedLineItems(array $lineItemOptionsModels = [])
+    private function createOrderWithExpectedLineItems(array $lineItemOptionsModels = []): Order
     {
         $order = new Order();
 
@@ -346,20 +229,12 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
         return $order;
     }
 
-    /**
-     * @return Surcharge
-     */
-    protected function createSurcharge()
+    private function createSurcharge(): Surcharge
     {
         return new Surcharge();
     }
 
-    /**
-     * @param float $discountAmount
-     * @param string $discountItemName
-     * @return Surcharge
-     */
-    protected function createSurchargeWithDiscountAmount($discountAmount, $discountItemName)
+    private function createSurchargeWithDiscountAmount(float $discountAmount, string $discountItemName): Surcharge
     {
         $surcharge = $this->createSurcharge();
         $surcharge->setDiscountAmount($discountAmount);

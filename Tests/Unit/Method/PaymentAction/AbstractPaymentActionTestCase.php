@@ -3,38 +3,30 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
-use Oro\Bundle\PayPalExpressBundle\Exception;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
+use Oro\Bundle\PayPalExpressBundle\Exception\RuntimeException;
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PurchaseAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PayPalExpressTransportFacadeInterface;
+use PHPUnit\Framework\Constraint\Constraint;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressTransportFacadeInterface
-     */
+    /** @var PayPalExpressTransportFacadeInterface|\PHPUnit\Framework\MockObject\MockObject */
     protected $facade;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
+    /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
     protected $logger;
 
-    /**
-     * @var PurchaseAction
-     */
+    /** @var PurchaseAction */
     protected $action;
 
-    /**
-     * @var PaymentTransaction
-     */
+    /** @var PaymentTransaction */
     protected $paymentTransaction;
 
-    /**
-     * @var PayPalExpressConfigInterface
-     */
+    /** @var PayPalExpressConfigInterface */
     protected $config;
 
     protected function setUp(): void
@@ -45,28 +37,14 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         $this->action = $this->createPaymentAction();
 
         $this->paymentTransaction = $this->createPaymentTransaction();
-        $this->config = $this->createConfig();
+        $this->config = $this->createMock(PayPalExpressConfigInterface::class);
     }
 
-    /**
-     * @return PaymentActionInterface
-     */
-    abstract protected function createPaymentAction();
+    abstract protected function createPaymentAction(): PaymentActionInterface;
 
-    /**
-     * @return PaymentTransaction
-     */
-    protected function createPaymentTransaction()
+    protected function createPaymentTransaction(): PaymentTransaction
     {
         return new PaymentTransaction();
-    }
-
-    /**
-     * @return \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigInterface
-     */
-    protected function createConfig()
-    {
-        return $this->createMock(PayPalExpressConfigInterface::class);
     }
 
     public function testExecuteActionShouldRecoverAfterPayPalInnerException()
@@ -85,29 +63,19 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         $this->assertEquals($this->getExpectedExecuteResultAfterPayPalInnerException($expectedException), $result);
     }
 
-    /**
-     * @return string
-     */
-    abstract protected function getExpectedPaymentTransactionAction();
+    abstract protected function getExpectedPaymentTransactionAction(): string;
 
-    /**
-     * @param Exception\ExceptionInterface $exception
-     * @return array
-     */
-    protected function getExpectedExecuteResultAfterPayPalInnerException(Exception\ExceptionInterface $exception)
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return ['successful' => false, 'message' => $exception->getMessage()];
     }
-    /**
-     * @param string $message
-     * @return Exception\ExceptionInterface
-     */
-    protected function createPayPalInnerException($message = 'Order Id is required')
+
+    protected function createPayPalInnerException(string $message = 'Order Id is required'): ExceptionInterface
     {
-        return new Exception\RuntimeException($message);
+        return new RuntimeException($message);
     }
 
-    abstract protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable);
+    abstract protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void;
 
     public function testExecuteActionShouldNotRecoverAfterUnrecoverableException()
     {
@@ -122,11 +90,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         $this->action->executeAction($this->paymentTransaction, $this->config);
     }
 
-    /**
-     * @param string $message
-     * @return \RuntimeException
-     */
-    protected function createUnrecoverableException($message = 'Internal server error')
+    protected function createUnrecoverableException(string $message = 'Internal server error'): \RuntimeException
     {
         return new \RuntimeException($message);
     }
@@ -144,11 +108,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         $this->action->executeAction($this->paymentTransaction, $this->config);
     }
 
-    /**
-     * @param string $message
-     * @return \Error
-     */
-    protected function createUnrecoverableError($message = 'Fatal error')
+    protected function createUnrecoverableError(string $message = 'Fatal error'): \Error
     {
         return new \Error($message);
     }
@@ -157,7 +117,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
         PaymentActionInterface $paymentAction,
         PaymentTransaction $paymentTransaction,
         \Throwable $expectedException
-    ) {
+    ): void {
         $expectedAction = $paymentAction->getName();
         $expectedMethod = $paymentTransaction->getPaymentMethod();
         $expectedTransactionId = $paymentTransaction->getId();
@@ -177,27 +137,21 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
             );
     }
 
-    /**
-     * @param string                              $expectedKey
-     * @param mixed|\PHPUnit\Framework\Constraint\Constraint $constraint
-     * @return \PHPUnit\Framework\Constraint\Constraint
-     */
-    protected function arrayKeyMatches($expectedKey, $constraint)
+    protected function arrayKeyMatches(string $expectedKey, mixed $constraint): Constraint
     {
-        if (!$constraint instanceof \PHPUnit\Framework\Constraint\Constraint) {
+        if (!$constraint instanceof Constraint) {
             $constraint = $this->equalTo($constraint);
         }
+
         return $this->callback(
             function ($array) use ($expectedKey, $constraint) {
                 $this->assertIsArray($array, 'Failed asserting value is array.');
-                $this->assertArrayHasKey(
-                    $expectedKey,
-                    $array
-                );
+                $this->assertArrayHasKey($expectedKey, $array);
                 $constraint->evaluate(
                     $array[$expectedKey],
                     sprintf('Failed asserting that array key "%s" matches expected value.', $expectedKey)
                 );
+
                 return true;
             }
         );

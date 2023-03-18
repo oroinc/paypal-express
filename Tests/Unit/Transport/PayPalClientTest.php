@@ -12,10 +12,7 @@ use PayPal\Rest\ApiContext;
 
 class PayPalClientTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var PayPalClient
-     */
-    protected $client;
+    private PayPalClient $client;
 
     protected function setUp(): void
     {

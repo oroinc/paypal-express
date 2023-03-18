@@ -14,31 +14,22 @@ use Psr\Log\LoggerInterface;
 
 class TaxProviderTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var TaxProvider
-     */
-    protected $taxProvider;
+    /** @var TaxProvider */
+    private $taxProvider;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface
-     */
-    protected $logger;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface */
+    private $logger;
 
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|TaxManager
-     */
-    protected $taxManager;
+    /** @var \PHPUnit\Framework\MockObject\MockObject|TaxManager */
+    private $taxManager;
 
-    /**
-     * @var TaxationSettingsProvider|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $taxationSettingsProvider;
+    /** @var TaxationSettingsProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $taxationSettingsProvider;
 
     protected function setUp(): void
     {
         $this->taxManager = $this->createMock(TaxManager::class);
         $this->taxationSettingsProvider = $this->createMock(TaxationSettingsProvider::class);
-
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->taxProvider = new TaxProvider($this->taxManager, $this->logger, $this->taxationSettingsProvider);

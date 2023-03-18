@@ -12,10 +12,8 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider contextDataProvider
-     * @param array $contextData
-     * @param array $expected
      */
-    public function testGetContext($contextData, $expected)
+    public function testGetContext(array $contextData, array $expected)
     {
         $context = new Context();
 
@@ -30,10 +28,8 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     *
-     * @return array
      */
-    public function contextDataProvider()
+    public function contextDataProvider(): array
     {
         $paymentInfoPaymentId = 'ZxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
         $orderId = 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';

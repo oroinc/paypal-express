@@ -3,16 +3,16 @@
 namespace Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction;
 
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
-use Oro\Bundle\PayPalExpressBundle\Exception;
+use Oro\Bundle\PayPalExpressBundle\Exception\ExceptionInterface;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 
 class AuthorizeActionTest extends AbstractPaymentActionTestCase
 {
     /**
-     * @return PaymentActionInterface
+     * {@inheritDoc}
      */
-    protected function createPaymentAction()
+    protected function createPaymentAction(): PaymentActionInterface
     {
         return new AuthorizeAction($this->facade, $this->logger);
     }
@@ -36,25 +36,28 @@ class AuthorizeActionTest extends AbstractPaymentActionTestCase
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    protected function getExpectedPaymentTransactionAction()
+    protected function getExpectedPaymentTransactionAction(): string
     {
         return PaymentMethodInterface::AUTHORIZE;
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    protected function getExpectedExecuteResultAfterPayPalInnerException(Exception\ExceptionInterface $exception)
+    protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return ['successful' => false, 'message' => $exception->getMessage()];
     }
 
-    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable)
+    /**
+     * {@inheritDoc}
+     */
+    protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->any())
             ->method('executePayPalPayment')
-            ->will($this->throwException($throwable));
+            ->willThrowException($throwable);
     }
 }

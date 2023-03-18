@@ -19,10 +19,7 @@ class MethodConfigTranslatorTest extends \PHPUnit\Framework\TestCase
         $isSandbox = false;
 
         $expectedApiContextInfo = new ApiContextInfo(
-            new CredentialsInfo(
-                $clientId,
-                $clientSecret
-            ),
+            new CredentialsInfo($clientId, $clientSecret),
             $isSandbox
         );
 
