@@ -1,4 +1,4 @@
-@container-incompatible
+@behat-test-env
 @ticket-BB-14983
 @fixture-OroFlatRateShippingBundle:FlatRateIntegration.yml
 @fixture-OroPayPalExpressBundle:ProductsAndShoppingListsFixture.yml

@@ -2,6 +2,7 @@
 @ticket-BB-15562
 @fixture-OroFlatRateShippingBundle:FlatRateIntegration.yml
 @fixture-OroPayPalExpressBundle:ProductsAndShoppingListsFixture.yml
+@behat-test-env
 Feature: Paypal Express Payments should display products with localized data
   In order to be able to see localized products in the payment
   As a buyer

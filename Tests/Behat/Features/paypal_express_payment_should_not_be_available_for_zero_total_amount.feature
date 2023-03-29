@@ -3,6 +3,7 @@
 @fixture-OroCheckoutBundle:Shipping.yml
 @fixture-OroPayPalBundle:PayPalExpressProduct.yml
 @fixture-OroPromotionBundle:100-percent-promotions-with-coupons.yml
+@behat-test-env
 Feature: PayPal Express payment should not be available for zero total amount
   In order to purchase goods using PayPal Express
   As a buyer
