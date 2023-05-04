@@ -40,7 +40,7 @@ services:
         arguments:
             - '@oro_paypal_express.method.provider'
             - '@oro_payment.provider.result_messages'
-            - '@session'
+            - '@request_stack'
         calls:
             - ['setLogger', ['@logger']]
         tags:

@@ -10,7 +10,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Handles a payment callback event triggered when PayPal redirects a user after an attempt to make a payment.
@@ -21,18 +21,11 @@ class PayPalExpressRedirectListener
 {
     use LoggerAwareTrait;
 
-    protected PaymentMethodProviderInterface $paymentMethodProvider;
-    protected PaymentResultMessageProviderInterface $messageProvider;
-    protected Session $session;
-
     public function __construct(
-        PaymentMethodProviderInterface $paymentMethodProvider,
-        PaymentResultMessageProviderInterface $messageProvider,
-        Session $session
+        protected PaymentMethodProviderInterface $paymentMethodProvider,
+        protected PaymentResultMessageProviderInterface $messageProvider,
+        protected RequestStack $requestStack,
     ) {
-        $this->paymentMethodProvider = $paymentMethodProvider;
-        $this->messageProvider = $messageProvider;
-        $this->session = $session;
     }
 
     public function onError(AbstractCallbackEvent $event)
@@ -128,7 +121,7 @@ class PayPalExpressRedirectListener
 
     protected function setErrorMessage(string $message): void
     {
-        $flashBag = $this->session->getFlashBag();
+        $flashBag = $this->requestStack->getSession()->getFlashBag();
 
         if (!$flashBag->has('error')) {
             $flashBag->add('error', $message);

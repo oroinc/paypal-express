@@ -11,6 +11,7 @@ use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -27,7 +28,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
     private $messageProvider;
 
     /** @var Session|\PHPUnit\Framework\MockObject\MockObject */
-    private $session;
+    private $requestStack;
 
     /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $logger;
@@ -39,13 +40,13 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
     {
         $this->paymentMethodProvider = $this->createMock(PaymentMethodProviderInterface::class);
         $this->messageProvider = $this->createMock(PaymentResultMessageProviderInterface::class);
-        $this->session = $this->createMock(Session::class);
+        $this->requestStack = $this->createMock(RequestStack::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->listener = new PayPalExpressRedirectListener(
             $this->paymentMethodProvider,
             $this->messageProvider,
-            $this->session
+            $this->requestStack
         );
         $this->listener->setLogger($this->logger);
     }
@@ -321,7 +322,12 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
             ->method('add')
             ->with('error', 'Test message');
 
-        $this->session
+        $sessionMock = $this->createMock(Session::class);
+        $this->requestStack
+            ->expects($this->once())
+            ->method('getSession')
+            ->willReturn($sessionMock);
+        $sessionMock
             ->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBag);
