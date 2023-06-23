@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var PaymentMethodProviderInterface|\PHPUnit\Framework\MockObject\MockObject  */
+    /** @var PaymentMethodProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $paymentMethodProvider;
 
     /** @var PaymentResultMessageProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
