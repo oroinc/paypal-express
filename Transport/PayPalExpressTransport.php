@@ -86,7 +86,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
 
     /**
      * @param string     $message
-     * @param \Throwable $throwable
+     * @param \Throwable|null $throwable
      * @param Context    $context
      * @return TransportException
      */

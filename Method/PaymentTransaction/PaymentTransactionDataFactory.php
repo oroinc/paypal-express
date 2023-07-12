@@ -16,7 +16,7 @@ class PaymentTransactionDataFactory
     /**
      * @param PaymentTransaction           $paymentTransaction
      * @param PayPalExpressConfigInterface $config
-     * @param PaymentInfo                  $paymentInfo
+     * @param PaymentInfo|null $paymentInfo
      *
      * @return PaymentTransactionResponseData
      */
