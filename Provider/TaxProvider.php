@@ -23,7 +23,7 @@ class TaxProvider
     /**
      * Return tax if possible, return null if not
      */
-    public function getTax($entity): ?int
+    public function getTax($entity): null|int|float
     {
         try {
             if ($this->taxationSettingsProvider->isProductPricesIncludeTax()
