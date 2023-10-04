@@ -1,4 +1,5 @@
 @ticket-BB-14983
+@ticket-BB-16182
 @fixture-OroFlatRateShippingBundle:FlatRateIntegration.yml
 @fixture-OroPayPalExpressBundle:ProductsAndShoppingListsFixture.yml
 Feature: PayPal Express payment should not fail with Product Prices Include Tax option
