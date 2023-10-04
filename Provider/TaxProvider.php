@@ -13,46 +13,29 @@ use Psr\Log\LoggerInterface;
  */
 class TaxProvider
 {
-    /**
-     * @var TaxManager
-     */
-    protected $taxManager;
-
-    /**
-     * @var TaxationSettingsProvider
-     */
-    protected $taxationSettingsProvider;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     public function __construct(
-        TaxManager $taxManager,
-        LoggerInterface $logger,
-        TaxationSettingsProvider $taxationSettingsProvider
+        protected TaxManager $taxManager,
+        protected LoggerInterface $logger,
+        protected TaxationSettingsProvider $taxationSettingsProvider
     ) {
-        $this->taxManager = $taxManager;
-        $this->logger = $logger;
-        $this->taxationSettingsProvider = $taxationSettingsProvider;
     }
 
     /**
      * Return tax if possible, return null if not
-     *
-     * @param object $entity
-     *
-     * @return null|int
      */
-    public function getTax($entity)
+    public function getTax($entity): ?int
     {
         try {
-            if ($this->taxationSettingsProvider->isProductPricesIncludeTax()) {
+            if ($this->taxationSettingsProvider->isProductPricesIncludeTax()
+                && $this->taxationSettingsProvider->isShippingRatesIncludeTax()) {
                 return null;
             }
 
-            return $this->taxManager->loadTax($entity)->getTotal()->getTaxAmount();
+            $tax = $this->taxManager->loadTax($entity);
+            $shippingTax = $tax->getShipping()->getTaxAmount();
+            $productTax = $tax->getTotal()->getTaxAmount() - $shippingTax;
+            return ($this->taxationSettingsProvider->isProductPricesIncludeTax() ? 0 : $productTax)
+                + ($this->taxationSettingsProvider->isShippingRatesIncludeTax() ? 0 : $shippingTax);
         } catch (\Throwable $exception) {
             $this->logger->info(
                 'Could not load tax amount for entity',
