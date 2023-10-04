@@ -93,6 +93,16 @@ Oro\Bundle\ShoppingListBundle\Entity\ShoppingList:
         customerUser: '@amanda'
         organization: '@organization'
         website: '@website1'
+    shoppinglist3:
+        label: 'List 3'
+        customerUser: '@amanda'
+        organization: '@organization'
+        website: '@website1'
+    shoppinglist4:
+        label: 'List 4'
+        customerUser: '@amanda'
+        organization: '@organization'
+        website: '@website1'
 
 Oro\Bundle\ShoppingListBundle\Entity\LineItem:
     lineitem1:
@@ -108,6 +118,20 @@ Oro\Bundle\ShoppingListBundle\Entity\LineItem:
         unit: '@item'
         customerUser: '@amanda'
         shoppingList: '@shoppinglist2'
+        organization: '@organization'
+    lineitem3:
+        product: '@product'
+        quantity: '5'
+        unit: '@item'
+        customerUser: '@amanda'
+        shoppingList: '@shoppinglist3'
+        organization: '@organization'
+    lineitem4:
+        product: '@product'
+        quantity: '5'
+        unit: '@item'
+        customerUser: '@amanda'
+        shoppingList: '@shoppinglist4'
         organization: '@organization'
 
 Oro\Bundle\ShoppingListBundle\Entity\ShoppingListTotal:
