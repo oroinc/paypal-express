@@ -7,24 +7,23 @@ use Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider;
 use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Stubs\FooPaymentEntityStub;
 use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Manager\TaxManager;
+use Oro\Bundle\TaxBundle\Model\AbstractResultElement;
 use Oro\Bundle\TaxBundle\Model\Result;
 use Oro\Bundle\TaxBundle\Model\ResultElement;
 use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class TaxProviderTest extends \PHPUnit\Framework\TestCase
+class TaxProviderTest extends TestCase
 {
-    /** @var TaxProvider */
-    private $taxProvider;
+    private TaxProvider $taxProvider;
 
-    /** @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface */
-    private $logger;
+    private LoggerInterface|MockObject $logger;
 
-    /** @var \PHPUnit\Framework\MockObject\MockObject|TaxManager */
-    private $taxManager;
+    private TaxManager|MockObject $taxManager;
 
-    /** @var TaxationSettingsProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $taxationSettingsProvider;
+    private TaxationSettingsProvider|MockObject $taxationSettingsProvider;
 
     protected function setUp(): void
     {
@@ -35,19 +34,29 @@ class TaxProviderTest extends \PHPUnit\Framework\TestCase
         $this->taxProvider = new TaxProvider($this->taxManager, $this->logger, $this->taxationSettingsProvider);
     }
 
-    public function testGetTax()
-    {
+    /**
+     * @dataProvider getTaxTotalShippingTaxProvider
+     */
+    public function testGetTax(
+        bool $isProductPricesIncludeTax,
+        bool $isShippingRatesIncludeTax,
+        int $totalTax,
+        int $shippingTax,
+        int $expectedTax
+    ): void {
         $entity = new Order();
 
-        $expectedTaxAmount = 2;
+        $taxTotal = [ResultElement::TAX_AMOUNT => $totalTax, AbstractResultElement::CURRENCY => 'USD'];
+        $taxShipping = [ResultElement::TAX_AMOUNT => $shippingTax, AbstractResultElement::CURRENCY => 'USD'];
 
-        $taxTotal = [ResultElement::TAX_AMOUNT => $expectedTaxAmount, ResultElement::CURRENCY => 'USD'];
+        $taxResult = Result::jsonDeserialize([Result::TOTAL => $taxTotal, Result::SHIPPING => $taxShipping]);
 
-        $taxResult = Result::jsonDeserialize([Result::TOTAL => $taxTotal]);
-
-        $this->taxationSettingsProvider->expects($this->once())
+        $this->taxationSettingsProvider->expects(self::any())
             ->method('isProductPricesIncludeTax')
-            ->willReturn(false);
+            ->willReturn($isProductPricesIncludeTax);
+        $this->taxationSettingsProvider->expects(self::any())
+            ->method('isShippingRatesIncludeTax')
+            ->willReturn($isShippingRatesIncludeTax);
 
         $this->taxManager->expects($this->once())
             ->method('loadTax')
@@ -55,10 +64,37 @@ class TaxProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn($taxResult);
 
         $actualTaxAmount = $this->taxProvider->getTax($entity);
-        $this->assertSame($expectedTaxAmount, $actualTaxAmount);
+        $this->assertSame($expectedTax, $actualTaxAmount);
     }
 
-    public function testGetTaxShouldRecoverFromAnyErrorLogItAndReturnZero()
+    public function getTaxTotalShippingTaxProvider(): array
+    {
+        return [
+            'Both product and shipping not included tax' => [
+                'isProductPricesIncludeTax' => false,
+                'isShippingRatesIncludeTax' => false,
+                'totalTax' => 3,
+                'shippingTax' => 1,
+                'expectedTax' => 3
+            ],
+            'Shipping rate not included tax' => [
+                'isProductPricesIncludeTax' => true,
+                'isShippingRatesIncludeTax' => false,
+                'totalTax' => 3,
+                'shippingTax' => 1,
+                'expectedTax' => 1
+            ],
+            'Product subtotal not included tax' => [
+                'isProductPricesIncludeTax' => false,
+                'isShippingRatesIncludeTax' => true,
+                'totalTax' => 3,
+                'shippingTax' => 1,
+                'expectedTax' => 2
+            ]
+        ];
+    }
+
+    public function testGetTaxShouldRecoverFromAnyErrorLogItAndReturnZero(): void
     {
         $entity = new FooPaymentEntityStub();
 
@@ -85,12 +121,15 @@ class TaxProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($actualTaxAmount);
     }
 
-    public function testGetTaxWithProductPricesIncludeTax()
+    public function testGetTaxWithProductPricesIncludeTax(): void
     {
         $entity = new Order();
 
         $this->taxationSettingsProvider->expects($this->once())
             ->method('isProductPricesIncludeTax')
+            ->willReturn(true);
+        $this->taxationSettingsProvider->expects($this->once())
+            ->method('isShippingRatesIncludeTax')
             ->willReturn(true);
 
         $this->taxManager->expects($this->never())
