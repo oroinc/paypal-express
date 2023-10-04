@@ -13,17 +13,37 @@ use Psr\Log\LoggerInterface;
  */
 class TaxProvider
 {
+    /**
+     * @var TaxManager
+     */
+    protected $taxManager;
+
+    /**
+     * @var TaxationSettingsProvider
+     */
+    protected $taxationSettingsProvider;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     public function __construct(
-        protected TaxManager $taxManager,
-        protected LoggerInterface $logger,
-        protected TaxationSettingsProvider $taxationSettingsProvider
+        TaxManager $taxManager,
+        LoggerInterface $logger,
+        TaxationSettingsProvider $taxationSettingsProvider
     ) {
+        $this->taxManager = $taxManager;
+        $this->logger = $logger;
+        $this->taxationSettingsProvider = $taxationSettingsProvider;
     }
 
     /**
      * Return tax if possible, return null if not
+     *
+     * @return null|int|float
      */
-    public function getTax($entity): null|int|float
+    public function getTax($entity)
     {
         try {
             if ($this->taxationSettingsProvider->isProductPricesIncludeTax()
