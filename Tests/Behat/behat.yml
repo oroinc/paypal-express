@@ -28,5 +28,6 @@ oro_behat_extension:
         - Oro\Bundle\LocaleBundle\Tests\Behat\Context\LocalizationContext
         - Oro\Bundle\FrontendLocalizationBundle\Tests\Behat\Context\LocalizationSwitcherContext
         - Oro\Bundle\WorkflowBundle\Tests\Behat\Context\FeatureContext
+        - Oro\Bundle\TaxBundle\Tests\Behat\Context\FeatureContext
       paths:
         - '@OroPayPalExpressBundle/Tests/Behat/Features'
