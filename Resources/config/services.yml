@@ -10,9 +10,8 @@ services:
     oro_paypal_express.pay_pal.provider.tax:
         class: Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider
         arguments:
-            - '@oro_tax.manager.tax_manager'
+            - '@oro_tax.provider.tax_amount'
             - '@logger'
-            - '@oro_tax.provider.taxation_settings_provider'
 
     oro_paypal_express.pay_pal.translator.sdk_object:
         class: Oro\Bundle\PayPalExpressBundle\Transport\PayPalSDKObjectTranslator

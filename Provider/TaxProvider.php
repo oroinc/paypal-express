@@ -2,8 +2,7 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Provider;
 
-use Oro\Bundle\TaxBundle\Manager\TaxManager;
-use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
+use Oro\Bundle\TaxBundle\Provider\TaxAmountProvider;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -14,9 +13,8 @@ use Psr\Log\LoggerInterface;
 class TaxProvider
 {
     public function __construct(
-        protected TaxManager $taxManager,
-        protected LoggerInterface $logger,
-        protected TaxationSettingsProvider $taxationSettingsProvider
+        private TaxAmountProvider $taxAmountProvider,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -26,16 +24,9 @@ class TaxProvider
     public function getTax($entity): null|int|float
     {
         try {
-            if ($this->taxationSettingsProvider->isProductPricesIncludeTax()
-                && $this->taxationSettingsProvider->isShippingRatesIncludeTax()) {
-                return null;
-            }
-
-            $tax = $this->taxManager->loadTax($entity);
-            $shippingTax = $tax->getShipping()->getTaxAmount();
-            $productTax = $tax->getTotal()->getTaxAmount() - $shippingTax;
-            return ($this->taxationSettingsProvider->isProductPricesIncludeTax() ? 0 : $productTax)
-                + ($this->taxationSettingsProvider->isShippingRatesIncludeTax() ? 0 : $shippingTax);
+            return !$this->taxAmountProvider->isTotalIncludedTax()
+                ? $this->taxAmountProvider->getExcludedTaxAmount($entity)
+                : null;
         } catch (\Throwable $exception) {
             $this->logger->info(
                 'Could not load tax amount for entity',
