@@ -7,7 +7,7 @@ use Oro\Bundle\TaxBundle\Provider\TaxAmountProvider;
 use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
 use Psr\Log\LoggerInterface;
 
-/**ssss
+/**
  * Responsible for providing tax amount for payment information.
  *
  * @see \Oro\Bundle\PayPalExpressBundle\Method\Translator\PaymentTransactionTranslator::getPaymentInfo
