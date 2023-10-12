@@ -2,8 +2,7 @@
 
 namespace Oro\Bundle\PayPalExpressBundle\Provider;
 
-use Oro\Bundle\TaxBundle\Manager\TaxManager;
-use Oro\Bundle\TaxBundle\Provider\TaxationSettingsProvider;
+use Oro\Bundle\TaxBundle\Provider\TaxAmountProvider;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -13,20 +12,13 @@ use Psr\Log\LoggerInterface;
  */
 class TaxProvider
 {
-    /**
-     * @var TaxManager
-     */
-    protected $taxManager;
+    protected TaxManager $taxManager;
 
-    /**
-     * @var TaxationSettingsProvider
-     */
-    protected $taxationSettingsProvider;
+    protected TaxationSettingsProvider $taxationSettingsProvider;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
+
+    protected TaxAmountProvider $taxAmountProvider;
 
     public function __construct(
         TaxManager $taxManager,
@@ -39,6 +31,14 @@ class TaxProvider
     }
 
     /**
+     * @param TaxAmountProvider $taxAmountProvider
+     */
+    public function setTaxAmountProvider(TaxAmountProvider $taxAmountProvider): void
+    {
+        $this->taxAmountProvider = $taxAmountProvider;
+    }
+
+    /**
      * Return tax if possible, return null if not
      *
      * @return null|int|float
@@ -46,16 +46,9 @@ class TaxProvider
     public function getTax($entity)
     {
         try {
-            if ($this->taxationSettingsProvider->isProductPricesIncludeTax()
-                && $this->taxationSettingsProvider->isShippingRatesIncludeTax()) {
-                return null;
-            }
-
-            $tax = $this->taxManager->loadTax($entity);
-            $shippingTax = $tax->getShipping()->getTaxAmount();
-            $productTax = $tax->getTotal()->getTaxAmount() - $shippingTax;
-            return ($this->taxationSettingsProvider->isProductPricesIncludeTax() ? 0 : $productTax)
-                + ($this->taxationSettingsProvider->isShippingRatesIncludeTax() ? 0 : $shippingTax);
+            return !$this->taxAmountProvider->isTotalIncludedTax()
+                ? $this->taxAmountProvider->getExcludedTaxAmount($entity)
+                : null;
         } catch (\Throwable $exception) {
             $this->logger->info(
                 'Could not load tax amount for entity',
