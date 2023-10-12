@@ -10,7 +10,7 @@ services:
     oro_paypal_express.pay_pal.provider.tax:
         class: Oro\Bundle\PayPalExpressBundle\Provider\TaxProvider
         arguments:
-            - '@oro_tax.provider.tax_amount'
+            - '@oro_tax.manager.tax_manager'
             - '@logger'
             - '@oro_tax.provider.taxation_settings_provider'
         calls:
