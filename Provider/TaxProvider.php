@@ -43,7 +43,7 @@ class TaxProvider
     /**
      * Return tax if possible, return null if not
      *
-     * @return null|int|float
+     * @return null|float
      */
     public function getTax($entity)
     {
