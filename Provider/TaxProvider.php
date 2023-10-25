@@ -21,7 +21,7 @@ class TaxProvider
     /**
      * Return tax if possible, return null if not
      */
-    public function getTax($entity): null|int|float
+    public function getTax($entity): ?float
     {
         try {
             return !$this->taxAmountProvider->isTotalIncludedTax()
