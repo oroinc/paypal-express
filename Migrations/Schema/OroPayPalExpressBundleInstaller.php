@@ -9,32 +9,30 @@ use Oro\Bundle\MigrationBundle\Migration\QueryBag;
 class OroPayPalExpressBundleInstaller implements Installation
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getMigrationVersion()
+    public function getMigrationVersion(): string
     {
         return 'v1_0';
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function up(Schema $schema, QueryBag $queries)
+    public function up(Schema $schema, QueryBag $queries): void
     {
         $this->updateOroIntegrationTransportTable($schema);
+
         $this->createPpExpressLabelTable($schema);
         $this->createPpExpressShortLabelTable($schema);
+
         $this->addPpExpressLabelForeignKeys($schema);
         $this->addPpExpressShortLabelForeignKeys($schema);
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Schema\SchemaException
-     */
-    protected function updateOroIntegrationTransportTable(Schema $schema)
+    private function updateOroIntegrationTransportTable(Schema $schema): void
     {
         $table = $schema->getTable('oro_integration_transport');
-
         $table->addColumn('pp_express_client_id', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('pp_express_client_secret', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('pp_express_sandbox_mode', 'boolean', ['default' => '0', 'notnull' => false]);
@@ -44,35 +42,33 @@ class OroPayPalExpressBundleInstaller implements Installation
     /**
      * Create oro_pp_express_label table
      */
-    protected function createPpExpressLabelTable(Schema $schema)
+    private function createPpExpressLabelTable(Schema $schema): void
     {
         $table = $schema->createTable('oro_pp_express_label');
-        $table->addColumn('transport_id', 'integer', []);
-        $table->addColumn('localized_value_id', 'integer', []);
+        $table->addColumn('transport_id', 'integer');
+        $table->addColumn('localized_value_id', 'integer');
         $table->setPrimaryKey(['transport_id', 'localized_value_id']);
         $table->addUniqueIndex(['localized_value_id'], 'UNIQ_A5EC4163EB576E89');
-        $table->addIndex(['transport_id'], 'IDX_A5EC41639909C13F', []);
+        $table->addIndex(['transport_id'], 'IDX_A5EC41639909C13F');
     }
 
     /**
      * Create oro_pp_express_short_label table
      */
-    protected function createPpExpressShortLabelTable(Schema $schema)
+    private function createPpExpressShortLabelTable(Schema $schema): void
     {
         $table = $schema->createTable('oro_pp_express_short_label');
-        $table->addColumn('transport_id', 'integer', []);
-        $table->addColumn('localized_value_id', 'integer', []);
+        $table->addColumn('transport_id', 'integer');
+        $table->addColumn('localized_value_id', 'integer');
         $table->setPrimaryKey(['transport_id', 'localized_value_id']);
         $table->addUniqueIndex(['localized_value_id'], 'UNIQ_3E6DC779EB576E89');
-        $table->addIndex(['transport_id'], 'IDX_3E6DC7799909C13F', []);
+        $table->addIndex(['transport_id'], 'IDX_3E6DC7799909C13F');
     }
 
     /**
      * Add oro_pp_express_label foreign keys.
-     *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
      */
-    protected function addPpExpressLabelForeignKeys(Schema $schema)
+    private function addPpExpressLabelForeignKeys(Schema $schema): void
     {
         $table = $schema->getTable('oro_pp_express_label');
         $table->addForeignKeyConstraint(
@@ -91,10 +87,8 @@ class OroPayPalExpressBundleInstaller implements Installation
 
     /**
      * Add oro_pp_express_short_label foreign keys.
-     *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
      */
-    protected function addPpExpressShortLabelForeignKeys(Schema $schema)
+    private function addPpExpressShortLabelForeignKeys(Schema $schema): void
     {
         $table = $schema->getTable('oro_pp_express_short_label');
         $table->addForeignKeyConstraint(

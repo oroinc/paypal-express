@@ -8,21 +8,12 @@ use Doctrine\Persistence\ObjectManager;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
-use Oro\Bundle\UserBundle\Migrations\Data\ORM\LoadAdminUserData;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadUser;
+use Oro\Bundle\UserBundle\Entity\User;
 
-class LoadChannelData extends AbstractFixture implements DependentFixtureInterface, ContainerAwareInterface
+class LoadChannelData extends AbstractFixture implements DependentFixtureInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @var array
-     */
-    protected $data = [
+    private array $data = [
         [
             'name' => 'foo channel',
             'transport' => 'oro_paypal_express.settings.foo',
@@ -36,17 +27,24 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
     ];
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function load(ObjectManager $manager)
+    public function getDependencies(): array
     {
-        $userManager = $this->container->get('oro_user.manager');
-        $admin = $userManager->findUserByEmail(LoadAdminUserData::DEFAULT_ADMIN_EMAIL);
+        return [LoadPayPalExpressSettingsData::class, LoadUser::class];
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function load(ObjectManager $manager): void
+    {
+        /** @var User $user */
+        $user = $this->getReference(LoadUser::USER);
         foreach ($this->data as $item) {
             $channel = new Channel();
-            $channel->setOrganization($admin->getOrganization());
-            $channel->setDefaultUserOwner($admin);
+            $channel->setOrganization($user->getOrganization());
+            $channel->setDefaultUserOwner($user);
             $channel->setType(PayPalExpressChannelType::TYPE);
             $channel->setName($item['name']);
             $channel->setEnabled(true);
@@ -57,28 +55,8 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
             $channel->setTransport($transport);
 
             $manager->persist($channel);
-
             $this->setReference($item['reference'], $channel);
         }
-
         $manager->flush();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDependencies()
-    {
-        return [
-            LoadPayPalExpressSettingsData::class
-        ];
     }
 }
