@@ -45,7 +45,7 @@ Feature: Paypal Express Payments should display products with localized data
   Scenario: Successful order payment with PayPal Express and verify localized product data
     Given I operate as the Buyer
     And I am on the homepage
-    And I click "Zulu"
+    And I select "Zulu" localization
     And I open page with shopping list List 1
     And I click "Create Order"
     And I select "Fifth avenue, 10115 Berlin, Germany" on the "Billing Information" checkout step and press Continue
