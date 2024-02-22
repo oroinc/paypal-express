@@ -62,7 +62,7 @@ class SupportedCurrenciesHelper
     {
         $codes = $this->getSupportedCurrencyCodes();
 
-        return in_array($currencyCode, $codes);
+        return in_array($currencyCode, $codes, true);
     }
 
     /**
@@ -74,7 +74,7 @@ class SupportedCurrenciesHelper
     {
         $codes = $this->getFullySupportedCurrencyCodes();
 
-        return in_array($currencyCode, $codes);
+        return in_array($currencyCode, $codes, true);
     }
 
     /**
@@ -86,7 +86,7 @@ class SupportedCurrenciesHelper
     {
         $codes = $this->getCurrencyCodesWhichIsNotSupportedDecimals();
 
-        return in_array($currencyCode, $codes);
+        return in_array($currencyCode, $codes, true);
     }
 
     /**
@@ -98,7 +98,7 @@ class SupportedCurrenciesHelper
     {
         $codes = $this->getCurrencyCodesWhichIsSupportedOnlyForInCountryPayments();
 
-        return in_array($currencyCode, $codes);
+        return in_array($currencyCode, $codes, true);
     }
 
     /**
