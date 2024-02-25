@@ -3,16 +3,17 @@
 namespace Oro\Bundle\PayPalExpressBundle\Entity;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
+use Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Represents entity for PayPal Express payment method integration settings.
- *
- * @ORM\Entity(repositoryClass="Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository")
  */
+#[ORM\Entity(repositoryClass: PayPalExpressSettingsRepository::class)]
 class PayPalExpressSettings extends Transport
 {
     const CLIENT_ID_SETTING_KEY = 'client_id';
@@ -27,73 +28,35 @@ class PayPalExpressSettings extends Transport
      */
     protected $settings;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="pp_express_client_id", type="string", length=255, nullable=false)
-     */
-    protected $clientId;
+    #[ORM\Column(name: 'pp_express_client_id', type: Types::STRING, length: 255, nullable: false)]
+    protected ?string $clientId = null;
+
+    #[ORM\Column(name: 'pp_express_client_secret', type: Types::STRING, length: 255, nullable: false)]
+    protected ?string $clientSecret = null;
+
+    #[ORM\Column(name: 'pp_express_sandbox_mode', type: Types::BOOLEAN, options: ['default' => false])]
+    protected ?bool $sandboxMode = false;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="pp_express_client_secret", type="string", length=255, nullable=false)
+     * @var Collection<int, LocalizedFallbackValue>
      */
-    protected $clientSecret;
+    #[ORM\ManyToMany(targetEntity: LocalizedFallbackValue::class, cascade: ['ALL'], orphanRemoval: true)]
+    #[ORM\JoinTable(name: 'oro_pp_express_label')]
+    #[ORM\JoinColumn(name: 'transport_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'localized_value_id', referencedColumnName: 'id', unique: true, onDelete: 'CASCADE')]
+    protected ?Collection $labels = null;
 
     /**
-     * @var boolean
-     *
-     * @ORM\Column(name="pp_express_sandbox_mode", type="boolean", options={"default"=false})
+     * @var Collection<int, LocalizedFallbackValue>
      */
-    protected $sandboxMode = false;
+    #[ORM\ManyToMany(targetEntity: LocalizedFallbackValue::class, cascade: ['ALL'], orphanRemoval: true)]
+    #[ORM\JoinTable(name: 'oro_pp_express_short_label')]
+    #[ORM\JoinColumn(name: 'transport_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'localized_value_id', referencedColumnName: 'id', unique: true, onDelete: 'CASCADE')]
+    protected ?Collection $shortLabels = null;
 
-    /**
-     * @var Collection|LocalizedFallbackValue[]
-     *
-     * @ORM\ManyToMany(
-     *      targetEntity="Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue",
-     *      cascade={"ALL"},
-     *      orphanRemoval=true
-     * )
-     * @ORM\JoinTable(
-     *      name="oro_pp_express_label",
-     *      joinColumns={
-     *          @ORM\JoinColumn(name="transport_id", referencedColumnName="id", onDelete="CASCADE")
-     *      },
-     *      inverseJoinColumns={
-     *          @ORM\JoinColumn(name="localized_value_id", referencedColumnName="id", onDelete="CASCADE", unique=true)
-     *      }
-     * )
-     */
-    protected $labels;
-
-    /**
-     * @var Collection|LocalizedFallbackValue[]
-     *
-     * @ORM\ManyToMany(
-     *      targetEntity="Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue",
-     *      cascade={"ALL"},
-     *      orphanRemoval=true
-     * )
-     * @ORM\JoinTable(
-     *      name="oro_pp_express_short_label",
-     *      joinColumns={
-     *          @ORM\JoinColumn(name="transport_id", referencedColumnName="id", onDelete="CASCADE")
-     *      },
-     *      inverseJoinColumns={
-     *          @ORM\JoinColumn(name="localized_value_id", referencedColumnName="id", onDelete="CASCADE", unique=true)
-     *      }
-     * )
-     */
-    protected $shortLabels;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="pp_express_payment_action", type="string", length=255, nullable=false)
-     */
-    protected $paymentAction;
+    #[ORM\Column(name: 'pp_express_payment_action', type: Types::STRING, length: 255, nullable: false)]
+    protected ?string $paymentAction = null;
 
     /**
      * @return string
