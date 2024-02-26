@@ -193,7 +193,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnReturnException()
     {
-        $reference = 1;
+        $reference = '1';
         $paymentTransaction = new PaymentTransaction();
         $paymentTransaction->setActive(true);
         $paymentTransaction->setSuccessful(true);
@@ -235,7 +235,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnReturn()
     {
-        $reference = 1;
+        $reference = '1';
         $paymentTransaction = new PaymentTransaction();
         $paymentTransaction->setActive(true);
         $paymentTransaction->setSuccessful(true);
@@ -277,7 +277,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnReturnWithRedirect(): void
     {
-        $reference = 1;
+        $reference = '1';
         $paymentTransaction = new PaymentTransaction();
         $paymentTransaction->setActive(true);
         $paymentTransaction->setSuccessful(true);
