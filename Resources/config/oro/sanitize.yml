@@ -1,0 +1,12 @@
+oro_sanitize:
+    entity:
+        oro_integration_transport:
+            # 'crypted_string' fields can be removed
+            fields:
+                pp_express_client_id: md5
+                pp_express_client_secret: md5
+                pp_partner: md5
+                pp_vendor: md5
+                pp_user: md5
+                pp_password: md5
+                pp_proxy_host: md5
