@@ -1,3 +1,4 @@
+@regression
 @behat-test-env
 @ticket-BB-17479
 @fixture-OroFlatRateShippingBundle:FlatRateIntegration.yml
