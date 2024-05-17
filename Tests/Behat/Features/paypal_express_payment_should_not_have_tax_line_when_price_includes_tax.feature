@@ -58,7 +58,7 @@ Feature: Paypal Express payment should not have tax line when price includes tax
       | Subtotal | $10.00  |
       | Shipping | $3.00   |
       | Tax      | $0.91   |
-    And I should see "Total $13.00"
+    And I should see "Total: $13.00"
     When I click "Submit Order"
     Then I should not see the following products before pay:
       | NAME | DESCRIPTION |
