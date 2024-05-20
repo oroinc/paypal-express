@@ -68,7 +68,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.07"
-    And I should see "Total $13.00"
+    And I should see "Total: $13.00"
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And I should not see "We were unable to process your payment"
@@ -91,7 +91,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     Then I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.15"
-    And I should see "Total $13.90"
+    And I should see "Total: $13.90"
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And I should not see "We were unable to process your payment"
@@ -114,7 +114,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     Then I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.17"
-    And I should see "Total $14.17"
+    And I should see "Total: $14.17"
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And I should not see "We were unable to process your payment"
@@ -137,7 +137,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     Then I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.10"
-    And I should see "Total $13.27"
+    And I should see "Total: $13.27"
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And I should not see "We were unable to process your payment"
