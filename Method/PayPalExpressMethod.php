@@ -42,25 +42,19 @@ class PayPalExpressMethod implements PaymentMethodInterface
         $this->supportedCurrenciesHelper = $supportedCurrenciesHelper;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function execute($action, PaymentTransaction $paymentTransaction)
     {
         return $this->paymentActionExecutor->executeAction($action, $paymentTransaction, $this->config);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getIdentifier()
     {
         return $this->config->getPaymentMethodIdentifier();
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function isApplicable(PaymentContextInterface $context)
     {
         $isApplicable = $this->supportedCurrenciesHelper->isSupportedCurrency($context->getCurrency());
@@ -77,9 +71,7 @@ class PayPalExpressMethod implements PaymentMethodInterface
         return !($amount === $zeroAmount);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function supports($actionName)
     {
         return $this->paymentActionExecutor->isActionSupported($actionName);

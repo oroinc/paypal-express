@@ -14,6 +14,7 @@ class PayPalExpressSettingsRepositoryTest extends WebTestCase
 {
     private PayPalExpressSettingsRepository $repository;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->initClient();

@@ -12,9 +12,7 @@ use PayPal\Rest\ApiContext;
 
 class PayPalClient extends BasePayPalClient
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function createPayment(Payment $payment, ApiContext $apiContext)
     {
         if (!$this->isPaymentValid($payment)) {

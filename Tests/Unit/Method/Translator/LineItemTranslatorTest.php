@@ -29,6 +29,7 @@ class LineItemTranslatorTest extends \PHPUnit\Framework\TestCase
     /** @var LineItemTranslator */
     private $lineItemTranslator;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->optionsProvider = $this->createMock(OptionsProvider::class);

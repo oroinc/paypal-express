@@ -54,9 +54,7 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         $this->paymentTransactionDataFactory = $paymentTransactionDataFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getPayPalPaymentRoute(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         $paymentInfo = null;
@@ -105,9 +103,7 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         return $this->paymentTransactionTranslator->getRedirectRoutes($paymentTransaction);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executePayPalPayment(
         PaymentTransaction $paymentTransaction,
         PayPalExpressConfigInterface $config
@@ -150,9 +146,7 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         return $responseData;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function capturePayment(
         PaymentTransaction $paymentTransaction,
         PaymentTransaction $authorizedTransaction,
@@ -188,9 +182,7 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
         return $paymentInfo;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function authorizePayment(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         $this->updateRequest($paymentTransaction, $config);

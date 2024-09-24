@@ -42,9 +42,7 @@ class PayPalExpressConfigProvider implements PayPalExpressConfigProviderInterfac
         $this->factory  = $factory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getPaymentConfigs()
     {
         if ($this->configs == null) {

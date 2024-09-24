@@ -11,9 +11,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
  */
 class CaptureAction extends AbstractPaymentAction
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         $paymentTransaction->setAction($this->getName());
@@ -40,9 +38,7 @@ class CaptureAction extends AbstractPaymentAction
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getName()
     {
         return PaymentMethodInterface::CAPTURE;

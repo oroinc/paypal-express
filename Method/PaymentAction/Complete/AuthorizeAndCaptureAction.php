@@ -15,9 +15,7 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
 {
     const NAME = 'authorize_and_capture';
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         /**
@@ -41,9 +39,7 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getName()
     {
         return self::NAME;

@@ -15,6 +15,7 @@ class PayPalExpressViewFactory implements PayPalExpressViewFactoryInterface
      *
      * @return PaymentMethodViewInterface
      */
+    #[\Override]
     public function create(PayPalExpressConfigInterface $config)
     {
         return new PayPalExpressView($config);

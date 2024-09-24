@@ -15,6 +15,7 @@ class PaymentTransactionDataFactoryTest extends \PHPUnit\Framework\TestCase
 {
     private PaymentTransactionDataFactory $factory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->factory = new PaymentTransactionDataFactory();

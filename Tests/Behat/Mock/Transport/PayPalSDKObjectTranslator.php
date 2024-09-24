@@ -26,6 +26,7 @@ class PayPalSDKObjectTranslator extends _PayPalSDKObjectTranslator
      *
      * @return \PayPal\Api\Payment
      */
+    #[\Override]
     public function getPayment(PaymentInfo $paymentInfo, RedirectRoutesInfo $redirectRoutesInfo)
     {
         $filteredLineItems = array_map(function (ItemInfo $value) {

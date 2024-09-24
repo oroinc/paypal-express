@@ -9,25 +9,19 @@ use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\AbstractPayme
 
 class AuthorizeAndCaptureActionTest extends AbstractPaymentActionTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function createPaymentAction(): PaymentActionInterface
     {
         return new AuthorizeAndCaptureAction($this->facade, $this->logger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function getExpectedPaymentTransactionAction(): string
     {
         return PaymentMethodInterface::CAPTURE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->any())

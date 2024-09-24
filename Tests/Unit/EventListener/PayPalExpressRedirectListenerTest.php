@@ -36,6 +36,7 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
     /** @var PayPalExpressRedirectListener */
     private $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->paymentMethodProvider = $this->createMock(PaymentMethodProviderInterface::class);

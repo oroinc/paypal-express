@@ -51,6 +51,7 @@ class PayPalExpressSettingsType extends AbstractType
     /**
      * @throws \InvalidArgumentException
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -135,6 +136,7 @@ class PayPalExpressSettingsType extends AbstractType
         return $builder;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -142,9 +144,7 @@ class PayPalExpressSettingsType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getBlockPrefix(): string
     {
         return self::BLOCK_PREFIX;

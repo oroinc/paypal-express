@@ -8,9 +8,7 @@ use Oro\Bundle\PayPalExpressBundle\Tests\Unit\Method\PaymentAction\AuthorizeActi
 
 class AuthorizeActionTest extends ParentAuthorizeActionTest
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function createPaymentAction(): PaymentActionInterface
     {
         return new AuthorizeOnCompleteAction($this->facade, $this->logger);

@@ -53,9 +53,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
         $this->exceptionFactory = $exceptionFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function setupPayment(
         PaymentInfo $paymentInfo,
         ApiContextInfo $apiContextInfo,
@@ -99,9 +97,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         try {
@@ -170,9 +166,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
         return $order;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function authorizePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {
@@ -214,6 +208,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
         return $this->client->authorizeOrder($order, $authorization, $apiContext);
     }
 
+    #[\Override]
     public function capturePayment(PaymentInfo $paymentInfo, ApiContextInfo $apiContextInfo)
     {
         if (!$paymentInfo->getOrderId()) {

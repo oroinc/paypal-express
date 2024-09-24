@@ -29,6 +29,7 @@ abstract class AbstractPaymentActionTestCase extends \PHPUnit\Framework\TestCase
     /** @var PayPalExpressConfigInterface */
     protected $config;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->facade = $this->createMock(PayPalExpressTransportFacadeInterface::class);

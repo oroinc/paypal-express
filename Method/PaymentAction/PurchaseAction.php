@@ -13,9 +13,7 @@ class PurchaseAction extends AbstractPaymentAction
 {
     const PAYMENT_TRANSACTION_ACTION_NAME = 'create_payment';
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         /**
@@ -38,9 +36,7 @@ class PurchaseAction extends AbstractPaymentAction
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getName()
     {
         return PaymentMethodInterface::PURCHASE;

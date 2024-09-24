@@ -19,6 +19,7 @@ class TaxProviderTest extends TestCase
 
     private TaxAmountProvider|MockObject $taxAmountProvider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->taxAmountProvider = $this->createMock(TaxAmountProvider::class);

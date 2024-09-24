@@ -19,6 +19,7 @@ class AuthorizeOnCompleteAction extends AuthorizeAction
      *
      * @return string
      */
+    #[\Override]
     public function getName()
     {
         return self::NAME;

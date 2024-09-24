@@ -16,6 +16,7 @@ class CompleteVirtualActionTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|CompletePaymentActionRegistry */
     private $completePaymentActionRegistry;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->completePaymentActionRegistry = $this->createMock(CompletePaymentActionRegistry::class);

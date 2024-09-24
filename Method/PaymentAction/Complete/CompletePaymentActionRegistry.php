@@ -14,9 +14,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionRegistry;
  */
 class CompletePaymentActionRegistry extends PaymentActionRegistry implements ActionNamesProviderInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getActionNames()
     {
         return array_keys($this->paymentActions);

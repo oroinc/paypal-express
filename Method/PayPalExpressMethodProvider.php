@@ -33,6 +33,7 @@ class PayPalExpressMethodProvider extends AbstractPaymentMethodProvider
     /**
      * Save methods to $methods property
      */
+    #[\Override]
     protected function collectMethods()
     {
         $configs = $this->payPalExpressConfigProvider->getPaymentConfigs();

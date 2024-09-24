@@ -84,6 +84,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getLabel()
     {
         return $this->label;
@@ -92,6 +93,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getShortLabel()
     {
         return $this->shortLabel;
@@ -100,6 +102,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getAdminLabel()
     {
         return $this->adminLabel;
@@ -108,6 +111,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getClientId()
     {
         return $this->clientId;
@@ -116,6 +120,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getClientSecret()
     {
         return $this->clientSecret;
@@ -124,6 +129,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getPaymentMethodIdentifier()
     {
         return $this->paymentMethodIdentifier;
@@ -132,6 +138,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return bool
      */
+    #[\Override]
     public function isSandbox()
     {
         return $this->isSandbox;
@@ -140,6 +147,7 @@ class PayPalExpressConfig implements PayPalExpressConfigInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getPaymentAction()
     {
         return $this->paymentAction;

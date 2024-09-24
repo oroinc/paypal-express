@@ -11,17 +11,13 @@ class QuxPaymentEntityStub implements ShippingAwareInterface, SubtotalAwareInter
 
     public $testSubtotal;
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getShippingCost()
     {
         return $this->testShipping;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getSubtotal()
     {
         return $this->testSubtotal;

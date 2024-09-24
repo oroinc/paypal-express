@@ -45,9 +45,7 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
      */
     protected $encoder;
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function load(ObjectManager $manager)
     {
         foreach ($this->data as $item) {
@@ -70,9 +68,7 @@ class LoadPayPalExpressSettingsData extends AbstractFixture implements Container
         $manager->flush();
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function setContainer(ContainerInterface $container = null)
     {
         $this->encoder = $container->get('oro_security.encoder.default');

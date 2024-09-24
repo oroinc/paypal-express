@@ -8,9 +8,7 @@ class BarPaymentEntityStub implements ShippingAwareInterface
 {
     public $testShipping;
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getShippingCost()
     {
         return $this->testShipping;

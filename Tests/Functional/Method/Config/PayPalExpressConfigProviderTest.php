@@ -13,6 +13,7 @@ class PayPalExpressConfigProviderTest extends WebTestCase
 {
     private PayPalExpressConfigProvider $payPalExpressConfigProvider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->initClient();

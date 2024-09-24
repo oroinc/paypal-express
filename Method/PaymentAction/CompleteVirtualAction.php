@@ -28,9 +28,7 @@ class CompleteVirtualAction implements PaymentActionInterface
         $this->completePaymentActionRegistry = $completePaymentActionRegistry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
         $paymentAction = $this->completePaymentActionRegistry->getPaymentAction($config->getPaymentAction());
@@ -41,6 +39,7 @@ class CompleteVirtualAction implements PaymentActionInterface
     /**
      * @return string
      */
+    #[\Override]
     public function getName()
     {
         return self::NAME;

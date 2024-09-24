@@ -12,17 +12,13 @@ class PayPalExpressChannelType implements ChannelInterface, IconAwareIntegration
 {
     const TYPE = 'paypal_express';
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getLabel()
     {
         return 'oro.paypal_express.channel_type.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getIcon()
     {
         return 'bundles/oropaypalexpress/img/paypal-logo.png';

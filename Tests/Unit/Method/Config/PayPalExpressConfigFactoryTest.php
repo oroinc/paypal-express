@@ -27,6 +27,7 @@ class PayPalExpressConfigFactoryTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|SymmetricCrypterInterface */
     private $encoder;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->identifierGenerator = $this->createMock(IntegrationIdentifierGeneratorInterface::class);

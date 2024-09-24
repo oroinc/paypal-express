@@ -9,6 +9,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
 {
     private RedirectRoutesInfo $redirectRoutesInfo;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

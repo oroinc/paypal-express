@@ -8,6 +8,7 @@ class SupportedCurrenciesHelperTest extends \PHPUnit\Framework\TestCase
 {
     private SupportedCurrenciesHelper $helper;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->helper = new SupportedCurrenciesHelper();

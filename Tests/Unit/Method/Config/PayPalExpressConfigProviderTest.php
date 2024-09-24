@@ -28,6 +28,7 @@ class PayPalExpressConfigProviderTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalExpressConfigFactoryInterface */
     private $factory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->doctrine = $this->createMock(ManagerRegistry::class);

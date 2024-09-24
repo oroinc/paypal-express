@@ -25,6 +25,7 @@ class PayPalSDKObjectTranslatorTest extends \PHPUnit\Framework\TestCase
 {
     private PayPalSDKObjectTranslator $payPalSDKObjectTranslator;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->payPalSDKObjectTranslator = new PayPalSDKObjectTranslator();

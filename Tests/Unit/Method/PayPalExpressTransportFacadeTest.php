@@ -36,6 +36,7 @@ class PayPalExpressTransportFacadeTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|PaymentTransactionDataFactory */
     private $paymentTransactionDataFactory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->payPalExpressTransport = $this->createMock(PayPalExpressTransportInterface::class);

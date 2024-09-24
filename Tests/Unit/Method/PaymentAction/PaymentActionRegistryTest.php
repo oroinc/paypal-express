@@ -16,6 +16,7 @@ class PaymentActionRegistryTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
     private $exceptionFactory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->exceptionFactory = $this->createMock(ExceptionFactory::class);

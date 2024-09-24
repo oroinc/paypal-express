@@ -26,6 +26,7 @@ class TransportException extends RuntimeException implements ErrorContextAwareEx
     /**
      * @return array
      */
+    #[\Override]
     public function getErrorContext()
     {
         return $this->errorContext;

@@ -10,17 +10,13 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 
 class CaptureActionTest extends AbstractPaymentActionTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function createPaymentAction(): PaymentActionInterface
     {
         return new CaptureAction($this->facade, $this->logger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function createPaymentTransaction(): PaymentTransaction
     {
         $transaction = new PaymentTransaction();
@@ -66,9 +62,7 @@ class CaptureActionTest extends AbstractPaymentActionTestCase
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->any())
@@ -76,17 +70,13 @@ class CaptureActionTest extends AbstractPaymentActionTestCase
             ->willThrowException($throwable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function getExpectedPaymentTransactionAction(): string
     {
         return PaymentMethodInterface::CAPTURE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return ['successful' => false, 'message' => $exception->getMessage()];

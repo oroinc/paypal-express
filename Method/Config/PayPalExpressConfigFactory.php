@@ -39,9 +39,7 @@ class PayPalExpressConfigFactory implements PayPalExpressConfigFactoryInterface
         $this->encoder             = $encoder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function createConfig(PayPalExpressSettings $settings)
     {
         return new PayPalExpressConfig(

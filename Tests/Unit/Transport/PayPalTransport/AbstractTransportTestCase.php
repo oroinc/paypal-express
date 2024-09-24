@@ -50,6 +50,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     /** @var PayPalExpressTransport */
     protected $transport;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->translator = $this->createMock(PayPalSDKObjectTranslatorInterface::class);

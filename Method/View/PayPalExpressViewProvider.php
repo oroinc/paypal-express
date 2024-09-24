@@ -28,6 +28,7 @@ class PayPalExpressViewProvider extends AbstractPaymentMethodViewProvider
         parent::__construct();
     }
 
+    #[\Override]
     protected function buildViews()
     {
         $configs = $this->configProvider->getPaymentConfigs();

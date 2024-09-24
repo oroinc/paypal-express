@@ -48,6 +48,7 @@ class PaymentTransactionTranslatorTest extends \PHPUnit\Framework\TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
     private $exceptionFactory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->supportedCurrenciesHelper = new SupportedCurrenciesHelper();

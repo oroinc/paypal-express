@@ -9,9 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\PaymentActionInterface;
 
 class AuthorizeActionTest extends AbstractPaymentActionTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function createPaymentAction(): PaymentActionInterface
     {
         return new AuthorizeAction($this->facade, $this->logger);
@@ -35,25 +33,19 @@ class AuthorizeActionTest extends AbstractPaymentActionTestCase
         $this->assertEquals(['successful' => true], $result);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function getExpectedPaymentTransactionAction(): string
     {
         return PaymentMethodInterface::AUTHORIZE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function getExpectedExecuteResultAfterPayPalInnerException(ExceptionInterface $exception): array
     {
         return ['successful' => false, 'message' => $exception->getMessage()];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
         $this->facade->expects($this->any())

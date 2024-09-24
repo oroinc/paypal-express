@@ -24,9 +24,7 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
         $this->translator = $translator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function createTransportException($message, Context $errorContext, \Throwable $throwable = null)
     {
         $errorInfo = $this->getErrorInfo($throwable);

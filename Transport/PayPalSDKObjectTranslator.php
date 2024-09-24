@@ -22,18 +22,13 @@ use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
-/**
- * {@inheritdoc}
- */
 class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
 {
     const MOD_SANDBOX = 'sandbox';
     const MOD_LIVE = 'live';
     const APPLICATION_PARTNER_ID = 'OroCommerce_SP';
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getPayment(PaymentInfo $paymentInfo, RedirectRoutesInfo $redirectRoutesInfo)
     {
         $payer = new Payer();
@@ -85,9 +80,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         return $payment;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getApiContext(ApiContextInfo $apiContextInfo)
     {
         $credentials = $this->getApiCredentials($apiContextInfo->getCredentialsInfo());
@@ -102,17 +95,13 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         return $apiContext;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getApiCredentials(CredentialsInfo $credentialsInfo)
     {
         return new OAuthTokenCredential($credentialsInfo->getClientId(), $credentialsInfo->getClientSecret());
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getPaymentExecution(PaymentInfo $paymentInfo)
     {
         $execution = new PaymentExecution();
@@ -121,9 +110,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         return $execution;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getAuthorization(PaymentInfo $paymentInfo)
     {
         $amount = new Amount();
@@ -136,9 +123,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         return $authorization;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getCapturedDetails(PaymentInfo $paymentInfo)
     {
         $captureDetails = new Capture();
@@ -151,9 +136,7 @@ class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
         return $captureDetails;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getErrorInfo(PayPalConnectionException $exception)
     {
         $message = $exception->getMessage();

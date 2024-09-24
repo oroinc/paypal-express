@@ -10,6 +10,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
 {
     private string $expectedPaymentId = '2xBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
