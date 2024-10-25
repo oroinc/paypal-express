@@ -19,7 +19,7 @@ oro:
                 tooltip: When the Sandbox Mode is enabled please make sure to use the Client Secret from a Sandbox account
             labels:
                 label: Label
-                tooltip: This label is used on the checkout screens on the store frontend
+                tooltip: This label is used on the checkout screens on the storefront
             short_labels:
                 label: Short Label
                 tooltip: This label is used in customer order history
