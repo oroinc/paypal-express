@@ -1,0 +1,51 @@
+services:
+    oro_paypal_express.api.checkout_payment_subresource_provider:
+        class: Oro\Bundle\CheckoutBundle\Api\CheckoutPaymentSubresourceProvider
+        arguments:
+            - '@oro_paypal_express.method.provider'
+            - 'paymentPayPalExpress'
+        tags:
+            - { name: oro_checkout.api.checkout_payment_subresource_provider }
+
+    oro_paypal_express.api.build_form_builder_for_pay_with_paypal_express_subresource:
+        class: Oro\Bundle\ApiBundle\Processor\Subresource\ChangeSubresource\BuildFormBuilder
+        arguments:
+            - '@oro_api.form_helper'
+        tags:
+            - { name: oro.api.processor, action: add_subresource, group: transform_data, requestType: frontend, association: paymentPayPalExpress, parentClass: Oro\Bundle\CheckoutBundle\Entity\Checkout, priority: 100 }
+
+    oro_paypal_express.api.validate_checkout_is_ready_for_payment:
+        class: Oro\Bundle\CheckoutBundle\Api\Processor\ValidateCheckoutIsReadyForPayment
+        arguments:
+            - '@oro_api.action_processor_bag'
+            - '@router'
+            - '@oro_api.rest.routes_registry'
+            - '@oro_api.value_normalizer'
+        tags:
+            - { name: oro.api.processor, action: add_subresource, group: data_security_check, requestType: frontend, association: paymentPayPalExpress, parentClass: Oro\Bundle\CheckoutBundle\Entity\Checkout, priority: 5 }
+
+    oro_paypal_express.api.validate_checkout_payment_method_is_applicable:
+        class: Oro\Bundle\CheckoutBundle\Api\Processor\ValidateCheckoutPaymentMethodIsApplicable
+        arguments:
+            - '@oro_paypal_express.api.checkout_payment_subresource_provider'
+        tags:
+            - { name: oro.api.processor, action: add_subresource, group: data_security_check, requestType: frontend, association: paymentPayPalExpress, parentClass: Oro\Bundle\CheckoutBundle\Entity\Checkout }
+
+    oro_paypal_express.api.prepare_form_data_for_checkout_payment_subresource:
+        class: Oro\Bundle\PayPalExpressBundle\Api\Processor\PreparePayPalExpressPaymentSubresourceFormData
+        tags:
+            - { name: oro.api.processor, action: add_subresource, group: load_data, requestType: frontend, association: paymentPayPalExpress, parentClass: Oro\Bundle\CheckoutBundle\Entity\Checkout, priority: -99 }
+
+    oro_paypal_express.api.handle_checkout_payment_subresource:
+        class: Oro\Bundle\PayPalExpressBundle\Api\Processor\HandlePayPalExpressPaymentSubresource
+        arguments:
+            - '@oro_checkout.action_group.split_order_actions'
+            - '@oro_checkout.action_group.checkout_actions'
+            - '@oro_checkout.action_group.address_actions'
+            - '@oro_action.action_executor'
+            - '@oro_payment.provider.payment_status'
+            - '@oro_checkout.provider.grouped_line_items'
+            - '@oro_api.doctrine_helper'
+            - '@oro_api.save_data_handler'
+        tags:
+            - { name: oro.api.processor, action: add_subresource, group: save_data, requestType: frontend, association: paymentPayPalExpress, parentClass: Oro\Bundle\CheckoutBundle\Entity\Checkout }

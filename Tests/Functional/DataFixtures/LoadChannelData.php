@@ -23,7 +23,7 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
             'name' => 'bar channel',
             'transport' => 'oro_paypal_express.settings.baz',
             'reference' => 'oro_paypal_express.channel.bar'
-        ],
+        ]
     ];
 
     #[\Override]

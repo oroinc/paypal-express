@@ -17,13 +17,12 @@ class PayPalExpressConfigProviderTest extends WebTestCase
     protected function setUp(): void
     {
         $this->initClient();
-
         $this->loadFixtures([LoadChannelData::class]);
 
-        $this->payPalExpressConfigProvider = $this->getContainer()->get('oro_paypal_express.method.config.provider');
+        $this->payPalExpressConfigProvider = self::getContainer()->get('oro_paypal_express.method.config.provider');
     }
 
-    public function testGetPaymentConfigs()
+    public function testGetPaymentConfigs(): void
     {
         $expectedConfigs = [
             [
@@ -31,14 +30,14 @@ class PayPalExpressConfigProviderTest extends WebTestCase
                 'clientId'     => 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'label'        => 'foo label',
                 'adminLabel'   => 'foo channel',
-                'shortLabel'   => 'foo short label',
+                'shortLabel'   => 'foo short label'
             ],
             [
                 'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'clientId'     => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
                 'label'        => 'baz label',
                 'adminLabel'   => 'bar channel',
-                'shortLabel'   => 'baz short label',
+                'shortLabel'   => 'baz short label'
             ],
         ];
 
@@ -56,6 +55,6 @@ class PayPalExpressConfigProviderTest extends WebTestCase
             $actualConfigs[] = $actualConfig;
         }
 
-        $this->assertEquals($expectedConfigs, $actualConfigs);
+        self::assertEquals($expectedConfigs, $actualConfigs);
     }
 }

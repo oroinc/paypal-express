@@ -7,70 +7,63 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Persistence\ObjectManager;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
-use Oro\Bundle\SecurityBundle\Encoder\Mcrypt;
+use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\AuthorizeOnCompleteAction;
+use Oro\Bundle\SecurityBundle\Encoder\SymmetricCrypterInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 class LoadPayPalExpressSettingsData extends AbstractFixture implements ContainerAwareInterface
 {
-    /**
-     * @var array
-     */
-    protected $data = [
+    use ContainerAwareTrait;
+
+    private const array DATA = [
         [
-            'clientId'     => 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'clientId' => 'YxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'TxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-            'label'        => 'foo label',
-            'shortLabel'   => 'foo short label',
-            'reference'    => 'oro_paypal_express.settings.foo'
+            'label' => 'foo label',
+            'shortLabel' => 'foo short label',
+            'reference' => 'oro_paypal_express.settings.foo'
         ],
         [
-            'clientId'     => 'ZxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'clientId' => 'ZxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'LxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-            'label'        => 'bar label',
-            'shortLabel'   => 'bar short label',
-            'reference'    => 'oro_paypal_express.settings.bar'
+            'label' => 'bar label',
+            'shortLabel' => 'bar short label',
+            'reference' => 'oro_paypal_express.settings.bar'
         ],
         [
-            'clientId'     => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+            'clientId' => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
             'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-            'label'        => 'baz label',
-            'shortLabel'   => 'baz short label',
-            'reference'    => 'oro_paypal_express.settings.baz'
-        ],
+            'label' => 'baz label',
+            'shortLabel' => 'baz short label',
+            'reference' => 'oro_paypal_express.settings.baz'
+        ]
     ];
 
-    /**
-     * @var Mcrypt
-     */
-    protected $encoder;
-
     #[\Override]
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
-        foreach ($this->data as $item) {
+        /** @var SymmetricCrypterInterface $encoder */
+        $encoder = $this->container->get('oro_security.encoder.default');
+        foreach (self::DATA as $item) {
             $settings = new PayPalExpressSettings();
-            $settings->setClientId($this->encoder->encryptData($item['clientId']));
-            $settings->setClientSecret($this->encoder->encryptData($item['clientSecret']));
-            $label = new LocalizedFallbackValue();
-            $label->setString($item['label']);
-            $label->setText($item['label']);
-            $settings->setLabels(new ArrayCollection([$label]));
-            $shortLabels = new LocalizedFallbackValue();
-            $shortLabels->setString($item['shortLabel']);
-            $shortLabels->setText($item['shortLabel']);
-            $settings->setShortLabels(new ArrayCollection([$shortLabels]));
+            $settings->setPaymentAction(AuthorizeOnCompleteAction::NAME);
+            $settings->setClientId($encoder->encryptData($item['clientId']));
+            $settings->setClientSecret($encoder->encryptData($item['clientSecret']));
+            $settings->setLabels(new ArrayCollection([$this->createLocalizedFallbackValue($item['label'])]));
+            $settings->setShortLabels(new ArrayCollection([$this->createLocalizedFallbackValue($item['shortLabel'])]));
 
             $manager->persist($settings);
             $this->setReference($item['reference'], $settings);
         }
-
         $manager->flush();
     }
 
-    #[\Override]
-    public function setContainer(ContainerInterface $container = null)
+    private function createLocalizedFallbackValue(string $value): LocalizedFallbackValue
     {
-        $this->encoder = $container->get('oro_security.encoder.default');
+        $localizedFallbackValue = new LocalizedFallbackValue();
+        $localizedFallbackValue->setString($value);
+
+        return $localizedFallbackValue;
     }
 }

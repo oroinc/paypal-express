@@ -18,30 +18,19 @@ class PayPalExpressSettingsRepositoryTest extends WebTestCase
     protected function setUp(): void
     {
         $this->initClient();
-
-        $mangerRegistry = $this->getContainer()->get('doctrine');
-
-        $repository = $mangerRegistry->getRepository(PayPalExpressSettings::class);
-
-        /**
-         * Guard Assertion
-         */
-        $this->assertInstanceOf(PayPalExpressSettingsRepository::class, $repository);
-
-        $this->repository = $repository;
-
         $this->loadFixtures([LoadChannelData::class]);
+
+        $this->repository = self::getContainer()->get('doctrine')->getRepository(PayPalExpressSettings::class);
     }
 
-    public function testGetEnabledIntegrationsSettings()
+    public function testGetEnabledIntegrationsSettings(): void
     {
-        $settings = $this->repository->getEnabledIntegrationsSettings();
-
-        $expected = [
-            $this->getReference('oro_paypal_express.settings.foo'),
-            $this->getReference('oro_paypal_express.settings.baz')
-        ];
-
-        $this->assertEquals($expected, $settings);
+        self::assertEquals(
+            [
+                $this->getReference('oro_paypal_express.settings.foo'),
+                $this->getReference('oro_paypal_express.settings.baz')
+            ],
+            $this->repository->getEnabledIntegrationsSettings()
+        );
     }
 }

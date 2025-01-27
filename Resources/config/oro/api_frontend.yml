@@ -1,0 +1,28 @@
+api:
+    entities:
+        Oro\Bundle\CheckoutBundle\Entity\Checkout:
+            documentation_resource: '@OroPayPalExpressBundle/Resources/doc/api_frontend/checkout.md'
+            subresources:
+                paymentPayPalExpress:
+                    target_class: Oro\Bundle\OrderBundle\Entity\Order
+                    actions:
+                        add_subresource:
+                            description: Execute checkout payment with PayPal Express payment method
+                            request_target_class: Oro\Bundle\PayPalExpressBundle\Api\Model\PayPalExpressPaymentRequest
+                        get_subresource: false
+
+        Oro\Bundle\PayPalExpressBundle\Api\Model\PayPalExpressPaymentRequest:
+            documentation_resource: '@OroPayPalExpressBundle/Resources/doc/api_frontend/checkout.md'
+            fields:
+                successUrl:
+                    data_type: string
+                    form_options:
+                        constraints:
+                            - NotBlank: ~
+                failureUrl:
+                    data_type: string
+                    form_options:
+                        constraints:
+                            - NotBlank: ~
+            # this entity does not have own API resource
+            actions: false
