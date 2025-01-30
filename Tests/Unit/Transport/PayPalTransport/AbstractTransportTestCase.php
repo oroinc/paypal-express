@@ -73,7 +73,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         );
     }
 
-    protected function createPaymentInfo(string $paymentId = null, string $orderId = null): PaymentInfo
+    protected function createPaymentInfo(?string $paymentId = null, ?string $orderId = null): PaymentInfo
     {
         $this->paymentInfo = new PaymentInfo(
             1.22,
@@ -101,9 +101,9 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     }
 
     protected function createPayment(
-        string $id = null,
-        string $state = null,
-        string $failureReason = null
+        ?string $id = null,
+        ?string $state = null,
+        ?string $failureReason = null
     ): Payment {
         $payment = new Payment();
         $payment->setId($id);
@@ -126,10 +126,10 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     }
 
     protected function createPaymentWithOrder(
-        Order $order = null,
-        string $id = null,
-        string $state = null,
-        string $failureReason = null
+        ?Order  $order = null,
+        ?string $id = null,
+        ?string $state = null,
+        ?string $failureReason = null
     ): Payment {
         $payment = $this->createPayment($id, $state, $failureReason);
 
@@ -145,7 +145,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     protected function expectTransportException(
         $expectedMessage,
         Context $expectedContext,
-        \Throwable $expectedPrevious = null
+        ?\Throwable $expectedPrevious = null
     ): void {
         $expectedExceptionMessage = 'Test payment exception message';
         $expectedException = new TransportException($expectedExceptionMessage, $expectedContext->getContext());
@@ -195,7 +195,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage($expectedExceptionMessage);
     }
 
-    protected function expectTranslatorGetApiContext(ApiContextInfo $apiContextInfo = null): ApiContext
+    protected function expectTranslatorGetApiContext(?ApiContextInfo $apiContextInfo = null): ApiContext
     {
         $apiContextInfo = $apiContextInfo ?? $this->apiContextInfo;
         $this->apiContext = new ApiContext();
@@ -208,7 +208,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         return $this->apiContext;
     }
 
-    protected function createOrder(string $id = null, string $state = null): Order
+    protected function createOrder(?string $id = null, ?string $state = null): Order
     {
         $order = new Order();
         $order->setId($id);

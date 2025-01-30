@@ -88,7 +88,7 @@ class PayPalExpressTransport implements PayPalExpressTransportInterface
      * @param Context    $context
      * @return TransportException
      */
-    protected function createTransportException($message, \Throwable $throwable = null, Context $context)
+    protected function createTransportException($message, ?\Throwable $throwable = null, Context $context)
     {
         return $this->exceptionFactory->createTransportException(
             $message,

@@ -223,7 +223,7 @@ class PayPalExpressTransportFacade implements PayPalExpressTransportFacadeInterf
     protected function updateResponse(
         PaymentTransaction $paymentTransaction,
         PayPalExpressConfigInterface $config,
-        PaymentInfo $paymentInfo = null
+        ?PaymentInfo $paymentInfo = null
     ) {
         $responseData = $this->paymentTransactionDataFactory
             ->createResponseData($paymentTransaction, $config, $paymentInfo);

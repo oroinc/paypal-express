@@ -23,7 +23,7 @@ class PaymentTransactionDataFactory
     public function createResponseData(
         PaymentTransaction $paymentTransaction,
         PayPalExpressConfigInterface $config,
-        PaymentInfo $paymentInfo = null
+        ?PaymentInfo $paymentInfo = null
     ) {
         $paymentTransactionData = new PaymentTransactionResponseData();
         $paymentTransactionData->setPaymentAction($paymentTransaction->getAction());

@@ -53,7 +53,7 @@ class ExceptionFactory
      *
      * @return LogicException
      */
-    public function createLogicException($message, \Throwable $previous = null)
+    public function createLogicException($message, ?\Throwable $previous = null)
     {
         return new LogicException($message, 0, $previous);
     }
@@ -64,7 +64,7 @@ class ExceptionFactory
      *
      * @return RuntimeException
      */
-    public function createRuntimeException($message, \Throwable $previous = null)
+    public function createRuntimeException($message, ?\Throwable $previous = null)
     {
         return new RuntimeException($message, 0, $previous);
     }

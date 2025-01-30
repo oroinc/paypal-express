@@ -152,7 +152,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    private function createCapture(string $state = null, string $parentPayment = null): Capture
+    private function createCapture(?string $state = null, ?string $parentPayment = null): Capture
     {
         $capture = new Capture();
         $capture->setState($state);

@@ -14,5 +14,5 @@ interface TransportExceptionFactoryInterface
      *
      * @return TransportException
      */
-    public function createTransportException($message, Context $context, \Throwable $throwable = null);
+    public function createTransportException($message, Context $context, ?\Throwable $throwable = null);
 }

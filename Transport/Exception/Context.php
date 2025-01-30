@@ -43,7 +43,7 @@ class Context
      *
      * @return $this
      */
-    public function setPaymentInfo(PaymentInfo $paymentInfo = null)
+    public function setPaymentInfo(?PaymentInfo $paymentInfo = null)
     {
         $this->paymentInfo = $paymentInfo;
 
@@ -55,7 +55,7 @@ class Context
      *
      * @return $this
      */
-    public function setPayment(Payment $payment = null)
+    public function setPayment(?Payment $payment = null)
     {
         $this->payment = $payment;
 
@@ -67,7 +67,7 @@ class Context
      *
      * @return $this
      */
-    public function setAuthorization(Authorization $authorization = null)
+    public function setAuthorization(?Authorization $authorization = null)
     {
         $this->authorization = $authorization;
 
@@ -79,7 +79,7 @@ class Context
      *
      * @return $this
      */
-    public function setCapture(Capture $capture = null)
+    public function setCapture(?Capture $capture = null)
     {
         $this->capture = $capture;
 
@@ -91,7 +91,7 @@ class Context
      *
      * @return $this
      */
-    public function addErrorInfo(ErrorInfo $errorInfo = null)
+    public function addErrorInfo(?ErrorInfo $errorInfo = null)
     {
         $this->errorInfo = $errorInfo;
 

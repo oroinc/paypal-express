@@ -25,7 +25,7 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
     }
 
     #[\Override]
-    public function createTransportException($message, Context $errorContext, \Throwable $throwable = null)
+    public function createTransportException($message, Context $errorContext, ?\Throwable $throwable = null)
     {
         $errorInfo = $this->getErrorInfo($throwable);
         $message = $this->processMessage($message, $throwable, $errorInfo);
@@ -38,7 +38,7 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
      * @param \Throwable|null $throwable
      * @return ErrorInfo
      */
-    protected function getErrorInfo(\Throwable $throwable = null)
+    protected function getErrorInfo(?\Throwable $throwable = null)
     {
         if ($throwable instanceof PayPalConnectionException) {
             return $this->translator->getErrorInfo($throwable);
@@ -49,13 +49,13 @@ class TransportExceptionFactory implements TransportExceptionFactoryInterface
     /**
      * @param string          $message
      * @param \Throwable|null $throwable
-     * @param ErrorInfo|null  $errorInfo
+     * @param ErrorInfo|null $errorInfo
      * @return array
      */
     protected function processMessage(
         $message,
-        \Throwable $throwable = null,
-        ErrorInfo $errorInfo = null
+        ?\Throwable $throwable = null,
+        ?ErrorInfo $errorInfo = null
     ) {
         $reason = null;
         if ($errorInfo) {

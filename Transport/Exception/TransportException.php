@@ -17,7 +17,7 @@ class TransportException extends RuntimeException implements ErrorContextAwareEx
      */
     protected $errorContext = [];
 
-    public function __construct(string $message = "", array $errorContext = [], \Throwable $previous = null)
+    public function __construct(string $message = "", array $errorContext = [], ?\Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
         $this->errorContext = $errorContext;
