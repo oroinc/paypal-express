@@ -137,7 +137,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
     }
 
     private function createAuthorization(
-        string  $state,
+        string $state,
         ?string $reason = null,
         ?string $validUntil = null
     ): Authorization {

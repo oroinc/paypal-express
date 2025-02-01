@@ -126,7 +126,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     }
 
     protected function createPaymentWithOrder(
-        ?Order  $order = null,
+        ?Order $order = null,
         ?string $id = null,
         ?string $state = null,
         ?string $failureReason = null
