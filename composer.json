@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {"Oro\\Bundle\\PayPalExpressBundle\\": ""},
-        "exclude-from-classmap": ["/Tests/"]
+        "exclude-from-classmap": ["**/Tests/"]
     },
     "require": {
         "oro/commerce": "6.1.*",
