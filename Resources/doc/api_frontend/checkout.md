@@ -10,6 +10,8 @@ Execute checkout payment with PayPal Express payment method.
 
 The PayPal Express payment method requires the client to be redirected to an external payment provider's URL. The initial request to this subresource will start the payment process. After the payment is completed, PayPal will redirect the client back to the application's URL. This should prompt a second request to the subresource to finalize the checkout or to manage any payment errors. If the payment is successful, the Order resource will be returned as a response.
 
+Follow the [Storefront Checkout API Guide](https://doc.oroinc.com/api/checkout-api/#paypal-express-payment) for more details about the checkout process using the API.
+
 {@request:json_api}
 Example of the request:
 
