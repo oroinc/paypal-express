@@ -19,36 +19,21 @@ use PayPal\Api\RelatedResources;
 use PayPal\Api\Transaction;
 use PayPal\Core\PayPalConstants;
 use PayPal\Rest\ApiContext;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
+abstract class AbstractTransportTestCase extends TestCase
 {
-    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalSDKObjectTranslatorInterface */
-    protected $translator;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|PayPalClient */
-    protected $client;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|LoggerInterface */
-    protected $logger;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|ExceptionFactory */
-    protected $exceptionFactory;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|TransportExceptionFactoryInterface */
-    protected $paymentExceptionFactory;
-
-    /** @var PaymentInfo */
-    protected $paymentInfo;
-
-    /** @var ApiContextInfo */
-    protected $apiContextInfo;
-
-    /** @var ApiContext|null */
-    protected $apiContext;
-
-    /** @var PayPalExpressTransport */
-    protected $transport;
+    protected PayPalSDKObjectTranslatorInterface&MockObject $translator;
+    protected PayPalClient&MockObject $client;
+    protected LoggerInterface&MockObject $logger;
+    protected ExceptionFactory&MockObject $exceptionFactory;
+    protected TransportExceptionFactoryInterface&MockObject $paymentExceptionFactory;
+    protected PaymentInfo $paymentInfo;
+    protected ApiContextInfo $apiContextInfo;
+    protected ?ApiContext $apiContext = null;
+    protected PayPalExpressTransport $transport;
 
     #[\Override]
     protected function setUp(): void
@@ -150,41 +135,44 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
         $expectedExceptionMessage = 'Test payment exception message';
         $expectedException = new TransportException($expectedExceptionMessage, $expectedContext->getContext());
 
-        $this->paymentExceptionFactory->expects($this->once())
+        $this->paymentExceptionFactory->expects(self::once())
             ->method('createTransportException')
             ->with(
-                $this->callback(
+                self::callback(
                     function ($message) use ($expectedMessage) {
-                        $this->assertEquals(
+                        self::assertEquals(
                             $expectedMessage,
                             $message,
                             'Failed assert that createTransportException\'s argument $message equals expected value'
                         );
+
                         return true;
                     }
                 ),
-                $this->callback(
+                self::callback(
                     function ($context) use ($expectedContext) {
-                        $this->assertInstanceOf(
+                        self::assertInstanceOf(
                             Context::class,
                             $context,
                             'Failed assert that createTransportException\'s argument $context is ' . Context::class
                         );
-                        $this->assertEquals(
+                        self::assertEquals(
                             $expectedContext,
                             $context,
                             'Failed assert that createTransportException\'s argument $context equals expected value'
                         );
+
                         return true;
                     }
                 ),
-                $this->callback(
+                self::callback(
                     function ($previous) use ($expectedPrevious) {
-                        $this->assertEquals(
+                        self::assertEquals(
                             $expectedPrevious,
                             $previous,
                             'Failed assert that createTransportException\'s argument $previous equals value'
                         );
+
                         return true;
                     }
                 )
@@ -199,8 +187,7 @@ abstract class AbstractTransportTestCase extends \PHPUnit\Framework\TestCase
     {
         $apiContextInfo = $apiContextInfo ?? $this->apiContextInfo;
         $this->apiContext = new ApiContext();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getApiContext')
             ->with($apiContextInfo)
             ->willReturn($this->apiContext);

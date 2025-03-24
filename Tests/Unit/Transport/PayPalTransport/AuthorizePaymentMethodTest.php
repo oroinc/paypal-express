@@ -18,28 +18,26 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
         $this->paymentInfo = $this->createPaymentInfo($this->expectedPaymentId, $this->expectedOrderId);
     }
 
-    public function testCanAuthorizePayment()
+    public function testCanAuthorizePayment(): void
     {
         $this->expectTranslatorGetApiContext();
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getAuthorization')
             ->with($this->paymentInfo)
             ->willReturn($authorization);
 
         $responseAuthorization = $this->createAuthorization(PayPalExpressTransport::ORDER_PAYMENT_AUTHORIZED_STATUS);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('authorizeOrder')
             ->with($order, $authorization, $this->apiContext)
             ->willReturn($responseAuthorization);
@@ -47,7 +45,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->authorizePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionIfOrderIdIsNotDefined()
+    public function testThrowExceptionIfOrderIdIsNotDefined(): void
     {
         $this->paymentInfo->setOrderId(null);
 
@@ -59,7 +57,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->authorizePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionAuthorizationFailed()
+    public function testThrowExceptionAuthorizationFailed(): void
     {
         $clientException = new \Exception();
 
@@ -67,20 +65,18 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $authorization = new Authorization();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getAuthorization')
             ->with($this->paymentInfo)
             ->willReturn($authorization);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('authorizeOrder')
             ->with($order, $authorization, $this->apiContext)
             ->willThrowException($clientException);
@@ -94,7 +90,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->authorizePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionWhenAuthorizationStateNotExpected()
+    public function testThrowExceptionWhenAuthorizationStateNotExpected(): void
     {
         $expectedAuthorizationState = 'failed';
         $expectedAuthorizationReasonCode = 'AUTHORIZATION';
@@ -104,15 +100,13 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $requestAuthorization = new Authorization();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getAuthorization')
             ->with($this->paymentInfo)
             ->willReturn($requestAuthorization);
@@ -123,7 +117,7 @@ class AuthorizePaymentMethodTest extends AbstractTransportTestCase
             $expectedAuthorizationValidUntil
         );
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('authorizeOrder')
             ->with($order, $requestAuthorization, $this->apiContext)
             ->willReturn($responseAuthorization);

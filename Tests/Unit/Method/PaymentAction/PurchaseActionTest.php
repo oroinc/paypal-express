@@ -14,28 +14,28 @@ class PurchaseActionTest extends AbstractPaymentActionTestCase
         return new PurchaseAction($this->facade, $this->logger);
     }
 
-    public function testExecuteAction()
+    public function testExecuteAction(): void
     {
         $expectedUrl = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=EC-60385559L1062554J';
 
-        $this->facade->expects($this->once())
+        $this->facade->expects(self::once())
             ->method('getPayPalPaymentRoute')
             ->with($this->paymentTransaction, $this->config)
             ->willReturn($expectedUrl);
 
         $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME, $this->paymentTransaction->getAction());
-        $this->assertTrue($this->paymentTransaction->isActive());
-        $this->assertTrue($this->paymentTransaction->isSuccessful());
+        self::assertEquals(PurchaseAction::PAYMENT_TRANSACTION_ACTION_NAME, $this->paymentTransaction->getAction());
+        self::assertTrue($this->paymentTransaction->isActive());
+        self::assertTrue($this->paymentTransaction->isSuccessful());
 
-        $this->assertEquals(['purchaseRedirectUrl' => $expectedUrl], $result);
+        self::assertEquals(['purchaseRedirectUrl' => $expectedUrl], $result);
     }
 
     #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
-        $this->facade->expects($this->once())
+        $this->facade->expects(self::once())
             ->method('getPayPalPaymentRoute')
             ->willThrowException($throwable);
     }

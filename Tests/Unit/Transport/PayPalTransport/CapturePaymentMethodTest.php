@@ -18,28 +18,26 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->paymentInfo = $this->createPaymentInfo($this->expectedPaymentId, $this->expectedOrderId);
     }
 
-    public function testCanCapturePayment()
+    public function testCanCapturePayment(): void
     {
         $this->expectTranslatorGetApiContext();
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $requestCapture = $this->createCapture();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getCapturedDetails')
             ->with($this->paymentInfo)
             ->willReturn($requestCapture);
 
         $responseCapture = $this->createCapture(PayPalExpressTransport::ORDER_PAYMENT_CAPTURED_STATUS);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('captureOrder')
             ->with($order, $requestCapture, $this->apiContext)
             ->willReturn($responseCapture);
@@ -47,7 +45,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionWhenOrderIdIsNotDefined()
+    public function testThrowExceptionWhenOrderIdIsNotDefined(): void
     {
         $this->paymentInfo->setOrderId(null);
 
@@ -59,14 +57,13 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionWhenClientGetOrderByIdFailed()
+    public function testThrowExceptionWhenClientGetOrderByIdFailed(): void
     {
         $clientException = new \Exception();
 
         $this->expectTranslatorGetApiContext();
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willThrowException($clientException);
@@ -80,7 +77,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionWhenClientCaptureOrderFailed()
+    public function testThrowExceptionWhenClientCaptureOrderFailed(): void
     {
         $clientException = new \Exception();
 
@@ -88,20 +85,18 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $requestCapture = $this->createCapture();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getCapturedDetails')
             ->with($this->paymentInfo)
             ->willReturn($requestCapture);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('captureOrder')
             ->with($order, $requestCapture, $this->apiContext)
             ->willThrowException($clientException);
@@ -115,7 +110,7 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->capturePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testThrowExceptionWhenCaptureStateNotExpected()
+    public function testThrowExceptionWhenCaptureStateNotExpected(): void
     {
         $expectedCaptureState = 'failed';
         $expectedCaptureParentPayment = 'AxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ';
@@ -124,22 +119,20 @@ class CapturePaymentMethodTest extends AbstractTransportTestCase
 
         $order = $this->createOrder($this->expectedOrderId);
 
-        $this->client
-            ->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getOrderById')
             ->with($this->expectedOrderId, $this->apiContext)
             ->willReturn($order);
 
         $requestCapture = $this->createCapture();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getCapturedDetails')
             ->with($this->paymentInfo)
             ->willReturn($requestCapture);
 
         $responseCapture = $this->createCapture($expectedCaptureState, $expectedCaptureParentPayment);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('captureOrder')
             ->with($order, $requestCapture, $this->apiContext)
             ->willReturn($responseCapture);

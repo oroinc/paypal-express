@@ -17,15 +17,14 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $this->paymentInfo = $this->createPaymentInfo($this->expectedPaymentId);
     }
 
-    public function testCanExecutePaymentAndUpdatePaymentInfo()
+    public function testCanExecutePaymentAndUpdatePaymentInfo(): void
     {
         $expectedOrderId = '123';
 
         $this->expectTranslatorGetApiContext();
 
         $execution = new PaymentExecution();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPaymentExecution')
             ->with($this->paymentInfo)
             ->willReturn($execution);
@@ -33,7 +32,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $order = $this->createOrder($expectedOrderId);
         $payment = $this->createPayment($this->expectedPaymentId);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getPaymentById')
             ->with($this->expectedPaymentId, $this->apiContext)
             ->willReturn($payment);
@@ -44,17 +43,17 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
             PayPalExpressTransport::PAYMENT_EXECUTED_STATUS
         );
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('executePayment')
             ->with($payment, $execution, $this->apiContext)
             ->willReturn($executedPayment);
 
         $this->transport->executePayment($this->paymentInfo, $this->apiContextInfo);
 
-        $this->assertEquals($expectedOrderId, $this->paymentInfo->getOrderId());
+        self::assertEquals($expectedOrderId, $this->paymentInfo->getOrderId());
     }
 
-    public function testCanThrowExceptionWhenPaymentHasNoOrder()
+    public function testCanThrowExceptionWhenPaymentHasNoOrder(): void
     {
         $expectedPaymentState = 'failed';
         $expectedFailureReason = 'Payment failed because of some error';
@@ -62,15 +61,14 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $this->expectTranslatorGetApiContext();
 
         $execution = new PaymentExecution();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPaymentExecution')
             ->with($this->paymentInfo)
             ->willReturn($execution);
 
         $payment = $this->createPayment($this->expectedPaymentId);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getPaymentById')
             ->with($this->expectedPaymentId, $this->apiContext)
             ->willReturn($payment);
@@ -82,7 +80,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
             $expectedFailureReason
         );
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('executePayment')
             ->with($payment, $execution, $this->apiContext)
             ->willReturn($executedPayment);
@@ -95,13 +93,13 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->executePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testCanThrowExceptionWhenClientGetPaymentByIdFails()
+    public function testCanThrowExceptionWhenClientGetPaymentByIdFails(): void
     {
         $clientException = new \Exception();
 
         $this->expectTranslatorGetApiContext();
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getPaymentById')
             ->with($this->expectedPaymentId, $this->apiContext)
             ->willThrowException($clientException);
@@ -115,7 +113,7 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $this->transport->executePayment($this->paymentInfo, $this->apiContextInfo);
     }
 
-    public function testCanThrowExceptionWhenClientExecutePaymentFails()
+    public function testCanThrowExceptionWhenClientExecutePaymentFails(): void
     {
         $clientException = new \Exception();
         $expectedPaymentState = PayPalExpressTransport::PAYMENT_CREATED_STATUS;
@@ -124,20 +122,19 @@ class ExecutePaymentMethodTest extends AbstractTransportTestCase
         $this->expectTranslatorGetApiContext();
 
         $execution = new PaymentExecution();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPaymentExecution')
             ->with($this->paymentInfo)
             ->willReturn($execution);
 
         $payment = $this->createPayment($this->expectedPaymentId, $expectedPaymentState, $expectedFailureReason);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('getPaymentById')
             ->with($this->expectedPaymentId, $this->apiContext)
             ->willReturn($payment);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('executePayment')
             ->with($payment, $execution, $this->apiContext)
             ->willThrowException($clientException);

@@ -25,35 +25,35 @@ class CaptureActionTest extends AbstractPaymentActionTestCase
         return $transaction;
     }
 
-    public function testExecuteAction()
+    public function testExecuteAction(): void
     {
-        $this->facade->expects($this->once())
+        $this->facade->expects(self::once())
             ->method('capturePayment')
             ->with($this->paymentTransaction, $this->paymentTransaction->getSourcePaymentTransaction(), $this->config);
 
         $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
-        $this->assertFalse($this->paymentTransaction->isActive());
-        $this->assertTrue($this->paymentTransaction->isSuccessful());
+        self::assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        self::assertFalse($this->paymentTransaction->isActive());
+        self::assertTrue($this->paymentTransaction->isSuccessful());
 
-        $this->assertEquals(['successful' => true], $result);
+        self::assertEquals(['successful' => true], $result);
     }
 
-    public function testExecuteActionShouldReturnAnErrorIfSourceTransactionDoesNotSet()
+    public function testExecuteActionShouldReturnAnErrorIfSourceTransactionDoesNotSet(): void
     {
         $this->paymentTransaction = new PaymentTransaction();
 
-        $this->facade->expects($this->never())
+        $this->facade->expects(self::never())
             ->method('capturePayment');
 
         $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
-        $this->assertFalse($this->paymentTransaction->isActive());
-        $this->assertFalse($this->paymentTransaction->isSuccessful());
+        self::assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        self::assertFalse($this->paymentTransaction->isActive());
+        self::assertFalse($this->paymentTransaction->isSuccessful());
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'successful' => false,
                 'message' => 'oro.paypal_express.error_message.capture_action.source_payment_transaction_not_found'
@@ -65,7 +65,7 @@ class CaptureActionTest extends AbstractPaymentActionTestCase
     #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
-        $this->facade->expects($this->any())
+        $this->facade->expects(self::any())
             ->method('capturePayment')
             ->willThrowException($throwable);
     }

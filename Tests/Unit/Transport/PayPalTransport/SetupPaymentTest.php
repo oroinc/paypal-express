@@ -19,7 +19,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
         );
     }
 
-    public function testCanCreatePaymentAndUpdatePaymentInfo()
+    public function testCanCreatePaymentAndUpdatePaymentInfo(): void
     {
         $expectedApprovalUrl = 'https://paypal.com/payment/approve';
         $expectedPaymentId = 100;
@@ -27,39 +27,37 @@ class SetupPaymentTest extends AbstractTransportTestCase
         $this->expectTranslatorGetApiContext();
 
         $payment = $this->createPayment();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPayment')
             ->with($this->paymentInfo, $this->redirectRoutesInfo)
             ->willReturn($payment);
 
         $createdPayment = $this->createPaymentWithApprovedLink($expectedPaymentId, $expectedApprovalUrl);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('createPayment')
             ->with($payment, $this->apiContext)
             ->willReturn($createdPayment);
 
         $actualApprovalUrl = $this->transport
             ->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);
-        $this->assertEquals($expectedApprovalUrl, $actualApprovalUrl);
-        $this->assertEquals($expectedPaymentId, $this->paymentInfo->getPaymentId());
+        self::assertEquals($expectedApprovalUrl, $actualApprovalUrl);
+        self::assertEquals($expectedPaymentId, $this->paymentInfo->getPaymentId());
     }
 
-    public function testThrowExceptionWhenClientCreatePaymentFails()
+    public function testThrowExceptionWhenClientCreatePaymentFails(): void
     {
         $clientException = new \Exception();
 
         $this->expectTranslatorGetApiContext();
 
         $expectedPayment = $this->createPayment();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPayment')
             ->with($this->paymentInfo, $this->redirectRoutesInfo)
             ->willReturn($expectedPayment);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('createPayment')
             ->willThrowException($clientException);
 
@@ -72,7 +70,7 @@ class SetupPaymentTest extends AbstractTransportTestCase
         $this->transport->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);
     }
 
-    public function testThrowExceptionWhenPaymentHasNotValidState()
+    public function testThrowExceptionWhenPaymentHasNotValidState(): void
     {
         $expectedPaymentId = 100;
         $expectedPaymentState = 'failed';
@@ -81,15 +79,14 @@ class SetupPaymentTest extends AbstractTransportTestCase
         $this->expectTranslatorGetApiContext();
 
         $payment = $this->createPayment();
-        $this->translator
-            ->expects($this->once())
+        $this->translator->expects(self::once())
             ->method('getPayment')
             ->with($this->paymentInfo, $this->redirectRoutesInfo)
             ->willReturn($payment);
 
         $failedPayment = $this->createPayment($expectedPaymentId, $expectedPaymentState, $expectedFailureReason);
 
-        $this->client->expects($this->once())
+        $this->client->expects(self::once())
             ->method('createPayment')
             ->with($payment, $this->apiContext)
             ->willReturn($failedPayment);
@@ -100,6 +97,6 @@ class SetupPaymentTest extends AbstractTransportTestCase
         );
 
         $this->transport->setupPayment($this->paymentInfo, $this->apiContextInfo, $this->redirectRoutesInfo);
-        $this->assertEquals($expectedPaymentId, $this->paymentInfo->getPaymentId());
+        self::assertEquals($expectedPaymentId, $this->paymentInfo->getPaymentId());
     }
 }

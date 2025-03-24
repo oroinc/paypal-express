@@ -24,27 +24,27 @@ class AuthorizeAndCaptureActionTest extends AbstractPaymentActionTestCase
     #[\Override]
     protected function expectFacadeWillThrowErrorOnExecute(\Throwable $throwable): void
     {
-        $this->facade->expects($this->any())
+        $this->facade->expects(self::any())
             ->method('executePayPalPayment')
             ->willThrowException($throwable);
     }
 
-    public function testExecuteAction()
+    public function testExecuteAction(): void
     {
-        $this->facade->expects($this->once())
+        $this->facade->expects(self::once())
             ->method('executePayPalPayment')
             ->with($this->paymentTransaction, $this->config);
 
-        $this->facade->expects($this->once())
+        $this->facade->expects(self::once())
             ->method('capturePayment')
             ->with($this->paymentTransaction, $this->paymentTransaction, $this->config);
 
         $result = $this->action->executeAction($this->paymentTransaction, $this->config);
 
-        $this->assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
-        $this->assertFalse($this->paymentTransaction->isActive());
-        $this->assertTrue($this->paymentTransaction->isSuccessful());
+        self::assertEquals(PaymentMethodInterface::CAPTURE, $this->paymentTransaction->getAction());
+        self::assertFalse($this->paymentTransaction->isActive());
+        self::assertTrue($this->paymentTransaction->isSuccessful());
 
-        $this->assertEquals(['successful' => true], $result);
+        self::assertEquals(['successful' => true], $result);
     }
 }
