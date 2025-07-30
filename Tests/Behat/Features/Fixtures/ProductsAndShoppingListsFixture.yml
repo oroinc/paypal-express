@@ -85,22 +85,30 @@ Oro\Bundle\ProductBundle\Entity\Product:
 Oro\Bundle\ShoppingListBundle\Entity\ShoppingList:
     shoppinglist:
         label: 'List 1'
+        customer: '@amanda->customer'
         customerUser: '@amanda'
+        owner: '@admin'
         organization: '@organization'
         website: '@website1'
     shoppinglist2:
         label: 'List 2'
+        customer: '@amanda->customer'
         customerUser: '@amanda'
+        owner: '@admin'
         organization: '@organization'
         website: '@website1'
     shoppinglist3:
         label: 'List 3'
+        customer: '@amanda->customer'
         customerUser: '@amanda'
+        owner: '@admin'
         organization: '@organization'
         website: '@website1'
     shoppinglist4:
         label: 'List 4'
+        customer: '@amanda->customer'
         customerUser: '@amanda'
+        owner: '@admin'
         organization: '@organization'
         website: '@website1'
 
@@ -111,6 +119,7 @@ Oro\Bundle\ShoppingListBundle\Entity\LineItem:
         unit: '@item'
         customerUser: '@amanda'
         shoppingList: '@shoppinglist'
+        owner: '@admin'
         organization: '@organization'
     lineitem2:
         product: '@product'
@@ -118,6 +127,7 @@ Oro\Bundle\ShoppingListBundle\Entity\LineItem:
         unit: '@item'
         customerUser: '@amanda'
         shoppingList: '@shoppinglist2'
+        owner: '@admin'
         organization: '@organization'
     lineitem3:
         product: '@product'
@@ -125,6 +135,7 @@ Oro\Bundle\ShoppingListBundle\Entity\LineItem:
         unit: '@item'
         customerUser: '@amanda'
         shoppingList: '@shoppinglist3'
+        owner: '@admin'
         organization: '@organization'
     lineitem4:
         product: '@product'
@@ -132,6 +143,7 @@ Oro\Bundle\ShoppingListBundle\Entity\LineItem:
         unit: '@item'
         customerUser: '@amanda'
         shoppingList: '@shoppinglist4'
+        owner: '@admin'
         organization: '@organization'
 
 Oro\Bundle\ShoppingListBundle\Entity\ShoppingListTotal:
