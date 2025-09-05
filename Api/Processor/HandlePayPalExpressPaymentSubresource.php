@@ -8,7 +8,7 @@ use Oro\Bundle\ApiBundle\Processor\Subresource\ChangeSubresourceContext;
 use Oro\Bundle\CheckoutBundle\Api\Processor\AbstractHandlePaymentSubresource;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\OrderBundle\Entity\Order;
-use Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider;
+use Oro\Bundle\PaymentBundle\PaymentStatus\PaymentStatuses;
 use Oro\Bundle\PayPalExpressBundle\Api\Model\PayPalExpressPaymentRequest;
 
 /**
@@ -20,7 +20,7 @@ class HandlePayPalExpressPaymentSubresource extends AbstractHandlePaymentSubreso
     protected function getInProgressStatuses(): array
     {
         return [
-            PaymentStatusProvider::PENDING
+            PaymentStatuses::PENDING
         ];
     }
 
@@ -28,8 +28,8 @@ class HandlePayPalExpressPaymentSubresource extends AbstractHandlePaymentSubreso
     protected function getErrorStatuses(): array
     {
         return [
-            PaymentStatusProvider::CANCELED,
-            PaymentStatusProvider::DECLINED
+            PaymentStatuses::CANCELED,
+            PaymentStatuses::DECLINED
         ];
     }
 

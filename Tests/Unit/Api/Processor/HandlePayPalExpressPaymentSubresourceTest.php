@@ -18,7 +18,9 @@ use Oro\Bundle\CheckoutBundle\Workflow\ActionGroup\AddressActionsInterface;
 use Oro\Bundle\CheckoutBundle\Workflow\ActionGroup\CheckoutActionsInterface;
 use Oro\Bundle\CheckoutBundle\Workflow\ActionGroup\SplitOrderActionsInterface;
 use Oro\Bundle\OrderBundle\Entity\Order;
-use Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider;
+use Oro\Bundle\PaymentBundle\Entity\PaymentStatus;
+use Oro\Bundle\PaymentBundle\Manager\PaymentStatusManager;
+use Oro\Bundle\PaymentBundle\PaymentStatus\PaymentStatuses;
 use Oro\Bundle\PaymentBundle\Provider\PaymentStatusProviderInterface;
 use Oro\Bundle\PayPalExpressBundle\Api\Model\PayPalExpressPaymentRequest;
 use Oro\Bundle\PayPalExpressBundle\Api\Processor\HandlePayPalExpressPaymentSubresource;
@@ -27,16 +29,18 @@ use Symfony\Component\PropertyAccess\PropertyPath;
 
 class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcessorTestCase
 {
-    private SplitOrderActionsInterface|MockObject $splitOrderActions;
-    private CheckoutActionsInterface|MockObject $checkoutActions;
-    private AddressActionsInterface|MockObject $addressActions;
-    private ActionExecutor|MockObject $actionExecutor;
-    private PaymentStatusProviderInterface|MockObject $paymentStatusProvider;
-    private GroupedCheckoutLineItemsProvider|MockObject $groupedCheckoutLineItemsProvider;
-    private DoctrineHelper|MockObject $doctrineHelper;
-    private FlushDataHandlerInterface|MockObject $flushDataHandler;
+    private SplitOrderActionsInterface&MockObject $splitOrderActions;
+    private CheckoutActionsInterface&MockObject $checkoutActions;
+    private AddressActionsInterface&MockObject $addressActions;
+    private ActionExecutor&MockObject $actionExecutor;
+    private PaymentStatusManager&MockObject $paymentStatusManager;
+    private PaymentStatusProviderInterface&MockObject $paymentStatusProvider;
+    private GroupedCheckoutLineItemsProvider&MockObject $groupedCheckoutLineItemsProvider;
+    private DoctrineHelper&MockObject $doctrineHelper;
+    private FlushDataHandlerInterface&MockObject $flushDataHandler;
     private HandlePayPalExpressPaymentSubresource $processor;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,6 +49,7 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->checkoutActions = $this->createMock(CheckoutActionsInterface::class);
         $this->addressActions = $this->createMock(AddressActionsInterface::class);
         $this->actionExecutor = $this->createMock(ActionExecutor::class);
+        $this->paymentStatusManager = $this->createMock(PaymentStatusManager::class);
         $this->paymentStatusProvider = $this->createMock(PaymentStatusProviderInterface::class);
         $this->groupedCheckoutLineItemsProvider = $this->createMock(GroupedCheckoutLineItemsProvider::class);
         $this->doctrineHelper = $this->createMock(DoctrineHelper::class);
@@ -60,6 +65,7 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
             $this->doctrineHelper,
             $this->flushDataHandler
         );
+        $this->processor->setPaymentStatusManager($this->paymentStatusManager);
     }
 
     private function expectSaveChanges(): void
@@ -110,7 +116,7 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->groupedCheckoutLineItemsProvider->expects(self::never())
             ->method('getGroupedLineItemsIds');
 
-        $this->paymentStatusProvider->expects(self::never())
+        $this->paymentStatusManager->expects(self::never())
             ->method('getPaymentStatus');
 
         $this->context->setParentEntity($checkout);
@@ -124,7 +130,7 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                 Error::createValidationError(
                     'payment constraint',
                     'Can not process payment without order.'
-                )
+                ),
             ],
             $this->context->getErrors()
         );
@@ -143,10 +149,13 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->groupedCheckoutLineItemsProvider->expects(self::never())
             ->method('getGroupedLineItemsIds');
 
-        $this->paymentStatusProvider->expects(self::once())
+        $paymentStatus = new PaymentStatus();
+        $paymentStatus->setPaymentStatus(PaymentStatuses::PENDING);
+
+        $this->paymentStatusManager->expects(self::once())
             ->method('getPaymentStatus')
             ->with($order)
-            ->willReturn(PaymentStatusProvider::PENDING);
+            ->willReturn($paymentStatus);
 
         $this->context->setParentEntity($checkout);
         $this->context->setAssociationName('test');
@@ -159,7 +168,43 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                 Error::createValidationError(
                     'payment status constraint',
                     'Payment is being processed. Please follow the payment provider\'s instructions to complete.'
-                )
+                ),
+            ],
+            $this->context->getErrors()
+        );
+        self::assertFalse($this->context->isProcessed(SaveParentEntity::OPERATION_NAME));
+    }
+
+    public function testProcessPaymentInProgressWithNotFinishedStatusWithNullPaymentStatusManager(): void
+    {
+        $checkout = new Checkout();
+        $order = new Order();
+
+        $checkout->setPaymentMethod('paypal_express');
+        $checkout->setOrder($order);
+        $checkout->setPaymentInProgress(true);
+
+        $this->groupedCheckoutLineItemsProvider->expects(self::never())
+            ->method('getGroupedLineItemsIds');
+
+        $this->paymentStatusProvider->expects(self::once())
+            ->method('getPaymentStatus')
+            ->with($order)
+            ->willReturn(PaymentStatuses::PENDING);
+
+        $this->context->setParentEntity($checkout);
+        $this->context->setAssociationName('test');
+        $this->processor->setPaymentStatusManager(null);
+        $this->processor->process($this->context);
+
+        self::assertTrue($checkout->isPaymentInProgress());
+        self::assertTrue($this->context->hasErrors());
+        self::assertEquals(
+            [
+                Error::createValidationError(
+                    'payment status constraint',
+                    'Payment is being processed. Please follow the payment provider\'s instructions to complete.'
+                ),
             ],
             $this->context->getErrors()
         );
@@ -178,10 +223,13 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->groupedCheckoutLineItemsProvider->expects(self::never())
             ->method('getGroupedLineItemsIds');
 
-        $this->paymentStatusProvider->expects(self::once())
+        $paymentStatus = new PaymentStatus();
+        $paymentStatus->setPaymentStatus(PaymentStatuses::DECLINED);
+
+        $this->paymentStatusManager->expects(self::once())
             ->method('getPaymentStatus')
             ->with($order)
-            ->willReturn(PaymentStatusProvider::DECLINED);
+            ->willReturn($paymentStatus);
 
         $this->expectSaveChangesAndRemoveOrder($order);
 
@@ -196,7 +244,45 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                 Error::createValidationError(
                     'payment constraint',
                     'Payment failed, please try again or select a different payment method.'
-                )
+                ),
+            ],
+            $this->context->getErrors()
+        );
+        self::assertTrue($this->context->isProcessed(SaveParentEntity::OPERATION_NAME));
+    }
+
+    public function testProcessPaymentInProgressWithErrorStatusWithNullPaymentStatusManager(): void
+    {
+        $checkout = new Checkout();
+        $order = new Order();
+
+        $checkout->setPaymentMethod('paypal_express');
+        $checkout->setOrder($order);
+        $checkout->setPaymentInProgress(true);
+
+        $this->groupedCheckoutLineItemsProvider->expects(self::never())
+            ->method('getGroupedLineItemsIds');
+
+        $this->paymentStatusProvider->expects(self::once())
+            ->method('getPaymentStatus')
+            ->with($order)
+            ->willReturn(PaymentStatuses::DECLINED);
+
+        $this->expectSaveChangesAndRemoveOrder($order);
+
+        $this->context->setParentEntity($checkout);
+        $this->context->setAssociationName('test');
+        $this->processor->setPaymentStatusManager(null);
+        $this->processor->process($this->context);
+
+        self::assertFalse($checkout->isPaymentInProgress());
+        self::assertTrue($this->context->hasErrors());
+        self::assertEquals(
+            [
+                Error::createValidationError(
+                    'payment constraint',
+                    'Payment failed, please try again or select a different payment method.'
+                ),
             ],
             $this->context->getErrors()
         );
@@ -215,10 +301,13 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->groupedCheckoutLineItemsProvider->expects(self::never())
             ->method('getGroupedLineItemsIds');
 
-        $this->paymentStatusProvider->expects(self::once())
+        $paymentStatus = new PaymentStatus();
+        $paymentStatus->setPaymentStatus(PaymentStatuses::PAID_IN_FULL);
+
+        $this->paymentStatusManager->expects(self::once())
             ->method('getPaymentStatus')
             ->with($order)
-            ->willReturn(PaymentStatusProvider::FULL);
+            ->willReturn($paymentStatus);
 
         $this->addressActions->expects(self::once())
             ->method('actualizeAddresses')
@@ -232,6 +321,43 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
         $this->context->setParentEntity($checkout);
         $this->context->setAssociationName('test');
         $this->context->setResult($order);
+        $this->processor->process($this->context);
+
+        self::assertFalse($checkout->isPaymentInProgress());
+        self::assertFalse($this->context->hasErrors());
+        self::assertTrue($this->context->isProcessed(SaveParentEntity::OPERATION_NAME));
+    }
+
+    public function testProcessPaymentInProgressWithNullPaymentStatusManagerSuccess(): void
+    {
+        $checkout = new Checkout();
+        $order = new Order();
+
+        $checkout->setPaymentMethod('paypal_express');
+        $checkout->setOrder($order);
+        $checkout->setPaymentInProgress(true);
+
+        $this->groupedCheckoutLineItemsProvider->expects(self::never())
+            ->method('getGroupedLineItemsIds');
+
+        $this->paymentStatusProvider->expects(self::once())
+            ->method('getPaymentStatus')
+            ->with($order)
+            ->willReturn(PaymentStatuses::PAID_IN_FULL);
+
+        $this->addressActions->expects(self::once())
+            ->method('actualizeAddresses')
+            ->with($checkout, $order);
+        $this->checkoutActions->expects(self::once())
+            ->method('fillCheckoutCompletedData')
+            ->with($checkout, $order);
+
+        $this->expectSaveChanges();
+
+        $this->context->setParentEntity($checkout);
+        $this->context->setAssociationName('test');
+        $this->context->setResult($order);
+        $this->processor->setPaymentStatusManager(null);
         $this->processor->process($this->context);
 
         self::assertFalse($checkout->isPaymentInProgress());
@@ -273,15 +399,15 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                     'paymentMethod' => 'paypal_express',
                     'transactionOptions' => [
                         'failureUrl' => 'failureUrl',
-                        'successUrl' => 'successUrl'
-                    ]
+                        'successUrl' => 'successUrl',
+                    ],
                 ]
             )
             ->willReturn([
                 'response' => [
                     'successful' => false,
-                    'purchaseRedirectUrl' => null
-                ]
+                    'purchaseRedirectUrl' => null,
+                ],
             ]);
 
         $this->expectSaveChangesAndRemoveOrder($order);
@@ -299,7 +425,7 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                 Error::createValidationError(
                     'payment constraint',
                     'Payment failed, please try again or select a different payment method.'
-                )
+                ),
             ],
             $this->context->getErrors()
         );
@@ -340,15 +466,15 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                     'paymentMethod' => 'paypal_express',
                     'transactionOptions' => [
                         'failureUrl' => 'failureUrl',
-                        'successUrl' => 'successUrl'
-                    ]
+                        'successUrl' => 'successUrl',
+                    ],
                 ]
             )
             ->willReturn([
                 'response' => [
                     'successful' => false,
-                    'purchaseRedirectUrl' => 'redirectUrl'
-                ]
+                    'purchaseRedirectUrl' => 'redirectUrl',
+                ],
             ]);
 
         $this->doctrineHelper->expects(self::never())
@@ -408,8 +534,8 @@ class HandlePayPalExpressPaymentSubresourceTest extends ChangeSubresourceProcess
                     'paymentMethod' => 'paypal_express',
                     'transactionOptions' => [
                         'failureUrl' => 'failureUrl',
-                        'successUrl' => 'successUrl'
-                    ]
+                        'successUrl' => 'successUrl',
+                    ],
                 ]
             )
             ->willReturn(['response' => ['successful' => true]]);

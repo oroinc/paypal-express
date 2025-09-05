@@ -9,7 +9,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AbstractPaymentAction;
 
 /**
  * Implementation of "Authorize and Capture" action for {@see PaymentTransaction}.
- * It can be be executed when user created a payment on PayPal side.
+ * It can be executed when user created a payment on PayPal side.
  */
 class AuthorizeAndCaptureAction extends AbstractPaymentAction
 {
@@ -18,10 +18,6 @@ class AuthorizeAndCaptureAction extends AbstractPaymentAction
     #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        /**
-         * Should be the one of success payment statuses to avoid incorrect status in payment entity
-         * @see \Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider::getStatusByEntityAndTransactions
-         */
         $paymentTransaction->setAction(PaymentMethodInterface::CAPTURE);
 
         try {

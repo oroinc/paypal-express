@@ -16,10 +16,6 @@ class PurchaseAction extends AbstractPaymentAction
     #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)
     {
-        /**
-         * Should be the one of not success payment statuses to avoid incorrect status in payment entity
-         * @see \Oro\Bundle\PaymentBundle\Provider\PaymentStatusProvider::getStatusByEntityAndTransactions
-         */
         $paymentTransaction->setAction(self::PAYMENT_TRANSACTION_ACTION_NAME);
 
         try {
