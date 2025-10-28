@@ -8,6 +8,8 @@ use Doctrine\Persistence\ObjectManager;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadOtherOrganizations;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadUser;
 use Oro\Bundle\UserBundle\Migrations\Data\ORM\LoadAdminUserData;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,8 +32,14 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
         ],
         [
             'name' => 'bar channel',
-            'transport' => 'oro_paypal_express.settings.baz',
+            'transport' => 'oro_paypal_express.settings.bar',
             'reference' => 'oro_paypal_express.channel.bar'
+        ],
+        [
+            'name' => 'baz channel',
+            'transport' => 'oro_paypal_express.settings.baz',
+            'reference' => 'oro_paypal_express.channel.baz',
+            'organization' => LoadOtherOrganizations::ORGANIZATION_1
         ],
     ];
 
@@ -44,8 +52,12 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
         $admin = $userManager->findUserByEmail(LoadAdminUserData::DEFAULT_ADMIN_EMAIL);
 
         foreach ($this->data as $item) {
+            $organization = !empty($item['organization']) ?
+                $this->getReference($item['organization']) :
+                $admin->getOrganization();
+
             $channel = new Channel();
-            $channel->setOrganization($admin->getOrganization());
+            $channel->setOrganization($organization);
             $channel->setDefaultUserOwner($admin);
             $channel->setType(PayPalExpressChannelType::TYPE);
             $channel->setName($item['name']);
@@ -78,7 +90,9 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
     public function getDependencies()
     {
         return [
-            LoadPayPalExpressSettingsData::class
+            LoadPayPalExpressSettingsData::class,
+            LoadOtherOrganizations::class,
+            LoadUser::class
         ];
     }
 }
