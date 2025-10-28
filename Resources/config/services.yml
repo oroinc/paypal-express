@@ -58,3 +58,12 @@ services:
         tags:
             - { name: kernel.event_listener, event: oro_payment.callback.return, method: onReturn, priority: 20 }
             - { name: kernel.event_listener, event: oro_payment.callback.error, method: onError, priority: 20 }
+
+    Oro\Bundle\PayPalExpressBundle\Entity\Repository\PayPalExpressSettingsRepository:
+        parent: oro_entity.abstract_repository
+        arguments:
+            - 'Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings'
+        calls:
+            - [ setAclHelper, [ '@oro_security.acl_helper' ] ]
+        tags:
+            - { name: doctrine.repository_service }

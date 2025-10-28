@@ -8,6 +8,7 @@ use Doctrine\Persistence\ObjectManager;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings;
 use Oro\Bundle\PayPalExpressBundle\Integration\PayPalExpressChannelType;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadSecondOrganizationWithBusinessUnit;
 use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadUser;
 use Oro\Bundle\UserBundle\Entity\User;
 
@@ -21,15 +22,21 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
         ],
         [
             'name' => 'bar channel',
-            'transport' => 'oro_paypal_express.settings.baz',
+            'transport' => 'oro_paypal_express.settings.bar',
             'reference' => 'oro_paypal_express.channel.bar'
+        ],
+        [
+            'name' => 'baz channel',
+            'transport' => 'oro_paypal_express.settings.baz',
+            'reference' => 'oro_paypal_express.channel.baz',
+            'organization' => LoadSecondOrganizationWithBusinessUnit::SECOND_ORGANIZATION
         ]
     ];
 
     #[\Override]
     public function getDependencies(): array
     {
-        return [LoadPayPalExpressSettingsData::class, LoadUser::class];
+        return [LoadPayPalExpressSettingsData::class, LoadUser::class, LoadSecondOrganizationWithBusinessUnit::class];
     }
 
     #[\Override]
@@ -38,8 +45,12 @@ class LoadChannelData extends AbstractFixture implements DependentFixtureInterfa
         /** @var User $user */
         $user = $this->getReference(LoadUser::USER);
         foreach ($this->data as $item) {
+            $organization = !empty($item['organization']) ?
+                $this->getReference($item['organization']) :
+                $user->getOrganization();
+
             $channel = new Channel();
-            $channel->setOrganization($user->getOrganization());
+            $channel->setOrganization($organization);
             $channel->setDefaultUserOwner($user);
             $channel->setType(PayPalExpressChannelType::TYPE);
             $channel->setName($item['name']);
