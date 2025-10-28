@@ -1,59 +1,55 @@
-define(function(require) {
-    'use strict';
+import _ from 'underscore';
+import mediator from 'oroui/js/mediator';
+import BaseComponent from 'oroui/js/app/components/base/component';
 
-    const _ = require('underscore');
-    const mediator = require('oroui/js/mediator');
-    const BaseComponent = require('oroui/js/app/components/base/component');
+const ExpressCheckoutComponent = BaseComponent.extend({
+    /**
+     * @property {Object}
+     */
+    options: {
+        paymentMethod: null
+    },
 
-    const ExpressCheckoutComponent = BaseComponent.extend({
-        /**
-         * @property {Object}
-         */
-        options: {
-            paymentMethod: null
-        },
+    /**
+     * @inheritdoc
+     */
+    constructor: function ExpressCheckoutComponent(...args) {
+        ExpressCheckoutComponent.__super__.constructor.apply(this, args);
+    },
 
-        /**
-         * @inheritdoc
-         */
-        constructor: function ExpressCheckoutComponent(...args) {
-            ExpressCheckoutComponent.__super__.constructor.apply(this, args);
-        },
+    /**
+     * @inheritdoc
+     */
+    initialize: function(options) {
+        this.options = _.extend({}, this.options, options);
 
-        /**
-         * @inheritdoc
-         */
-        initialize: function(options) {
-            this.options = _.extend({}, this.options, options);
+        mediator.on('checkout:place-order:response', this.handleSubmit, this);
+    },
 
-            mediator.on('checkout:place-order:response', this.handleSubmit, this);
-        },
-
-        /**
-         * @param {Object} eventData
-         */
-        handleSubmit: function(eventData) {
-            if (eventData.responseData.paymentMethod === this.options.paymentMethod) {
-                eventData.stopped = true;
-                if (!eventData.responseData.purchaseRedirectUrl) {
-                    mediator.execute('redirectTo', {url: eventData.responseData.errorUrl}, {redirect: true});
-                    return;
-                }
-
-                window.location = eventData.responseData.purchaseRedirectUrl;
-            }
-        },
-
-        dispose: function() {
-            if (this.disposed) {
+    /**
+     * @param {Object} eventData
+     */
+    handleSubmit: function(eventData) {
+        if (eventData.responseData.paymentMethod === this.options.paymentMethod) {
+            eventData.stopped = true;
+            if (!eventData.responseData.purchaseRedirectUrl) {
+                mediator.execute('redirectTo', {url: eventData.responseData.errorUrl}, {redirect: true});
                 return;
             }
 
-            mediator.off('checkout:place-order:response', this.handleSubmit, this);
-
-            ExpressCheckoutComponent.__super__.dispose.call(this);
+            window.location = eventData.responseData.purchaseRedirectUrl;
         }
-    });
+    },
 
-    return ExpressCheckoutComponent;
+    dispose: function() {
+        if (this.disposed) {
+            return;
+        }
+
+        mediator.off('checkout:place-order:response', this.handleSubmit, this);
+
+        ExpressCheckoutComponent.__super__.dispose.call(this);
+    }
 });
+
+export default ExpressCheckoutComponent;
