@@ -4,7 +4,10 @@ namespace Oro\Bundle\PayPalExpressBundle\Tests\Functional\Method\Config;
 
 use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigProvider;
 use Oro\Bundle\PayPalExpressBundle\Tests\Functional\DataFixtures\LoadChannelData;
+use Oro\Bundle\SecurityBundle\Authentication\Token\UsernamePasswordOrganizationToken;
 use Oro\Bundle\TestFrameworkBundle\Test\WebTestCase;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadOrganization;
+use Oro\Bundle\TestFrameworkBundle\Tests\Functional\DataFixtures\LoadUser;
 
 /**
  * @dbIsolationPerTest
@@ -17,7 +20,7 @@ class PayPalExpressConfigProviderTest extends WebTestCase
     {
         $this->initClient();
 
-        $this->loadFixtures([LoadChannelData::class]);
+        $this->loadFixtures([LoadChannelData::class, LoadOrganization::class]);
 
         $this->payPalExpressConfigProvider = $this->getContainer()->get('oro_paypal_express.method.config.provider');
     }
@@ -33,13 +36,22 @@ class PayPalExpressConfigProviderTest extends WebTestCase
                 'shortLabel'   => 'foo short label',
             ],
             [
-                'clientSecret' => 'NxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-                'clientId'     => 'KxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
-                'label'        => 'baz label',
+                'clientSecret' => 'LxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+                'clientId'     => 'ZxBU5pnHF6qNArI7Nt5yNqy4EgGWAU3K1w0eN6q77GZhNtu5cotSRWwZ',
+                'label'        => 'bar label',
                 'adminLabel'   => 'bar channel',
-                'shortLabel'   => 'baz short label',
+                'shortLabel'   => 'bar short label'
             ],
         ];
+
+        $organization = $this->getReference(LoadOrganization::ORGANIZATION);
+        $adminToken = new UsernamePasswordOrganizationToken(
+            $this->getReference(LoadUser::USER),
+            'key',
+            $organization
+        );
+
+        $this->getContainer()->get('security.token_storage')->setToken($adminToken);
 
         $paymentConfigs = $this->payPalExpressConfigProvider->getPaymentConfigs();
 
