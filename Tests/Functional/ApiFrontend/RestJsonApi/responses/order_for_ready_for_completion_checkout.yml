@@ -11,7 +11,6 @@ data:
         totalIncludingTax: "110.5000"
         totalExcludingTax: "110.5000"
         totalTaxAmount: "0.0000"
-        paymentTerm: 'net 10'
         paymentStatus:
             code: 'authorized'
             label: 'Payment authorized'
