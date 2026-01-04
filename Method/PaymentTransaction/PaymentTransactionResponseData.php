@@ -7,11 +7,11 @@ namespace Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction;
  */
 class PaymentTransactionResponseData
 {
-    const PAYMENT_ID_FIELD_KEY = 'paymentId';
-    const ORDER_ID_FIELD_KEY = 'orderId';
-    const PAYMENT_ACTION_FIELD_KEY = 'paymentAction';
-    const PAYMENT_ACTION_CONFIG_FIELD_KEY = 'paymentActionConfig';
-    const PAYER_ID_FIELD_KEY = 'payerId';
+    public const PAYMENT_ID_FIELD_KEY = 'paymentId';
+    public const ORDER_ID_FIELD_KEY = 'orderId';
+    public const PAYMENT_ACTION_FIELD_KEY = 'paymentAction';
+    public const PAYMENT_ACTION_CONFIG_FIELD_KEY = 'paymentActionConfig';
+    public const PAYER_ID_FIELD_KEY = 'payerId';
 
     /**
      * @var string

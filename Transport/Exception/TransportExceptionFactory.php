@@ -12,7 +12,7 @@ use PayPal\Exception\PayPalConnectionException;
  */
 class TransportExceptionFactory implements TransportExceptionFactoryInterface
 {
-    const MESSAGE_PARTS_DELIMITER = '. ';
+    public const MESSAGE_PARTS_DELIMITER = '. ';
 
     /**
      * @var PayPalSDKObjectTranslatorInterface

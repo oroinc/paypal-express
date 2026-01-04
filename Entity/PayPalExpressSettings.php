@@ -16,12 +16,12 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 #[ORM\Entity(repositoryClass: PayPalExpressSettingsRepository::class)]
 class PayPalExpressSettings extends Transport
 {
-    const CLIENT_ID_SETTING_KEY = 'client_id';
-    const CLIENT_SECRET_SETTING_KEY = 'client_secret';
-    const SANDBOX_MOD_SETTING_KEY = 'test_mod';
-    const LABELS_SETTING_KEY = 'labels';
-    const SHORT_LABELS_SETTING_KEY = 'short_labels';
-    const PAYMENT_ACTION_KEY = 'payment_action';
+    public const CLIENT_ID_SETTING_KEY = 'client_id';
+    public const CLIENT_SECRET_SETTING_KEY = 'client_secret';
+    public const SANDBOX_MOD_SETTING_KEY = 'test_mod';
+    public const LABELS_SETTING_KEY = 'labels';
+    public const SHORT_LABELS_SETTING_KEY = 'short_labels';
+    public const PAYMENT_ACTION_KEY = 'payment_action';
 
     /**
      * @var ParameterBag

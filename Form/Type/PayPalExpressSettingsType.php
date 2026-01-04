@@ -21,7 +21,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class PayPalExpressSettingsType extends AbstractType
 {
-    const BLOCK_PREFIX = 'oro_paypal_express_settings';
+    public const BLOCK_PREFIX = 'oro_paypal_express_settings';
 
     /**
      * @var CryptedDataTransformerFactory

@@ -11,7 +11,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\Config\PayPalExpressConfigInterface;
  */
 class PurchaseAction extends AbstractPaymentAction
 {
-    const PAYMENT_TRANSACTION_ACTION_NAME = 'create_payment';
+    public const PAYMENT_TRANSACTION_ACTION_NAME = 'create_payment';
 
     #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)

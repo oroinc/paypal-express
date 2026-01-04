@@ -24,9 +24,9 @@ use PayPal\Rest\ApiContext;
 
 class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
 {
-    const MOD_SANDBOX = 'sandbox';
-    const MOD_LIVE = 'live';
-    const APPLICATION_PARTNER_ID = 'OroCommerce_SP';
+    public const MOD_SANDBOX = 'sandbox';
+    public const MOD_LIVE = 'live';
+    public const APPLICATION_PARTNER_ID = 'OroCommerce_SP';
 
     #[\Override]
     public function getPayment(PaymentInfo $paymentInfo, RedirectRoutesInfo $redirectRoutesInfo)

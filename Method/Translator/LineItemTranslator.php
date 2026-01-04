@@ -16,9 +16,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class LineItemTranslator
 {
-    const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
-    const TOTAL_ITEM_LABEL = 'oro.paypal_express.total.pay_pal_item.label';
-    const PAYPAL_NAME_LIMIT = 36;
+    public const DISCOUNT_ITEM_LABEL = 'oro.paypal_express.discount.pay_pal_item.label';
+    public const TOTAL_ITEM_LABEL = 'oro.paypal_express.total.pay_pal_item.label';
+    public const PAYPAL_NAME_LIMIT = 36;
 
     /**
      * @var OptionsProviderInterface

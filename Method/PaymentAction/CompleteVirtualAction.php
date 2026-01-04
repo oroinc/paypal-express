@@ -16,7 +16,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\Complete\CompletePayment
  */
 class CompleteVirtualAction implements PaymentActionInterface
 {
-    const NAME = 'complete';
+    public const NAME = 'complete';
 
     /**
      * @var CompletePaymentActionRegistry

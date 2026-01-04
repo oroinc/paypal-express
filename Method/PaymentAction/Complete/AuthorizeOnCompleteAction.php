@@ -10,7 +10,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AuthorizeAction;
  */
 class AuthorizeOnCompleteAction extends AuthorizeAction
 {
-    const NAME = 'authorize';
+    public const NAME = 'authorize';
 
     /**
      * Name is overridden because those names have different meaning

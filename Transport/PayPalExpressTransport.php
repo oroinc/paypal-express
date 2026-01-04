@@ -23,10 +23,10 @@ use PayPal\Rest\ApiContext;
  */
 class PayPalExpressTransport implements PayPalExpressTransportInterface
 {
-    const PAYMENT_CREATED_STATUS = 'created';
-    const PAYMENT_EXECUTED_STATUS = 'approved';
-    const ORDER_PAYMENT_AUTHORIZED_STATUS = 'authorized';
-    const ORDER_PAYMENT_CAPTURED_STATUS = 'completed';
+    public const PAYMENT_CREATED_STATUS = 'created';
+    public const PAYMENT_EXECUTED_STATUS = 'approved';
+    public const ORDER_PAYMENT_AUTHORIZED_STATUS = 'authorized';
+    public const ORDER_PAYMENT_CAPTURED_STATUS = 'completed';
 
     /**
      * @var PayPalSDKObjectTranslatorInterface

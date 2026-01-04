@@ -7,7 +7,7 @@ namespace Oro\Bundle\PayPalExpressBundle\Transport\DTO;
  */
 class PaymentInfo
 {
-    const PAYMENT_METHOD_PAYPAL = 'paypal';
+    public const PAYMENT_METHOD_PAYPAL = 'paypal';
 
     /**
      * @var float

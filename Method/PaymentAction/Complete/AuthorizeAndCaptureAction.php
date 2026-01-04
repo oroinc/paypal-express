@@ -13,7 +13,7 @@ use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\AbstractPaymentAction;
  */
 class AuthorizeAndCaptureAction extends AbstractPaymentAction
 {
-    const NAME = 'authorize_and_capture';
+    public const NAME = 'authorize_and_capture';
 
     #[\Override]
     public function executeAction(PaymentTransaction $paymentTransaction, PayPalExpressConfigInterface $config)

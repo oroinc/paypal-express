@@ -10,7 +10,7 @@ use Oro\Bundle\IntegrationBundle\Provider\IconAwareIntegrationInterface;
  */
 class PayPalExpressChannelType implements ChannelInterface, IconAwareIntegrationInterface
 {
-    const TYPE = 'paypal_express';
+    public const TYPE = 'paypal_express';
 
     #[\Override]
     public function getLabel()
