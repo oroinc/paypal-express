@@ -15,9 +15,13 @@
     },
     "require": {
         "oro/commerce": "6.1.*",
-        "paypal/rest-api-sdk-php": "1.14.*"
+        "paypal/rest-api-sdk-php": "dev-master"
     },
     "repositories": {
+        "paypal": {
+            "type": "vcs",
+            "url": "https://github.com/OleksandrProtsiuk/PayPal-PHP-SDK.git"
+        },
         "oro": {
             "type": "composer",
             "url": "https://packagist.oroinc.com"
