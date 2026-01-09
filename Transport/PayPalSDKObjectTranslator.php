@@ -22,6 +22,12 @@ use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Rest\ApiContext;
 
+/**
+ * Translates payment information and credentials to PayPal SDK objects.
+ *
+ * Handles conversion between internal payment data structures and PayPal API objects,
+ * including payment details, API context, credentials, and error information.
+ */
 class PayPalSDKObjectTranslator implements PayPalSDKObjectTranslatorInterface
 {
     public const MOD_SANDBOX = 'sandbox';
