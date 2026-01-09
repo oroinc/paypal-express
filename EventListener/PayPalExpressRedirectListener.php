@@ -50,7 +50,8 @@ class PayPalExpressRedirectListener
         $eventData = $event->getData();
         $paymentMethodId = $paymentTransaction->getPaymentMethod();
 
-        if (!$paymentTransaction || !isset($eventData['paymentId'], $eventData['PayerID'], $eventData['token']) ||
+        if (
+            !$paymentTransaction || !isset($eventData['paymentId'], $eventData['PayerID'], $eventData['token']) ||
             $eventData['paymentId'] !== $paymentTransaction->getReference()
         ) {
             return;
