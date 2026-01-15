@@ -14,7 +14,7 @@
         "exclude-from-classmap": ["**/Tests/"]
     },
     "require": {
-        "oro/commerce": "6.1.*",
+        "oro/commerce": "7.0.*",
         "paypal/rest-api-sdk-php": "dev-master"
     },
     "repositories": {
@@ -31,7 +31,7 @@
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "6.1-dev"
+            "dev-master": "7.0-dev"
         }
     }
 }
