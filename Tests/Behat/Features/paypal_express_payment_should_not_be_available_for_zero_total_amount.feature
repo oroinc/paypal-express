@@ -56,11 +56,14 @@ Feature: PayPal Express payment should not be available for zero total amount
 
   Scenario: Add Coupons for 100% discount
     Given I scroll to "I have a Coupon Code"
+    And I click "Expand Checkout Footer"
     When I click "I have a Coupon Code"
     And I type "coupon-100-order" in "Coupon Code Input"
     And I click "Apply"
+    And I click "Expand Checkout Footer"
     And I type "coupon-100-shipping" in "Coupon Code Input"
     And I click "Apply"
+    And I click "Expand Checkout Footer"
     Then I should see "The selected payment method is not available. Please return to the payment method selection step and select a different one." flash message
     And I should see "coupon-100-order Promotion Order 100 Label" in the "Coupons List" element
     And I should see "coupon-100-shipping Promotion Shipping 100 Label" in the "Coupons List" element

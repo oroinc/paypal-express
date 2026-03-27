@@ -54,6 +54,7 @@ Feature: Paypal Express payment should not have tax line when price includes tax
     And I select "ORO, Third avenue, TALLAHASSEE FL US 32003" on the "Shipping Information" checkout step and press Continue
     And I check "Flat Rate" on the "Shipping Method" checkout step and press Continue
     And I check "PayPalExpress" on the "Payment" checkout step and press Continue
+    And I click "Expand Checkout Footer"
     Then I should see Checkout Totals with data:
       | Subtotal | $10.00  |
       | Shipping | $3.00   |
