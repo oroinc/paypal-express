@@ -65,6 +65,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I select "Fifth avenue, 10115 Berlin, Germany" on the "Shipping Information" checkout step and press Continue
     And I check "Flat Rate" on the "Shipping Method" checkout step and press Continue
     And I check "PayPalExpress" on the "Payment" checkout step and press Continue
+
     And I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.07"
@@ -88,6 +89,7 @@ Feature: PayPal Express payment should not fail with Product Prices Include Tax 
     And I select "Fifth avenue, 10115 Berlin, Germany" on the "Shipping Information" checkout step and press Continue
     And I check "Flat Rate" on the "Shipping Method" checkout step and press Continue
     And I check "PayPalExpress" on the "Payment" checkout step and press Continue
+    And I click "Expand Checkout Footer"
     Then I should see "Subtotal $10.00"
     And I should see "Shipping $3.00"
     And I should see "Tax $1.15"
