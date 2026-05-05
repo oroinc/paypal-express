@@ -11,7 +11,7 @@ class OroPayPalExpressBundleInstaller implements Installation
     #[\Override]
     public function getMigrationVersion(): string
     {
-        return 'v1_0';
+        return 'v1_0_1';
     }
 
     #[\Override]
@@ -29,8 +29,8 @@ class OroPayPalExpressBundleInstaller implements Installation
     private function updateOroIntegrationTransportTable(Schema $schema): void
     {
         $table = $schema->getTable('oro_integration_transport');
-        $table->addColumn('pp_express_client_id', 'string', ['notnull' => false, 'length' => 255]);
-        $table->addColumn('pp_express_client_secret', 'string', ['notnull' => false, 'length' => 255]);
+        $table->addColumn('pp_express_client_id', 'text', ['notnull' => false]);
+        $table->addColumn('pp_express_client_secret', 'text', ['notnull' => false]);
         $table->addColumn('pp_express_sandbox_mode', 'boolean', ['default' => '0', 'notnull' => false]);
         $table->addColumn('pp_express_payment_action', 'string', ['notnull' => false, 'length' => 255]);
     }

@@ -28,10 +28,10 @@ class PayPalExpressSettings extends Transport
      */
     protected $settings;
 
-    #[ORM\Column(name: 'pp_express_client_id', type: Types::STRING, length: 255, nullable: false)]
+    #[ORM\Column(name: 'pp_express_client_id', type: Types::TEXT, nullable: false)]
     protected ?string $clientId = null;
 
-    #[ORM\Column(name: 'pp_express_client_secret', type: Types::STRING, length: 255, nullable: false)]
+    #[ORM\Column(name: 'pp_express_client_secret', type: Types::TEXT, nullable: false)]
     protected ?string $clientSecret = null;
 
     #[ORM\Column(name: 'pp_express_sandbox_mode', type: Types::BOOLEAN, options: ['default' => false])]
