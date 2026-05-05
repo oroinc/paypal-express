@@ -1,0 +1,10 @@
+Oro\Bundle\PayPalExpressBundle\Entity\PayPalExpressSettings:
+    properties:
+        clientId:
+            - NotBlank: ~
+            - Length:
+                max: 255
+        clientSecret:
+            - NotBlank: ~
+            - Length:
+                max: 255
