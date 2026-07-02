@@ -15,7 +15,7 @@
     },
     "require": {
         "oro/commerce": "7.0.*",
-        "paypal/rest-api-sdk-php": "dev-psr_log_compatibility"
+        "paypal/rest-api-sdk-php": "1.14.1"
     },
     "repositories": {
         "oro": {
