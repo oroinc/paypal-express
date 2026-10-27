@@ -8,9 +8,11 @@ use Oro\Bundle\PaymentBundle\Event\CallbackReturnEvent;
 use Oro\Bundle\PaymentBundle\Method\PaymentMethodInterface;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
 use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
+use Oro\Bundle\PaymentBundle\Provider\PaymentTransactionProvider;
 use Oro\Bundle\PayPalExpressBundle\EventListener\PayPalExpressRedirectListener;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
@@ -30,6 +32,9 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
     /** @var Session|\PHPUnit\Framework\MockObject\MockObject */
     private $requestStack;
 
+    /** @var PaymentTransactionProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $paymentTransactionProvider;
+
     /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $logger;
 
@@ -42,12 +47,14 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
         $this->paymentMethodProvider = $this->createMock(PaymentMethodProviderInterface::class);
         $this->messageProvider = $this->createMock(PaymentResultMessageProviderInterface::class);
         $this->requestStack = $this->createMock(RequestStack::class);
+        $this->paymentTransactionProvider = $this->createMock(PaymentTransactionProvider::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->listener = new PayPalExpressRedirectListener(
             $this->paymentMethodProvider,
             $this->messageProvider,
-            $this->requestStack
+            $this->requestStack,
+            $this->paymentTransactionProvider
         );
         $this->listener->setLogger($this->logger);
     }
@@ -266,6 +273,10 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
             ->with('test')
             ->willReturn($paymentMethod);
 
+        // The propagation is not stopped, so CallbackHandler saves the transaction.
+        $this->paymentTransactionProvider->expects($this->never())
+            ->method('savePaymentTransaction');
+
         $this->logger->expects($this->never())
             ->method($this->anything());
 
@@ -333,10 +344,83 @@ class PayPalExpressRedirectListenerTest extends \PHPUnit\Framework\TestCase
             ->method('getFlashBag')
             ->willReturn($flashBag);
 
+        // The propagation is stopped, so the failed transaction must be persisted by the listener itself.
+        $this->paymentTransactionProvider->expects($this->once())
+            ->method('savePaymentTransaction')
+            ->with($this->identicalTo($paymentTransaction));
+
         $this->logger->expects($this->never())
             ->method($this->anything());
 
         $this->listener->onReturn($event);
+        $this->assertTrue($event->isPropagationStopped());
         $this->assertEquals(Response::HTTP_FORBIDDEN, $event->getResponse()->getStatusCode());
+    }
+
+    public function testOnReturnFailedPaymentIsPersistedBeforeRedirectToFailureUrl(): void
+    {
+        $reference = '1';
+        $paymentTransaction = new PaymentTransaction();
+        $paymentTransaction->setActive(true);
+        $paymentTransaction->setSuccessful(true);
+        $paymentTransaction->setPaymentMethod('test');
+        $paymentTransaction->setReference($reference);
+        $paymentTransaction->setTransactionOptions(['failureUrl' => 'http://example.com/failure']);
+
+        $eventData = [
+            'paymentId' => $reference,
+            'PayerID' => 2,
+            'token' => 3
+        ];
+        $event = new CallbackReturnEvent($eventData);
+        $event->setPaymentTransaction($paymentTransaction);
+
+        $this->paymentMethodProvider->expects($this->once())
+            ->method('hasPaymentMethod')
+            ->with('test')
+            ->willReturn(true);
+
+        // The real complete action marks the transaction as failed in memory only.
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $paymentMethod->expects($this->once())
+            ->method('execute')
+            ->with(CompleteVirtualAction::NAME, $paymentTransaction)
+            ->willReturnCallback(static function (string $action, PaymentTransaction $transaction): array {
+                $transaction->setSuccessful(false)->setActive(false);
+
+                return ['successful' => false];
+            });
+        $this->paymentMethodProvider->expects($this->once())
+            ->method('getPaymentMethod')
+            ->with('test')
+            ->willReturn($paymentMethod);
+
+        $this->messageProvider->expects($this->once())
+            ->method('getErrorMessage')
+            ->willReturn('Test message');
+
+        $flashBag = $this->createMock(FlashBag::class);
+        $flashBag->expects($this->once())
+            ->method('has')
+            ->willReturn(true);
+        $sessionMock = $this->createMock(Session::class);
+        $this->requestStack->expects($this->once())
+            ->method('getSession')
+            ->willReturn($sessionMock);
+        $sessionMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBag);
+
+        $this->paymentTransactionProvider->expects($this->once())
+            ->method('savePaymentTransaction')
+            ->with($this->callback(static function (PaymentTransaction $transaction): bool {
+                return !$transaction->isActive() && !$transaction->isSuccessful();
+            }));
+
+        $this->listener->onReturn($event);
+
+        $this->assertTrue($event->isPropagationStopped());
+        $this->assertInstanceOf(RedirectResponse::class, $event->getResponse());
+        $this->assertEquals('http://example.com/failure', $event->getResponse()->getTargetUrl());
     }
 }

@@ -6,6 +6,7 @@ use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Event\AbstractCallbackEvent;
 use Oro\Bundle\PaymentBundle\Method\Provider\PaymentMethodProviderInterface;
 use Oro\Bundle\PaymentBundle\Provider\PaymentResultMessageProviderInterface;
+use Oro\Bundle\PaymentBundle\Provider\PaymentTransactionProvider;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction;
 use Oro\Bundle\PayPalExpressBundle\Method\PaymentTransaction\PaymentTransactionResponseData;
 use Psr\Log\LoggerAwareTrait;
@@ -25,6 +26,7 @@ class PayPalExpressRedirectListener
         protected PaymentMethodProviderInterface $paymentMethodProvider,
         protected PaymentResultMessageProviderInterface $messageProvider,
         protected RequestStack $requestStack,
+        protected PaymentTransactionProvider $paymentTransactionProvider,
     ) {
     }
 
@@ -110,6 +112,10 @@ class PayPalExpressRedirectListener
 
     private function redirectToFailureUrl(PaymentTransaction $paymentTransaction, AbstractCallbackEvent $event): void
     {
+        // CallbackHandler does not save the payment transaction once the event propagation is stopped;
+        // persist the failed state here, otherwise the transaction stays active in the database.
+        $this->paymentTransactionProvider->savePaymentTransaction($paymentTransaction);
+
         $event->stopPropagation();
         $this->setErrorMessage($this->messageProvider->getErrorMessage($paymentTransaction));
         $transactionOptions = $paymentTransaction->getTransactionOptions();

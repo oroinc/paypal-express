@@ -13,6 +13,14 @@ use PayPal\Rest\ApiContext;
 
 class PayPalClientMock extends PayPalClient
 {
+    /**
+     * A payment id functional tests use to force the post-redirect "complete" step
+     * (@see \Oro\Bundle\PayPalExpressBundle\Method\PaymentAction\CompleteVirtualAction) to fail, the same way a
+     * real PayPal API error would - none of the existing fixtures/tests exercise this call successfully, so
+     * there is no real behavior here to preserve for any other payment id.
+     */
+    public const FAILING_PAYMENT_ID = 'FAILING-PAYMENT-ID';
+
     #[\Override]
     public function createPayment(Payment $payment, ApiContext $apiContext)
     {
@@ -26,6 +34,16 @@ class PayPalClientMock extends PayPalClient
         );
 
         return $payment;
+    }
+
+    #[\Override]
+    public function getPaymentById($paymentId, ApiContext $apiContext)
+    {
+        if ($paymentId === self::FAILING_PAYMENT_ID) {
+            throw new PayPalConnectionException(null, 'PAYMENT_NOT_FOUND');
+        }
+
+        return parent::getPaymentById($paymentId, $apiContext);
     }
 
     private function isPaymentValid(Payment $payment): bool
