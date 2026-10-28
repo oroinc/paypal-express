@@ -6,3 +6,6 @@ For more information, please see [online PaypalExpressBundle documentation](http
 
 Detailed instructions on how to enable and configure PayPal Express integration in the back-office UI are available in the [OroCommerce documentation](https://doc.oroinc.com/user/back-office/system/integrations/payment-integration/paypal-services/express/).
 
+## License
+
+[OSL-3.0](LICENSE) Copyright (c) 2026 Oro Inc.
